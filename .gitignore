@@ -1,0 +1,23 @@
+# ===== 凭证（绝不允许入库）=====
+*.pat
+*.token
+*credentials*
+.env
+.env.*
+.secrets/
+api_key*
+*secret*
+
+# ===== 编辑器 / 系统 =====
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ===== 构建产物 / 依赖（后续开发用）=====
+node_modules/
+build/
+dist/
+.dart_tool/
+*.log
