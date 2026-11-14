@@ -153,6 +153,24 @@ hr{border:0;border-top:1px solid var(--line);margin:36px 0}a{color:var(--accent)
 # ---------------------------------------------------------------- 文档配置
 SPECS = [
     dict(
+        md="产品需求文档_PRD.md",
+        title="学习助手 App\n产品需求文档 · 建设蓝图",
+        subtitle="需求 / 界面 / 数据 / 测试 / Git 五位一体，指引后续产品开发与修改",
+        meta=[
+            ("版本", "v1.0 终版 · 2026-11-14"),
+            ("效力", "后续产品开发与修改的唯一建设蓝图；需求真源=框架 v1.0，视觉真源=千问定稿，适配真源=双端样式 v1.0"),
+            ("内容", "需求基线 / 建设蓝图 / 14 项功能规格与验收标准 / 界面与双端规范 / .studypack 契约 / 质量门禁 / Git 约定 / 追溯矩阵 / 修改流程"),
+            ("功能编号", "F1–F14（开发 WBS，与测试 tFxx 一一对应）"),
+            ("质量门禁", "每功能测试通过才进下一功能；全量回归全绿才交付；不删断言、不放宽、不跳过"),
+            ("仓库", "WFY-1-BYO/study-agent"),
+        ],
+        foot="本文件为建设蓝图 v1.0 终版。<br>需求变 → 改本文；功能变 → 改 §4 与 §11；测试变 → 不得删断言。<br>第一版 v0.1.0 依此实现，业务真源为 Dart 领域内核。",
+        web=True,
+        web_title="学习助手 App · 产品需求文档（建设蓝图）v1.0",
+        web_meta="v1.0 终版 · 建设蓝图 · 2026-11-14",
+        kicker="STUDY-AGENT · PRD / BLUEPRINT",
+    ),
+    dict(
         md="学习助手App_软件框架.md",
         title="学习助手 App\n需求与框架定稿",
         subtitle="两个闭环 · 一个横切层 · 可插拔能力层 · 数据底座",
@@ -227,8 +245,8 @@ def build(spec: dict) -> None:
     if spec["web"]:
         page = f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>学习助手 App · 需求与框架定稿 v1.0</title><style>{WEB_CSS}</style></head><body><div class="wrap">
-<nav><h3>目录</h3>{toc}</nav><main><span class="meta">v1.0 定稿 · 完整回顾 + 七问收口 · 2026-11-14</span>
+<title>{htmlmod.escape(spec.get('web_title', '学习助手 App · 需求与框架定稿 v1.0'))}</title><style>{WEB_CSS}</style></head><body><div class="wrap">
+<nav><h3>目录</h3>{toc}</nav><main><span class="meta">{spec.get('web_meta', 'v1.0 定稿 · 完整回顾 + 七问收口 · 2026-11-14')}</span>
 {body}</main></div></body></html>"""
         (DOCS / f"{stem}.html").write_text(page, encoding="utf-8")
         print(f"  HTML -> docs/{stem}.html")
