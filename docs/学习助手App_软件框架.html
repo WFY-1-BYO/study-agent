@@ -1,11 +1,11 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>学习助手 App · 软件框架文档</title><style>
+<title>学习助手 App · 需求与框架定稿 v1.0</title><style>
 :root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4;--accent:#0969da;--accent-soft:#ddf4ff;--panel:#f6f8fa;--code:#f6f8fa}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--accent:#58a6ff;--accent-soft:#122b45;--panel:#161b22;--code:#161b22}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.75;font-size:16px}
-.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;display:grid;grid-template-columns:240px 1fr;gap:40px}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;display:grid;grid-template-columns:250px 1fr;gap:40px}
 nav{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
 nav h3{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.05em}
 nav ul{list-style:none;padding-left:0;margin:0}nav ul ul{padding-left:14px}nav li{margin:4px 0}
@@ -31,41 +31,53 @@ a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5
 <body><div class="wrap"><nav><h3>目录</h3><div class="toc">
 <ul>
 <li><a href="#0">0. 产品定位</a></li>
-<li><a href="#1">1. 框架总览</a></li>
-<li><a href="#2">2. 领域模型（核心实体）</a></li>
-<li><a href="#3">3. 子系统</a><ul>
-<li><a href="#31-1">3.1 任务与提醒子系统（闭环①）</a></li>
-<li><a href="#32">3.2 规划管理子系统</a></li>
-<li><a href="#33">3.3 学习执行引擎（会话状态机）</a></li>
-<li><a href="#34-12">3.4 达标判定的双层语义（最后一问结论：1+2）</a></li>
-<li><a href="#35-2">3.5 复习闭环（固定模式 2）</a></li>
-<li><a href="#36-ai-4">3.6 AI 服务层（可插拔，选定方案 4）</a></li>
-<li><a href="#37-a-c-d">3.7 笔记子系统（A + C + D 三通道 + 统一模型）</a></li>
-<li><a href="#38">3.8 资源适配器层 + 高考对齐约束层</a></li>
-<li><a href="#39-l0">3.9 策略与开关层（L0，横切）</a></li>
-<li><a href="#310">3.10 数据持久化与迁移子系统</a></li>
+<li><a href="#1">1. 完整回顾（仔仔细细核对理解）</a><ul>
+<li><a href="#11">1.1 起点：你最初描述的使用情境，逐句拆开</a></li>
+<li><a href="#12">1.2 最重要的一次元纠正</a></li>
+<li><a href="#13-5">1.3 你逐条纠正过我的理解（5 条）</a></li>
+<li><a href="#14-7">1.4 澄清轮次的结论（在进入 7 问之前）</a></li>
+<li><a href="#15-v10">1.5 七轮待拍板问题的答案（v1.0 收口）</a></li>
+<li><a href="#16-8">1.6 交付前自查：最容易理解偏的 8 处（请重点核对）</a></li>
 </ul>
 </li>
-<li><a href="#4">4. 平台与技术选型</a></li>
-<li><a href="#5-studypack">5. 数据格式设计：.studypack（由本项目设计）</a><ul>
-<li><a href="#51">5.1 设计目标</a></li>
-<li><a href="#52">5.2 目录结构</a></li>
-<li><a href="#53">5.3 规则</a></li>
+<li><a href="#2">2. 框架总览</a></li>
+<li><a href="#3">3. 领域模型（核心实体）</a></li>
+<li><a href="#4">4. 子系统</a><ul>
+<li><a href="#41-1">4.1 任务与提醒子系统（闭环①）</a></li>
+<li><a href="#42-3">4.2 全局时间视图与桌面小组件（问题 3 结论）</a></li>
+<li><a href="#43-slotpool-2">4.3 时段池 SlotPool（问题 2 结论）</a></li>
+<li><a href="#44-4">4.4 错因归因与薄弱点（问题 4 结论）</a></li>
+<li><a href="#45-5">4.5 变式题与临场意图（问题 5 结论）</a></li>
+<li><a href="#46">4.6 学习执行引擎（会话状态机）</a></li>
+<li><a href="#47-6-4">4.7 笔记子系统（问题 6 结论：④ 分开存 + 双向关联）</a></li>
+<li><a href="#48">4.8 资源适配器层 + 高考对齐约束层</a></li>
+<li><a href="#49-l0">4.9 策略与开关层（L0，横切）</a></li>
+<li><a href="#410-ai-4">4.10 AI 服务层（可插拔，选定方案 4）</a></li>
+<li><a href="#411">4.11 数据持久化与迁移子系统</a></li>
 </ul>
 </li>
-<li><a href="#6">6. 待定事项与风险清单（暂不提问，留待后续）</a></li>
+<li><a href="#5">5. 平台与技术选型</a></li>
+<li><a href="#6-studypack">6. 数据格式设计：.studypack（由本项目设计）</a><ul>
+<li><a href="#61">6.1 设计目标</a></li>
+<li><a href="#62">6.2 目录结构</a></li>
+<li><a href="#63-7-1">6.3 规则（问题 7 结论：① 纯开放不加密）</a></li>
+</ul>
+</li>
 <li><a href="#7">7. 决策台账（逐条核对理解）</a></li>
-<li><a href="#8">8. 建议的推进顺序</a></li>
+<li><a href="#8">8. 待办与风险清单（不再提问，留待设计/实现阶段）</a></li>
+<li><a href="#9">9. 分工与下一步</a></li>
 </ul>
 </div>
 </nav>
-<main><span class="meta">v0.2 · 补入学情基线 ExamProfile · 2026-11-14</span>
-<h1 id="app">学习助手 App · 软件框架文档</h1>
+<main><span class="meta">v1.0 定稿 · 完整回顾 + 七问收口 · 2026-11-14</span>
+<h1 id="app">学习助手 App · 需求与框架定稿</h1>
 <blockquote>
-<p>版本 v0.2（补入学情基线 ExamProfile） · 2026-11-14
-v0.1：2026-11-13 需求澄清收敛版
-本文不是功能清单的罗列，而是把早晨、课间、自习等零散使用情境<strong>归纳为一套软件框架</strong>：两个闭环、一个横切层、一个数据底座、若干可插拔适配器。
-来源：九轮需求澄清的全部结论。文末附「决策台账」，可逐条核对理解是否有偏差。</p>
+<p><strong>版本 v1.0（定稿）· 2026-11-14</strong>
+v0.2：补入学情基线 <code>ExamProfile</code>（问题 1）
+v0.1：2026-11-13 需求澄清收敛版</p>
+<p>本文不是功能清单的罗列，而是把早晨、课间、自习、考前等零散使用情境<strong>归纳为一套软件框架</strong>：两个闭环、一个横切层、一个可插拔能力层、一个数据底座。
+<strong>v1.0 收口说明</strong>：九轮澄清 + 七轮待拍板问题全部收敛，本文即「App 内容」的唯一真源。§1 是应要求做的<strong>完整回顾与自查</strong>，§9 说明后续分工。</p>
+<p><strong>后续分工</strong>：页面结构与整体画风 → 交给千问（见 <code>docs/给千问_页面设计交接简报.md</code>）；<strong>编码实现 → 由本助手承担</strong>。三者共用本文作为输入基准。</p>
 </blockquote>
 <hr />
 <h2 id="0">0. 产品定位</h2>
@@ -93,29 +105,252 @@ v0.1：2026-11-13 需求澄清收敛版
 </table>
 <p>不是待办清单 + 网课浏览器的拼装，而是<strong>以「规划」为主干、以「会话」为执行单元、以「费曼复述」为理解检验核心</strong>的闭环系统。</p>
 <hr />
-<h2 id="1">1. 框架总览</h2>
-<pre><code>┌─────────────────────────────────────────────────────────────┐
-│  L0 策略与开关层（横切）  Preferences / Feature Toggles       │
-│  提醒方式 · 开始时机 · 摸底测验 · 内置笔记显隐 · 数据外发范围   │
-├──────────────┬──────────────────────────────────────────────┤
-│ 闭环① 任务/  │ 闭环② 能力精进                                │
-│ 习惯维系      │  发现薄弱 → 建规划 → 会话学习 → 费曼总结       │
-│              │      → 复习闭环 → 达成量化目标                  │
-│ 任务与提醒    │ 规划管理 · 学习执行引擎 · 复习闭环             │
-│ 子系统        │                                              │
-├──────────────┴──────────────────────────────────────────────┤
-│  L1 能力层（可插拔）                                         │
-│  AI 服务层 ─ 能力接口(固定) + Provider 适配器(可换)           │
-│  笔记子系统 ─ A/C/D 三通道 + 统一 NoteDocument                │
-│  资源适配器层 ─ 分屏跳转 · 文件桥接 · 引用登记 · 本地导入      │
-│  高考对齐约束层 ─ 来源 / 考纲标签 / 年份地区 / 题型分值难度    │
-├─────────────────────────────────────────────────────────────┤
-│  L2 数据底座：本地存储 + 主动/手动保存 + .studypack 全量迁移   │
-└─────────────────────────────────────────────────────────────┘
-</code></pre>
-<p><strong>一句话</strong>：两个闭环共用同一个 AI 能力层、同一个笔记/资源接入层和同一个本地数据底座；所有「可选但存在」的行为统一由 L0 管理。</p>
+<h2 id="1">1. 完整回顾（仔仔细细核对理解）</h2>
+<h3 id="11">1.1 起点：你最初描述的使用情境，逐句拆开</h3>
+<p><strong>情景 A · 早晨起床</strong>
+- 打开手机，App 推送<strong>今天最近的一个任务</strong>——例：「打开不背单词去背单词」，并支持<strong>一键跳转打开</strong>那个应用；
+- 同时把<strong>今天的既定日程表</strong>完整呈现供浏览。
+- 后续澄清：这个「背单词」不是特指，是<strong>习惯性任务</strong>的一个实例；「一键打开」= 任务带一个跳转外部 App 的执行动作。
+- 再后续补充：这个情境的<strong>实现形态改为桌面小组件</strong>（常驻桌面、只显示最近任务 + 倒计时），见 §4.2。</p>
+<p><strong>情景 B · 自由时间 / 碎片时间</strong>
+- 打开手机能看到<strong>距离下一个任务还有多久</strong>（倒计时）；
+- 可在任务开始前按设定方式提醒：<strong>振动 / 声音 / 无</strong>（三选一）。</p>
+<p><strong>情景 C · 发现薄弱点 → 新建规划（核心闭环）</strong>
+1. 上完数学课，意识到「基本不等式」薄弱，想强化；
+2. 在 App 里<strong>新建规划</strong>，填入：
+   - <strong>目标</strong>：精进基本不等式、<strong>能解决 75% 的相关题目</strong>、且「以后遇到相关题目时脑中有思路」；
+   - <strong>时间界限</strong>：15 天内；
+   - <strong>在日历上挑选绿色空闲时段</strong>排学习时间；
+   - <strong>立即开始 / 将来开始</strong>两个选项（后澄清：这是告知「存在这两个选项」，不是让我选）。
+3. AI 分析后，为<strong>当下这个时段</strong>准备好：<strong>课程视频资源 + 相关题目</strong>；
+4. <strong>先不做 AI 的摸底测验</strong>，直接看视频（后澄清：摸底测验「不是一定要的，但是有的」= 可选环节）；
+5. 边看边用<strong>内置笔记（Notein 式）</strong>记录；
+6. 看完后做<strong>相关测验</strong>，<strong>达标</strong>进入下一环节；
+7. <strong>总结环节</strong>：我先向 AI <strong>复述理解</strong> → AI 纠正 → 反复几轮 → 确认理解；
+8. AI <strong>生成这份知识的个性化 AI 笔记</strong>；
+9. AI <strong>制定复习计划并纳入该规划</strong>；复习方式（后澄清：<strong>不是二选一，就是模式 2</strong>）：
+   <code>下次学习前 → 先复述上次理解 → AI 纠正 → 几道简单练手题 → 再进入今天的新内容</code>。</p>
+<p><strong>其它（数据）</strong>
+- 数据<strong>本地储存</strong>；支持<strong>主动 / 手动</strong>保存；
+- 以<strong>固定格式导入 / 导出所有数据</strong>，供其它设备使用。后澄清：<strong>格式由我设计</strong>，需求本质是「全量数据可携带 / 可迁移」，不是要用户来定格式。</p>
+<h3 id="12">1.2 最重要的一次元纠正</h3>
+<blockquote>
+<p>「你不是要从表面的使用情境来看，你是要深层次的把使用情境归纳于一个软件框架。」</p>
+</blockquote>
+<p>这条决定了本文的写法：<strong>不复述情节，而是抽象实体、闭环与层次</strong>。此后每一轮补充都按这个标准处理。</p>
+<h3 id="13-5">1.3 你逐条纠正过我的理解（5 条）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>你的纠正</th>
+<th>我修正为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>「不背单词」可归类于<strong>习惯性任务</strong>，不是单指背单词</td>
+<td>抽象为「周期性重复的例行任务」，背单词只是一个实例</td>
+</tr>
+<tr>
+<td>2</td>
+<td>「立即开始 / 将来开始」是告诉我<strong>有两个选项</strong></td>
+<td><code>Plan.startMode</code> 上的一个字段取值，不是流程分支、不是待选答案</td>
+</tr>
+<tr>
+<td>3</td>
+<td>「先跳过摸底测验」是告诉你<strong>不是一定要的，但是有的</strong></td>
+<td>学习流程里的<strong>可跳过节点（Optional Stage）</strong>，功能存在、用不用由你定</td>
+</tr>
+<tr>
+<td>4</td>
+<td>复习<strong>不是 2 选 1，就是模式 2</strong></td>
+<td>复习闭环固定为「复述→纠正→练手→新内容」，<strong>不可配</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>导入导出固定格式<strong>由你设计</strong></td>
+<td>需求本质是「全量数据可携带」，格式是设计产物（§6）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-7">1.4 澄清轮次的结论（在进入 7 问之前）</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Notein 内嵌</strong></td>
+<td>严格内嵌不可行（无 SDK/API；系统不允许 A 应用把 B 应用当 View 运行）。你已买断 → <strong>A 系统分屏/跳转 + C PDF 桥接 + D 自研内置区，三通道并存</strong>，你自己拍板「A+C+D，A 肯定可以」</td>
+</tr>
+<tr>
+<td><strong>内置笔记显隐</strong></td>
+<td>可选显示 / 不显示 → 与提醒方式、开始时机、摸底测验同类，抽象出<strong>L0 策略与开关层</strong></td>
+</tr>
+<tr>
+<td><strong>设备</strong></td>
+<td>vivo S7（主用）、联想 13" 安卓平板、家人 iQOO / 红米 / iPhone，<strong>安卓为主</strong> → Flutter；A 通道做<strong>能力探测 + 自动降级</strong>；iPhone 只走导出包 + 轻量查看器</td>
+</tr>
+<tr>
+<td><strong>AI 来源</strong></td>
+<td>选 <strong>4 可插拔接口</strong>（不绑定模型）；默认 DeepSeek；「4.1 Pro」非正式在售型号，建议 <code>deepseek-flash</code>；<code>api_key</code> 存 Keystore、<strong>不进导出包</strong>；最小必要外发；无网优雅降级</td>
+</tr>
+<tr>
+<td><strong>资料来源</strong></td>
+<td>WorkBuddy 连接器 ≠ App 运行时能力；学科网有企业开放平台（个人拿不到资质）→ 本地导入 + 跳转；B站无合规搜索接口 → 只做引用登记 + 跳转；资料优先级 <code>自己的资料 &gt; 权威题库 &gt; B站跳转 &gt; AI 生成(受限)</code>；新增<strong>高考对齐约束层</strong></td>
+</tr>
+<tr>
+<td><strong>达标</strong></td>
+<td><strong>1+2 双层语义</strong>：会话通过线 ≥75% 进总结；规划目标线 15 天到期整体 ≥75%。未达标 → <strong>错因归因 → 继续费曼 → 再测一遍</strong></td>
+</tr>
+<tr>
+<td><strong>学情基线</strong></td>
+<td>深圳中学 → 查证补全 <strong>新高考 I 卷 + 人教 A 版 2019</strong>；「基本不等式」正锚在必修一 2.2 → 新增 <code>ExamProfile</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-v10">1.5 七轮待拍板问题的答案（v1.0 收口）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th>你的答案</th>
+<th>框架落点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>卷别 / 教材 / 地区</td>
+<td>深圳中学、人教、卷别不清</td>
+<td>查证补全 → <code>ExamProfile</code>（§4.8.1）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>绿色空闲时段怎么判定</td>
+<td><strong>法一/法二/法三 + 自定义</strong>，四源并存；课间与教学区域不能用手机</td>
+<td><code>SlotPool</code> + <code>SchoolCalendar</code>（§4.3）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>提前多久提醒</td>
+<td>桌面小组件 + 提前 <strong>2 分钟</strong>，也可 5 分钟 / 自定义，建规划时选</td>
+<td><code>WidgetView</code> + 提醒策略（§4.2 / §4.9）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>错因归因维度</td>
+<td><strong>①②③ 结合</strong>，细化到「考试时直接看那个知识点」的程度</td>
+<td><code>WeakPoint</code> + <code>ExamReminderCard</code>（§4.4）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>变式题强度 / 难度</td>
+<td><strong>② 自适应 + ④ 变形强度分档</strong>，另加「想挑战 / 想刷自信」的临场意图</td>
+<td><code>SessionIntent</code> + 防污染标记（§4.5）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>AI 笔记能否编辑 / 与手写笔记关系</td>
+<td><strong>④ 分开存、双向关联</strong>（③ 合订太冗长）；要求快速对应</td>
+<td><code>anchorId</code> 本地索引（§4.7）</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>.studypack</code> 是否加密</td>
+<td><strong>① 纯开放不加密</strong></td>
+<td>§6.3 规则</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-8">1.6 交付前自查：最容易理解偏的 8 处（请重点核对）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>我的理解</th>
+<th>若偏了会影响什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>数据可移植 ≠ 应用跨平台</strong>：iPhone 不做完整客户端，只走 <code>.studypack</code> + 轻量查看器</td>
+<td>平台工作量与一期范围</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>法二爬虫「不做」</strong>：基于合规判断否掉；你随后给出截图方案（等于接受降级），但未明说「放弃自动同步」</td>
+<td>课表是手动刷新还是自动同步</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>复习闭环固定模式 2、不可配</strong>；其余「可选但存在」的都归 L0</td>
+<td>状态机是否要给复习做配置</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>75% 是双层</strong>（会话通过线 + 规划目标线），不是单一数字</td>
+<td>达标判定与收口逻辑</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>① 纯开放不加密</strong> = 别人拿到包即可读全部学习轨迹（已提示，你仍选 ①）</td>
+<td>隐私边界；<code>api_key</code> 仍排除在包外</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>教学区域禁用电子设备</strong> → 纸质/打印态是刚需；<strong>进考场前可用手机</strong> → 屏幕速览态有效（我上一轮的担心已收回）</td>
+<td>速查卡要做双渲染</td>
+</tr>
+<tr>
+<td>7</td>
+<td>内置笔记区「可显隐」<strong>不等于</strong> A/C 通道归档内容可丢弃；隐藏只是不渲染</td>
+<td>数据完整性</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>AI 从「生成者」降为「检索匹配 + 讲解 + 基于真实母题的变式」</strong>，禁止无来源题冒充高考题</td>
+<td>整个资源层的可信度</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>以上任何一条与你的本意不符，说一声即可；本次按「无问题」继续，改文档后重传最终版。</p>
+</blockquote>
 <hr />
-<h2 id="2">2. 领域模型（核心实体）</h2>
+<h2 id="2">2. 框架总览</h2>
+<pre><code>┌────────────────────────────────────────────────────────────────────┐
+│  L0 策略与开关层（横切）  Preferences / Feature Toggles              │
+│  提醒方式 · 开始时机 · 摸底测验 · 笔记显隐 · 数据外发范围             │
+│  提前量(2/5/自定义) · SessionIntent(跟随/挑战/刷自信)                 │
+├──────────────────┬─────────────────────────────────────────────────┤
+│ 闭环① 任务/习惯  │ 闭环② 能力精进                                   │
+│ 维系             │  发现薄弱 → 建规划 → 会话学习 → 费曼总结          │
+│                  │   → 复习闭环(模式2) → 达成量化目标                │
+│ Widget / 今日 /  │  归因回路：未达标 → 归因 → 费曼 → 再测            │
+│ 全局日历         │  SlotPool 供时段，Session 按容量匹配环节           │
+├──────────────────┴─────────────────────────────────────────────────┤
+│  L1 能力层（可插拔）                                                │
+│  AI 服务层 ─ 能力接口(固定) + Provider 适配器(可换)                  │
+│  资源适配器层 ─ 分屏跳转(A) · 文件桥接(C) · 引用登记 · 本地导入       │
+│  笔记子系统 ─ A/C/D 三通道 + 两份独立笔记 + anchorId 关联             │
+│  高考对齐约束层 ─ 来源 / 考纲标签 / 年份地区 / 题型分值难度            │
+│  全局时间视图 ─ Widget(最小) → 今日 → 日历(任务·规划·校历叠加)        │
+├────────────────────────────────────────────────────────────────────┤
+│  L2 数据底座：本地存储 + 主动/手动保存 + .studypack 全量迁移          │
+│  （① 纯开放不加密；密钥与第三方版权内容不进包）                       │
+└────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>一句话</strong>：两个闭环共用同一套 AI 能力层、笔记/资源接入层、全局时间视图与本地数据底座；所有「可选但存在」的行为统一由 L0 管理；<strong>一份坐标体系（知识点树节点 ID）贯穿资源标签 → 错因归因 → 笔记关联 → 复习调度</strong>。</p>
+<hr />
+<h2 id="3">3. 领域模型（核心实体）</h2>
 <table>
 <thead>
 <tr>
@@ -127,74 +362,248 @@ v0.1：2026-11-13 需求澄清收敛版
 <tbody>
 <tr>
 <td><strong>Task 任务</strong></td>
-<td><code>type</code> = 习惯性 / 一次性；名称、周期、时间、<code>reminderMode</code>(振动/声音/无)、<code>action</code>(可一键跳转外部 App)</td>
-<td>「早晨推送不背单词」只是<strong>习惯性任务</strong>的一个实例，不是特指</td>
+<td><code>type</code> = 习惯性 / 一次性；名称、周期、时间、<code>reminderMode</code>(振动/声音/无)、<code>leadMinutes</code>、<code>action</code>(一键跳转外部 App)</td>
+<td>「早晨推送背单词」是习惯性任务的一个实例</td>
 </tr>
 <tr>
 <td><strong>Plan 规划</strong></td>
-<td>目标描述 + 量化指标（如 75%）、时间界限（如 15 天）、<code>startMode</code>(立即/将来) 两个选项、日历绿色空闲时段、状态</td>
-<td>规划是主干实体</td>
+<td>目标 + 量化指标(75%)、时间界限(15天)、<code>startMode</code>(立即/将来)、<code>slots</code>(引用 SlotPool)、状态</td>
+<td>主干实体</td>
 </tr>
 <tr>
 <td><strong>Session 会话</strong></td>
-<td>归属 Plan、时段、阶段状态机、资源集、测验记录、归因记录</td>
+<td>归属 Plan、时段、<code>capacityMinutes</code>、阶段状态机、资源集、测验记录、归因记录、<code>sessionIntent</code></td>
 <td>规划的一次执行单元</td>
 </tr>
 <tr>
 <td><strong>Review 复习闭环</strong></td>
-<td>固定模式：复述 → AI 纠正 → 反复确认 → 几道练手题 → 进入今日新内容</td>
-<td>不是二选一，<strong>就是这一套</strong></td>
+<td>固定模式：复述 → AI 纠正 → 反复确认 → 几道练手题 → 今日新内容</td>
+<td>不可配</td>
+</tr>
+<tr>
+<td><strong>SlotPool 时段池</strong></td>
+<td>多来源 Slot 集合；每个 Slot 带 <code>deviceAvailable</code>、<code>capacityMinutes</code>、<code>confirmed</code>(当天确认状态)</td>
+<td>「绿色」不是规则，是池（§4.3）</td>
+</tr>
+<tr>
+<td><strong>SlotTemplate 常驻模板</strong></td>
+<td>4 个默认时段：07:00–07:30 / 13:00–13:30 / 17:20–18:20 / 21:30–21:50；可开关、当天可取消</td>
+<td>法三</td>
+</tr>
+<tr>
+<td><strong>SchoolCalendar 校源日程</strong></td>
+<td>课程 + 考试 + 活动；来源 = 截图导入 / 小程序桥接；带「教学区域/课间禁用」过滤</td>
+<td>法一/法二；校运会由此供给（§4.3）</td>
+</tr>
+<tr>
+<td><strong>WidgetView 桌面组件</strong></td>
+<td>最小态：最近一个任务 + 倒计时；点击 → 今日视图 / 全局日历</td>
+<td>§4.2</td>
+</tr>
+<tr>
+<td><strong>WeakPoint 薄弱点</strong></td>
+<td><code>anchorId</code>、三维标签(知识结构/高考能力/费曼暴露)、薄弱程度、证据(题号+复述原句)、一行考前提醒</td>
+<td>归因产出（§4.4）</td>
+</tr>
+<tr>
+<td><strong>ExamReminderCard 考前速查卡</strong></td>
+<td>同源双渲染：屏幕态 / 打印态(黑白可读)</td>
+<td>进考场前用手机，教学区域用纸质</td>
 </tr>
 <tr>
 <td><strong>NoteDocument 笔记</strong></td>
-<td><code>sourceChannel</code>(A/C/D)、<code>contentType</code>(结构化文本 / SVG 笔迹 / PDF 附件 / 外部引用)、关联(规划·会话·知识点)、<code>aiGenerated</code> 标记</td>
-<td>统一笔记模型，见 §3.7</td>
+<td><code>sourceChannel</code>(A/C/D)、<code>contentType</code>(结构化文本/SVG笔迹/PDF附件/外部引用)、<code>aiGenerated</code>、<code>anchorId</code></td>
+<td><strong>两份独立存</strong>：AI 笔记 / 我的笔记</td>
 </tr>
 <tr>
-<td><strong>KnowledgeAsset</strong></td>
-<td>课程视频引用、题目、测验记录、个性化 AI 笔记</td>
-<td>AI 产出物</td>
+<td><strong>AnchorLink 关联表</strong></td>
+<td><code>anchorId</code> ↔ 两份笔记的块/页</td>
+<td>本地索引，不需要 AI（§4.7）</td>
 </tr>
 <tr>
 <td><strong>Resource 资源</strong></td>
-<td><code>source</code>（必填）、教材版本/考纲标签、年份地区、题型·分值·难度、<code>parentId</code>（母题）</td>
-<td>高考对齐，见 §3.8</td>
-</tr>
-<tr>
-<td><strong>Attribution 归因</strong></td>
-<td>错因分类、涉及知识点、关联错题、建议动作</td>
-<td>未达标分支产出，见 §3.4</td>
+<td><code>source</code>(必填)、教材版本/考纲标签、年份地区、题型·分值·难度、<code>parentId</code>(母题)、变形档位</td>
+<td>高考对齐（§4.8）</td>
 </tr>
 <tr>
 <td><strong>ExamProfile 考试档案</strong></td>
-<td>卷别 / 地区 / 考试模式 / 教材版本 / 知识点树 / 题型枚举 / 分值 / 难度分布 / 命题风格</td>
-<td><strong>高考对齐约束层的标签词典来源</strong>，见 §3.8.1</td>
+<td>卷别 / 地区 / 模式 / 教材版本 / 知识点树 / 题型枚举 / 分值 / 难度分布 / 命题风格</td>
+<td>标签词典来源（§4.8.1）</td>
 </tr>
 <tr>
 <td><strong>DataPackage</strong></td>
-<td>manifest + 各实体集合 + 资源目录</td>
-<td>见 §5</td>
+<td>manifest + 各实体集合 + assets 目录</td>
+<td>§6</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="3">3. 子系统</h2>
-<h3 id="31-1">3.1 任务与提醒子系统（闭环①）</h3>
+<h2 id="4">4. 子系统</h2>
+<h3 id="41-1">4.1 任务与提醒子系统（闭环①）</h3>
 <ul>
 <li>习惯性任务的周期调度与管理；一次性任务并存。</li>
 <li>今日日程表视图；「距下一个任务还有多久」倒计时。</li>
-<li>任务开始前按 <code>reminderMode</code> 提醒（振动 / 声音 / 无）。</li>
-<li>任务的 <code>action</code> 支持一键跳转第三方 App（如打开背单词应用）。</li>
-<li><strong>与闭环②联通</strong>：规划排定的学习时段会写回日程，同样受倒计时与提醒管辖。</li>
+<li>任务开始前按 <code>reminderMode</code> + <code>leadMinutes</code> 提醒（振动 / 声音 / 无）。</li>
+<li><code>action</code> 支持一键跳转第三方 App。</li>
+<li><strong>与闭环②联通</strong>：规划排定的学习时段写回日程，同样受倒计时与提醒管辖。</li>
+<li><strong>设备禁用时段自动静默</strong>：教学区域 / 考场内不响不亮屏（对应「无」）。</li>
 </ul>
-<h3 id="32">3.2 规划管理子系统</h3>
+<h3 id="42-3">4.2 全局时间视图与桌面小组件（问题 3 结论）</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WidgetView</code>（最小态）</td>
+<td>常驻桌面，<strong>只显示最近一个任务 + 倒计时</strong>；点一下跳转</td>
+</tr>
+<tr>
+<td>点开 → <code>今日视图</code></td>
+<td>今天的既定日程</td>
+</tr>
+<tr>
+<td>点开 → <code>全局日历</code></td>
+<td>全局、已描述任务；<strong>任务 / 规划学习 / 校历三层叠加</strong></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>创建：填入目的 + 量化标准（例：精进基本不等式、能解决 75% 相关题目、遇到同类题脑中有思路）。</li>
-<li>时间界限（例：15 天内）。</li>
-<li>在日历上挑选<strong>绿色空闲时段</strong>排布学习时间。</li>
-<li><code>startMode</code>：<strong>立即开始 / 将来开始</strong>两个选项（这是字段取值，不是流程分支）。</li>
+<li>原始情境 A（早晨推送最近任务）由「通知推送」改为<strong>常驻 Widget</strong> 实现，且更优：不用打开 App 就能看到最近任务与倒计时。</li>
+<li><code>SlotPool</code> 是这张日历里被判定为「可学习」的子集。</li>
+<li><strong>提前量三层</strong>：全局默认（可设 5 分钟）＋ 快捷预设 <code>2 / 5 min</code> ＋ 自定义输入；<strong>设置时机在「设计规划时」</strong>，每次排期可覆盖。</li>
+<li><strong>技术约束</strong>：提前 2 分钟要求精确调度（系统精确闹钟，不能靠普通定时轮询）；Widget 不能秒级刷新，倒计时按<strong>分钟级</strong>更新以省电。</li>
 </ul>
-<h3 id="33">3.3 学习执行引擎（会话状态机）</h3>
+<h3 id="43-slotpool-2">4.3 时段池 <code>SlotPool</code>（问题 2 结论）</h3>
+<p>「绿色空闲时段」<strong>不是一条判定规则，而是一个多来源、会变、需当天确认的时段池</strong>。三种「法」是同一池子的三种数据来源，不是三套逻辑：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>本质</th>
+<th>确定性</th>
+<th>数据进库方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>法一</strong></td>
+<td>在校时段，按课程表手动标绿</td>
+<td>按周/按天变动</td>
+<td>你发课程表截图 → 识别成结构化 <code>SchoolCalendar</code></td>
+</tr>
+<tr>
+<td><strong>法二</strong></td>
+<td><strong>同一份课程表的自动获取</strong>（学校小程序）</td>
+<td>同法一</td>
+<td><strong>不做爬虫</strong>；降级为跳转查看 + 文件桥接</td>
+</tr>
+<tr>
+<td><strong>法三</strong></td>
+<td>校外<strong>常驻作息模板</strong>，每天从中勾选</td>
+<td>基本每天有、但可取消</td>
+<td><code>SlotTemplate</code> 预置 4 段，按天确认</td>
+</tr>
+<tr>
+<td><strong>自定义</strong></td>
+<td>一次性临时时段（校运会等）</td>
+<td>一次性</td>
+<td>手动新增；<strong>部分可由 <code>SchoolCalendar</code> 活动自动供给</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>四条判定与约束</strong>
+1. <strong>绿色 = <code>空闲 ∧ 设备可用 ∧ 能用手机 ∧ 时长够</code></strong>。课间用不了手机、<strong>教学区域禁用电子设备</strong> → 这两类间隙被自动过滤；它也解释了「一天在校就那么几个时段」。
+2. <strong>法一与法二是同一份数据的两种拿法</strong>；法二不可行时，法一就是自带的降级路径。
+3. <strong>一切可变</strong>：课表会变、模板当天不一定有、临时时段会冒出来 → 时段池按天确认 / 可增删改，时段消失时排期要能重排。截图导入是<strong>批量一次性导入，不是实时同步</strong>，建议换课/大考周更新一次。
+4. <strong>容量约束</strong>：四个常驻时段合计 <strong>140 分钟/天</strong>（30+30+60+20），其中 20/30 分钟是碎片。一次完整会话（视频→费曼→测验）装不进 20 分钟，因此 <code>SlotPool</code> 与 <code>Session</code> 联动：<strong>按时段容量匹配学习环节</strong>——碎片时段放复习闭环（复述→纠正→练手题），整块时段（17:20–18:20）才排新内容；必要时会话<strong>拆分并跨时段续接</strong>。</p>
+<p><strong><code>SchoolCalendar</code> 两处升格</strong>
+- 智慧校园「教学管理 → 日程」里不只有课表，还有考试与活动 → 实体由 <code>CourseTable</code> 升格为 <code>SchoolCalendar</code>；<strong>校运会这类临时空档由此自动供给</strong>，自定义保留为兜底。
+- <strong>PDF 中间态可省</strong>：截图 → AI 识别 → 直接落成结构化 JSON 进本地库；PDF 只留作「人能翻的归档副本」。只有结构化数据才能过滤课间、算空闲、随包带走。截图可能带姓名/班级/教室 → 走<strong>最小必要外发 + 本地脱敏</strong>（<code>deepseek-flash</code> 支持图像理解）。</p>
+<blockquote>
+<p><strong>法二为何不做爬虫（已查证）</strong>：小程序非公开接口 + 登录态/会话票据的模拟调用需主体授权；绕过落在《反不正当竞争法》十三条、《网络安全法》《个人信息保护法》范围内，情节严重涉《刑法》285 条，平台检测到异常抓包会封号。合法路径只有「正式 API / 数据导出 / 合作方通道」。深中课表挂在腾讯智慧校园 + 电子班牌体系（走班制、刷校园卡查课表），恰属需账号登录的非公开接口。故法二降级为<strong>跳转查看（A 通道同构）+ 若支持分享图片则文件桥接（C 通道同构）</strong>。</p>
+</blockquote>
+<h3 id="44-4">4.4 错因归因与薄弱点（问题 4 结论）</h3>
+<p>你选 <strong>① 知识结构 + ② 高考能力 + ③ 费曼暴露 三维结合</strong>，<strong>排除 ④ AI 自由归因</strong>——这与 §4.8「不让 AI 凭空造题」是同一倾向：<strong>要预设维度、可校验，不要黑箱</strong>。④ 最容易产出「基础不牢」这类无法验证的结论。</p>
+<p><strong><code>错因归因</code> 的产出从「过程记录」升格为 <code>WeakPoint</code> 条目 + <code>ExamReminderCard</code></strong>：不写分析报告，而是可定位、一眼扫完、直接能用的条目，精确到知识点树<strong>叶子节点</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>示例（用最初的薄弱点）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识点节点</td>
+<td>人教A版·必修一·2.2 基本不等式 → <strong>等号成立条件</strong></td>
+</tr>
+<tr>
+<td>① 知识结构</td>
+<td>公式使用条件记混</td>
+</tr>
+<tr>
+<td>② 高考能力</td>
+<td>去套路化迁移（换情境就不会查等号）</td>
+</tr>
+<tr>
+<td>③ 费曼暴露</td>
+<td><strong>假懂</strong>（说得出「一正二定三相等」，一做题就漏查）</td>
+</tr>
+<tr>
+<td>薄弱程度</td>
+<td>高（3 次错，含 1 次假懂，跨 2 个时段重复）</td>
+</tr>
+<tr>
+<td>证据</td>
+<td>第 3、7 题；复述原句「…」</td>
+</tr>
+<tr>
+<td>考前提醒（一行）</td>
+<td>「一正二定三相等，先问等号取不取得到」</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>三维不是三选一，是<strong>同一条错因打三个轴</strong>：是什么不会 / 哪类题暴露 / 是真不懂还是假懂；标签复用 §4.8 已有的考纲·题型词典。</li>
+<li>薄弱程度<strong>量化</strong>（频次 / 是否跨时段重复 / 是否假懂加权），驱动复习权重、练手题难度、Widget 考前速览态。</li>
+<li><strong>闭环你第一句话的目标</strong>：「以后遇到相关题目时脑中有思路」= 把薄弱点标记<strong>内化成看到题目时的即时反应</strong>。速查卡是脚手架，终点是不用看卡也能条件反射想起那个坑——正是费曼反复纠正要达成的结果。</li>
+<li><strong>双渲染同源</strong>：<code>ExamReminderCard</code> 生成屏幕态（Widget 考前速览 / 进考场前用手机）与打印态（教学区域可用，黑白打印仍可读），内容一字不差，随包导出。</li>
+</ul>
+<h3 id="45-5">4.5 变式题与临场意图（问题 5 结论）</h3>
+<p><strong>主路径</strong> = <strong>② 按 <code>WeakPoint</code> 薄弱程度自适应</strong> + <strong>④ 变形强度四档递进</strong>（同条件换数字 → 换情境 → 换设问 → 开放探究）。</p>
+<p>「有时候想写难题挑战自己、有时候只想写中档题刷自信」不是策略配置，是<strong>临场意图</strong> → <code>SessionIntent</code>，进练习前点一下：</p>
+<table>
+<thead>
+<tr>
+<th>取值</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>跟随系统</code>（默认）</td>
+<td>走 ②④</td>
+</tr>
+<tr>
+<td><code>挑战</code></td>
+<td>抬难度、直上开放探究档</td>
+</tr>
+<tr>
+<td><code>刷自信</code></td>
+<td>锁中档、变形档不升</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>三个实例串成一条线：<strong>笔记区显隐 / 跳过摸底测验 / 难度临时选</strong>，都是「App 给流程，当下这一步你定」，归进 L0 与可跳过节点，不新造机制。</li>
+<li>④ 最高档「开放探究」正好供给「挑战」意图 → <strong>题库需备到压轴档</strong>，不能只备基础/中档。</li>
+<li><strong>防污染设计</strong>：手动选「刷自信」做对中档题，<strong>不能算薄弱程度下降的证据</strong>。做题记录带 <code>来源模式 = 自适应 / 意图覆盖</code>，归因只认前者，否则 <code>WeakPoint</code> 评级与复习计划会被一次「刷自信」拉歪。</li>
+</ul>
+<h3 id="46">4.6 学习执行引擎（会话状态机）</h3>
 <pre><code>[AI 准备资源] ──► [摸底测验：可选，可跳过] ──► [视频学习 + 笔记]
                                                     │
                                                     ▼
@@ -203,7 +612,7 @@ v0.1：2026-11-13 需求澄清收敛版
                               ┌───────────── 达标? ─────────────┐
                               │ 是                          │ 否
                               ▼                                 ▼
-                        [总结环节]                      [AI 错因归因]
+                        [总结环节]                      [AI 错因归因 → WeakPoint]
                    我复述 → AI 纠正 → 反复                │
                         → 确认理解                          ▼
                               │                    [回到费曼复述-纠正]
@@ -213,76 +622,15 @@ v0.1：2026-11-13 需求澄清收敛版
                               ▼                              │
                    [生成复习计划，纳入该规划] ◄──────────────┘
 </code></pre>
-<p><strong>关键设计</strong>
-- 「摸底测验」是<strong>可跳过节点</strong>：先不选它、直接看视频是合法路径。
-- 内置笔记区是<strong>可开关节点</strong>：显示/不显示由 L0 控制，关闭时不渲染，但不影响 A/C 通道已归档的内容。
-- 总结环节 = 费曼式复述-纠正循环，反复到确认理解为止。</p>
-<h3 id="34-12">3.4 达标判定的<strong>双层语义</strong>（最后一问结论：1+2）</h3>
-<p>同一个 75%，作用在两个层级：</p>
-<table>
-<thead>
-<tr>
-<th>层级</th>
-<th>含义</th>
-<th>触发</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>通过线（Session 级）</strong></td>
-<td>单次测验正确率 ≥ 75% → 进入总结环节</td>
-<td>每次会话结束时判定</td>
-</tr>
-<tr>
-<td><strong>目标线（Plan 级）</strong></td>
-<td>15 天到期时，整体相关题目解决率 ≥ 75%，且「遇到同类题脑中有思路」</td>
-<td>规划收口时判定</td>
-</tr>
-</tbody>
-</table>
-<p><strong>未达标分支（不是简单重学、也不是直接换题）</strong>：
-<code>AI 错因归因 → 继续费曼复述-纠正 → 再测一遍</code>，循环至通过线。归因记录写回 Plan，用于调整后续会话的资源难度与复习计划权重。</p>
-<h3 id="35-2">3.5 复习闭环（固定模式 2）</h3>
-<p>下次该规划学习前：<code>复述上次理解 → AI 纠正 → 反复确认 → 给几道简单练手题 → 进入今天的学习内容</code>。</p>
-<h3 id="36-ai-4">3.6 AI 服务层（可插拔，选定方案 4）</h3>
-<p><strong>能力接口（固定，不随模型变）</strong>：<code>分析薄弱点</code> / <code>检索资源</code> / <code>出题</code> / <code>判卷</code> / <strong>错因归因</strong> / <code>复述纠正</code> / <code>生成笔记</code> / <code>生成复习计划</code>。</p>
-<p><strong>Provider 适配器（可换）</strong>：<code>DeepSeekAdapter</code>，配置项 <code>base_url</code>、<code>api_key</code>、<code>model_id</code>、思考模式开关。不绑定具体模型，换模型只改配置。</p>
-<p><strong>三条硬约束</strong>
-1. <strong>凭证与数据分离</strong>：<code>api_key</code> 存系统密钥库（Android Keystore），<strong>不进 <code>.studypack</code> 导出包</strong>；换设备重新填一次即可，避免凭证随数据泄露。
-2. <strong>最小必要上下文</strong>：数据留本地，外发的只是当次所需内容，且可配置「哪些内容允许出本地」。
-3. <strong>优雅降级</strong>：无 key / 无网时，AI 节点标记「待处理」，不阻塞看视频、记笔记、做已有题目。</p>
-<p><strong>接入实操（已查证）</strong>
-- Key 唯一入口：<code>platform.deepseek.com</code>（与聊天版 <code>chat.deepseek.com</code> 是两套，余额不互通）。手机号注册 → 实名认证 → 充值（微信/支付宝，个人学习用 10~50 元通常够用）→ 创建 API key（<code>sk-</code> 开头，<strong>只显示一次</strong>）→ 填入 <code>base_url = https://api.deepseek.com</code>，OpenAI 兼容格式。
-- ⚠️ <strong>型号更正</strong>：你说的「DeepSeek 4.1 Pro」目前<strong>不是正式在售模型名</strong>，只被官方预告过、无可调用 ID。官方定价页在售的只有：</p>
-<table>
-<thead>
-<tr>
-<th>模型 ID</th>
-<th>版本</th>
-<th>输出价（空闲/高峰，元每百万 tokens）</th>
-<th>图像理解</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>deepseek-flash</code></td>
-<td>V4.1-Flash-1017</td>
-<td>4 / 8</td>
-<td>支持</td>
-</tr>
-<tr>
-<td><code>deepseek-v4-pro</code></td>
-<td>V4-Pro-0813</td>
-<td>13.5 / 27</td>
-<td>不支持</td>
-</tr>
-</tbody>
-</table>
-<p><strong>建议默认 <code>deepseek-flash</code></strong>：便宜、支持图像理解（拍题目截图、讲义图片）、1M 上下文；需要更强推理再切 <code>deepseek-v4-pro</code>。这正是可插拔的价值。</p>
-<blockquote>
-<p><strong>关于 WorkBuddy 连接器</strong>：它是 WorkBuddy 平台侧让 AI 助手在对话里访问第三方服务的能力，<strong>不是你的 App 能调用的运行时能力</strong>。当前会话也只挂了一个未连接的连接器，并无学科网/B站连接器。它只在<strong>开发阶段</strong>有用（例如帮我把你发的资料整理好、灌进 App 本地资料库）。</p>
-</blockquote>
-<h3 id="37-a-c-d">3.7 笔记子系统（A + C + D 三通道 + 统一模型）</h3>
+<ul>
+<li>「摸底测验」是<strong>可跳过节点</strong>；内置笔记区是<strong>可开关节点</strong>（关闭时不渲染，但不影响 A/C 已归档内容）。</li>
+<li>总结环节 = 费曼式复述-纠正循环。</li>
+<li><strong>双层达标语义</strong>：会话通过线 ≥75% 进总结；规划目标线 15 天到期整体 ≥75% 且「脑中有思路」。</li>
+<li>未达标分支 = <code>AI 错因归因 → 继续费曼 → 再测一遍</code>，循环至通过线；归因写回 Plan，调后续资源难度与复习权重。</li>
+<li><strong>复习闭环固定模式 2</strong>：下次学习前 <code>复述上次理解 → AI 纠正 → 反复确认 → 几道简单练手题 → 今日新内容</code>；默认只显示 <strong>AI 笔记 + 考前速查卡</strong>，我的笔迹按需展开（保持最小态）。</li>
+</ul>
+<h3 id="47-6-4">4.7 笔记子系统（问题 6 结论：④ 分开存 + 双向关联）</h3>
+<p>你选 <strong>④</strong>，排除 ③ 的理由是「<strong>合订太冗长</strong>」——与 Widget 最小态、考前卡一行同属<strong>信息克制</strong>偏好。</p>
 <table>
 <thead>
 <tr>
@@ -309,8 +657,39 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 </tbody>
 </table>
-<p><strong>为什么不能把 Notein 直接内嵌</strong>：Notein 无公开 SDK/API；Android/iOS 都不允许 A 应用把 B 应用的界面当作自己的 View 运行（Android 双窗格 Activity 嵌入也只限同一 App 内部）。买断 = 使用权，不等于可集成权。</p>
-<p><strong>D 通道的技术路线（GitHub 调研结论）</strong>：能塞进 App 当一块区域的必须是<strong>库/SDK</strong>，而几乎所有开源手写笔记项目（saber / butterfly / AppFlowy / xournalpp）都是<strong>完整 App</strong>，且多为 GPL/AGPL 强传染，搬不进来。结论是「<strong>整件都不合，零件全合</strong>」——用 MIT 零件自组装：</p>
+<p><strong>「快速对应」靠结构化锚点，不靠内容比对，默认不需要把笔记交给 AI</strong>：
+- AI 笔记的每个文本块、我的笔记的每一页/每一笔，在<strong>保存那一刻</strong>就打上同一个 <code>anchorId</code> = <code>知识点节点ID + SessionID + WeakPointID</code>（复用 <code>ExamProfile</code> / 归因已在用的 ID，不新造）。
+- 「对应」= 本地数据库按 ID 索引查询，<strong>毫秒级、纯本地、离线可用</strong>。
+- 交互：AI 笔记段落旁角标（如 <code>笔迹 2</code>）→ 点开拉出该锚点下我的笔迹；反向在笔迹页也能跳回 AI 笔记段落。</p>
+<p><strong>什么时候才需要交给 AI（三档）</strong></p>
+<table>
+<thead>
+<tr>
+<th>情形</th>
+<th>要不要交给 AI</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>建立 / 查看对应、双向跳转</td>
+<td><strong>不需要</strong></td>
+<td>本地索引即可</td>
+</tr>
+<tr>
+<td>想让 AI 读笔迹后<strong>补/改 AI 笔记、纳入复习</strong></td>
+<td><strong>需要，但由你主动触发</strong></td>
+<td>只送该锚点下那一小段，最小必要外发 + 脱敏</td>
+</tr>
+<tr>
+<td>A 通道写在 Notein 里的笔迹</td>
+<td>想处理时才需要</td>
+<td>原件始终是外部引用 + 快照；只有 C 通道归档回来的那份可被处理</td>
+</tr>
+</tbody>
+</table>
+<p><strong>手写识别边界</strong>：D 通道结构化文本 AI 可直读；A/C 的图片/PDF 笔迹要读需 OCR/视觉理解，但<strong>识别结果只作「可检索摘要」，绝不覆盖原始笔迹</strong>，识别错也不污染数据。</p>
+<p><strong>D 通道技术路线（GitHub 调研结论）</strong>：能塞进 App 当一块区域的必须是库/SDK，而几乎所有开源手写笔记项目（saber / butterfly / AppFlowy / xournalpp）都是完整 App 且多为 GPL/AGPL，搬不进来 —— 「<strong>整件都不合，零件全合</strong>」，用 MIT 零件自组装：</p>
 <table>
 <thead>
 <tr>
@@ -337,10 +716,9 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 </tbody>
 </table>
-<p>避开：<code>tldraw</code>（自定义许可，商用需保留水印或购买约 $6000/年授权）、各类 AGPL/GPL 整件。</p>
-<h3 id="38">3.8 资源适配器层 + 高考对齐约束层</h3>
-<p><strong>四种统一接入模式</strong>（把之前为 Notein 设计的三通道泛化）：<code>分屏/跳转(A)</code> · <code>文件桥接归档(C)</code> · <code>引用登记 + 跳转</code> · <code>本地导入(③)</code>。以后接任何外部服务都不动主流程。</p>
-<p><strong>外部源现状（已查证）</strong></p>
+<p>避开 <code>tldraw</code>（自定义许可，商用需保留水印或约 $6000/年授权）与各类 AGPL/GPL 整件。</p>
+<h3 id="48">4.8 资源适配器层 + 高考对齐约束层</h3>
+<p><strong>四种统一接入模式</strong>：<code>分屏/跳转(A)</code> · <code>文件桥接归档(C)</code> · <code>引用登记 + 跳转</code> · <code>本地导入</code>。以后接任何外部服务都不动主流程。</p>
 <table>
 <thead>
 <tr>
@@ -352,13 +730,13 @@ v0.1：2026-11-13 需求澄清收敛版
 <tbody>
 <tr>
 <td><strong>学科网</strong></td>
-<td>有开放平台 <code>open.xkw.com</code>，提供试题/试卷/视频/变式题/错题接口，OAuth、页面嵌入与跳转模式，标签体系覆盖考纲与教材版本 —— 最贴高考；但<strong>面向企业商业合作</strong>，需签约付费与资质</td>
-<td>① 你用自有账号下载/导出资料 → 导入 App 本地库；② 应用内用其跳转模式；③ 正式 API 对接留到有资质以后</td>
+<td>有开放平台 <code>open.xkw.com</code>，试题/试卷/视频/变式题/错题接口，标签覆盖考纲与教材版本 —— 最贴高考；但<strong>面向企业商业合作</strong>，需签约付费与资质</td>
+<td>① 自有账号下载 → 导入本地库；② 应用内跳转模式；③ 正式 API 留到有资质以后</td>
 </tr>
 <tr>
 <td><strong>B站</strong></td>
-<td>官方开放平台权限主要面向 UP 主管理自有内容，<strong>不含关键词搜索</strong>；网页接口需 wbi 签名、高频返回 412；爬虫违反用户协议</td>
-<td><strong>不搬视频、不抓取</strong>，只做「引用登记 + 一键跳转 B站 App」，本地只存标题/BV号/时长等元数据</td>
+<td>官方开放平台主要面向 UP 主管理自有内容，<strong>不含关键词搜索</strong>；网页接口需 wbi 签名、高频 412；爬虫违反用户协议</td>
+<td><strong>不搬视频、不抓取</strong>，只做「引用登记 + 一键跳转」，本地只存标题/BV号/时长等元数据</td>
 </tr>
 </tbody>
 </table>
@@ -367,11 +745,9 @@ v0.1：2026-11-13 需求澄清收敛版
 - <strong>AI 的角色从「生成者」降级为「检索匹配 + 讲解 + 基于真实母题的变式」</strong>；变式题必须挂靠母题来源，<strong>禁止无来源的题冒充高考题</strong>。
 - 资料优先级：<code>③ 你自己的资料</code> ＞ <code>学科网权威题库</code> ＞ <code>B站视频（仅跳转）</code> ＞ <code>AI 生成（受限）</code>。</p>
 <blockquote>
-<p>对你那句「想让 AI 自己升级的话和考试内容和风格相差很大」的理解：<strong>若让 AI 凭空生成题目/资料，会与高考真实内容、命题风格相差很远</strong>，因此必须以真实题库和你自己的资料为准。若理解有偏差请纠正。</p>
+<p>对你那句「想让 AI 自己升级的话和考试内容和风格相差很大」的理解：<strong>若让 AI 凭空生成题目/资料，会与高考真实内容、命题风格相差很远</strong>，因此必须以真实题库和你自己的资料为准。</p>
 </blockquote>
-<h4 id="381-examprofile-1-2026-11-14">3.8.1 学情基线：<code>ExamProfile</code>（问题 1 结论，2026-11-14）</h4>
-<p>上面的「教材版本/考纲标签」原本只是字段名，没有词典来源。现由用户背景查证后落定为一份<strong>可执行配置实体</strong>，它定义了整个标签体系的取值。</p>
-<p><strong>已确定值</strong></p>
+<h4 id="481-examprofile-1">4.8.1 学情基线 <code>ExamProfile</code>（问题 1 结论）</h4>
 <table>
 <thead>
 <tr>
@@ -394,11 +770,11 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 <tr>
 <td>教材</td>
-<td><strong>人教 A 版（2019 新版）</strong>（<code>必修第一册 / 选择性必修第一~三册</code>）</td>
+<td><strong>人教 A 版（2019 新版）</strong>（必修第一册 / 选择性必修第一~三册）</td>
 </tr>
 <tr>
 <td>题型枚举</td>
-<td>单选 8×5 分 / 多选 4×5 分 / 填空 4×5 分 / 解答 6 题 70 分，满分 150</td>
+<td>单选 8×5 / 多选 4×5 / 填空 4×5 / 解答 6 题 70 分，满分 150</td>
 </tr>
 <tr>
 <td>主干知识</td>
@@ -414,18 +790,15 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 </tbody>
 </table>
-<p><strong>框架层面的三点影响</strong></p>
 <ol>
-<li><strong>知识点树直接挂靠教材目录</strong>，而非 AI 自拟标签。首个锚点即用户原始情境中的薄弱点：
-   <code>人教A版·必修第一册 → 第二章 一元二次函数、方程和不等式 → 2.2 基本不等式</code>。
-   这让「贴切」变成<strong>可校验</strong>（能比对章节/题型/分值），而不是靠主观判断。</li>
-<li><strong>为「AI 只做检索匹配 + 讲解 + 基于母题的变式」补上硬理由</strong>：真题正在「去套路化 + 情境建模 + 开放探究」上发力，而这恰是模型最容易生成模板化题目的地方——用户的直觉与真题分析一致，因此"禁止无来源题冒充高考题"不是保守，是必需。</li>
-<li><strong><code>ExamProfile</code> 随 <code>.studypack</code> 一并导出</strong>：换设备、换年份、换教材时只需替换这一份配置，知识点树、题型枚举、资料筛选规则全部跟着走，「贴切高考」不因迁移而丢失。</li>
+<li><strong>知识点树直接挂靠教材目录</strong>，首个锚点即 <code>人教A版·必修第一册 → 第二章 → 2.2 基本不等式</code>，让「贴切」可校验。</li>
+<li><strong>为「AI 只做检索匹配 + 讲解 + 基于母题的变式」补上硬理由</strong>：真题正在「去套路化 + 情境建模 + 开放探究」上发力，恰是模型最易生成模板化题目的地方。</li>
+<li><strong><code>ExamProfile</code> 随 <code>.studypack</code> 导出</strong>：换设备/年份/教材时只替换这一份配置，贴切度不丢。</li>
 </ol>
 <blockquote>
-<p>教材版本的小提醒：深圳高中数学同时存在人教 A 版与苏教版并行的情况；深中数学组深度参与人教 A 版教材编写与示范课，故按 <strong>人教 A 版</strong> 落定。若你课本封面是别的版本，说一声，只改这一处配置即可。</p>
+<p>低风险核对项：深圳高中数学同时存在人教 A 版与苏教版并行；深中数学组深度参与人教 A 版教材编写，故按人教 A 版落定。若课本封面是别的版本，只改这一处配置。</p>
 </blockquote>
-<h3 id="39-l0">3.9 策略与开关层（L0，横切）</h3>
+<h3 id="49-l0">4.9 策略与开关层（L0，横切）</h3>
 <p>所有「有这个功能，但用不用由我定」的点统一归此层，不各自造开关：</p>
 <table>
 <thead>
@@ -440,6 +813,10 @@ v0.1：2026-11-13 需求澄清收敛版
 <td>振动 / 声音 / 无</td>
 </tr>
 <tr>
+<td>提醒提前量</td>
+<td>全局默认 + 预设 <code>2 / 5 min</code> + 自定义（规划时设）</td>
+</tr>
+<tr>
 <td>开始时机</td>
 <td>立即 / 将来</td>
 </tr>
@@ -448,26 +825,67 @@ v0.1：2026-11-13 需求澄清收敛版
 <td>显示 / 跳过</td>
 </tr>
 <tr>
-<td><strong>内置笔记区</strong></td>
-<td><strong>显示 / 不显示</strong>（全局默认 + 单次会话可临时改）</td>
+<td>内置笔记区</td>
+<td>显示 / 不显示（全局默认 + 单次会话可临时改）</td>
 </tr>
 <tr>
 <td>数据外发范围</td>
 <td>可配置白名单</td>
 </tr>
 <tr>
+<td><code>SessionIntent</code></td>
+<td>跟随系统 / 挑战 / 刷自信（仅当次生效）</td>
+</tr>
+<tr>
 <td>复习模式</td>
-<td>固定模式 2（不可配）</td>
+<td><strong>固定模式 2（不可配）</strong></td>
 </tr>
 </tbody>
 </table>
-<h3 id="310">3.10 数据持久化与迁移子系统</h3>
+<h3 id="410-ai-4">4.10 AI 服务层（可插拔，选定方案 4）</h3>
+<p><strong>能力接口（固定）</strong>：<code>分析薄弱点</code> / <code>检索资源</code> / <code>出题</code> / <code>判卷</code> / <strong>错因归因</strong> / <code>复述纠正</code> / <code>生成笔记</code> / <code>生成复习计划</code> / <strong>截图→结构化识别</strong>。</p>
+<p><strong>Provider 适配器（可换）</strong>：<code>DeepSeekAdapter</code>，配置项 <code>base_url</code>、<code>api_key</code>、<code>model_id</code>、思考模式开关。换模型只改配置。</p>
+<p><strong>三条硬约束</strong>
+1. <strong>凭证与数据分离</strong>：<code>api_key</code> 存 Android Keystore，<strong>不进 <code>.studypack</code></strong>；换设备重新填。
+2. <strong>最小必要上下文</strong>：数据留本地，外发只含当次所需内容，可配置「哪些内容允许出本地」。
+3. <strong>优雅降级</strong>：无 key / 无网时 AI 节点标「待处理」，不阻塞看视频、记笔记、做已有题目。</p>
+<p><strong>接入实操（已查证）</strong>：Key 唯一入口 <code>platform.deepseek.com</code>（与聊天版两套、余额不互通）→ 实名 → 充值（10~50 元通常够用）→ 创建 <code>sk-</code> key（只显示一次）→ <code>base_url = https://api.deepseek.com</code>，OpenAI 兼容格式。</p>
+<p>⚠️ <strong>型号更正</strong>：「DeepSeek 4.1 Pro」不是正式在售模型名。官方在售只有：</p>
+<table>
+<thead>
+<tr>
+<th>模型 ID</th>
+<th>版本</th>
+<th>输出价（空闲/高峰，元每百万 tokens）</th>
+<th>图像理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deepseek-flash</code></td>
+<td>V4.1-Flash-1017</td>
+<td>4 / 8</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><code>deepseek-v4-pro</code></td>
+<td>V4-Pro-0813</td>
+<td>13.5 / 27</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议默认 <code>deepseek-flash</code></strong>：便宜、支持图像理解（截图识别、讲义图片）、1M 上下文。</p>
+<blockquote>
+<p><strong>关于 WorkBuddy 连接器</strong>：它是 WorkBuddy 平台侧让 AI 助手在对话里访问第三方服务的能力，<strong>不是你的 App 能调用的运行时能力</strong>。只在开发阶段有用（例如帮我把你发的资料整理进本地库）。</p>
+</blockquote>
+<h3 id="411">4.11 数据持久化与迁移子系统</h3>
 <ul>
 <li>全部数据本地存储；支持主动（自动快照）与手动保存。</li>
-<li><strong>固定格式导入/导出所有数据，用于其它设备使用</strong>（格式由本文设计，见 §5）。</li>
+<li><strong>固定格式导入/导出所有数据</strong>（格式由本文设计，见 §6）。</li>
 </ul>
 <hr />
-<h2 id="4">4. 平台与技术选型</h2>
+<h2 id="5">5. 平台与技术选型</h2>
 <table>
 <thead>
 <tr>
@@ -490,121 +908,50 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 <tr>
 <td>家人 iPhone</td>
-<td>iOS 旁支</td>
+<td>iOS 旁支，走导出包 + 轻量查看器</td>
 </tr>
 </tbody>
 </table>
 <p><strong>推论</strong>
-1. A 通道做「<strong>能力探测 + 自动降级</strong>」：检测是否支持分屏/自由窗口 → 支持则并排，否则退回跳转。不写死。
-2. <strong>技术栈建议 Flutter</strong>：一套代码覆盖全部安卓机型 + 保留 iOS 可能；手写笔记生态（saber、butterfly 均为 Flutter）已在安卓平板验证成熟。
-3. <strong>iPhone 不硬做完整客户端</strong>。「数据可移植 ≠ 应用跨平台」——原话是「数据能在其它设备使用」，不是「App 必须在 iPhone 上跑」。iPhone 走 <code>.studypack</code> 包 + 轻量查看器（网页/PWA）读取即可。
-4. 因此「数据迁移」从末尾的「其它要求」<strong>提升为框架一等模块</strong>。</p>
+1. A 通道做「<strong>能力探测 + 自动降级</strong>」，不写死。
+2. <strong>技术栈建议 Flutter</strong>：一套代码覆盖全部安卓机型 + 保留 iOS 可能；手写笔记生态在安卓平板已验证成熟。
+3. <strong>iPhone 不硬做完整客户端</strong>：「数据可移植 ≠ 应用跨平台」。
+4. <strong>教学区域禁用电子设备</strong>属环境约束：App 需提供<strong>打印 / 导出纸质</strong>入口，且打印态在黑白输出下仍可读（不能只靠颜色区分）。
+5. 数据迁移从「其它要求」<strong>提升为一等模块</strong>。</p>
 <hr />
-<h2 id="5-studypack">5. 数据格式设计：<code>.studypack</code>（由本项目设计）</h2>
-<h3 id="51">5.1 设计目标</h3>
+<h2 id="6-studypack">6. 数据格式设计：<code>.studypack</code>（由本项目设计）</h2>
+<h3 id="61">6.1 设计目标</h3>
 <p>全量可携带 · 开放可读 · 不锁死在特定程序 · 自描述可校验 · 不含密钥与第三方版权内容。</p>
-<h3 id="52">5.2 目录结构</h3>
+<h3 id="62">6.2 目录结构</h3>
 <pre><code>studypack-YYYYMMDD-HHMM/
-├── manifest.json          # 版本/schema版本/导出时间/设备/校验和
-├── preferences.json       # 策略与开关层全部配置
-├── exam_profile.json      # 学情基线：卷别/教材/知识点树/题型/难度（§3.8.1）
-├── tasks.json             # 习惯性任务 + 一次性任务
-├── plans.json             # 规划（目标、量化指标、时限、开始时机、空闲时段）
-├── sessions.json          # 会话状态机记录、测验记录、归因记录
-├── notes.json             # NoteDocument 索引（含 A/C/D 来源通道、AI生成标记）
-├── review.json            # 复习计划与状态
+├── manifest.json          # 版本/schemaVersion/导出时间/设备/checksum
+├── preferences.json       # L0 策略与开关层全部配置
+├── exam_profile.json      # 学情基线：卷别/教材/知识点树/题型/难度
+├── school_calendar.json   # 校源日程：课程 + 考试 + 活动（含禁用规则）
+├── slot_pool.json         # 时段池 + 常驻模板 + 当天确认状态
+├── tasks.json             # 习惯性任务 + 一次性任务（含提醒提前量与跳转动作）
+├── plans.json             # 规划（目标、量化指标、时限、开始时机、slots 引用）
+├── sessions.json          # 会话状态机、测验记录、SessionIntent、来源模式标记
+├── weak_points.json       # 薄弱点条目 + 证据 + 一行考前提醒
+├── review.json            # 复习计划与状态（固定模式 2）
+├── ai_notes.json          # AI 笔记（独立一份）
+├── my_notes.json          # 我的笔记（独立一份，含 A/C/D 来源通道）
+├── anchor_links.json      # anchorId ↔ 两份笔记的块/页 关联表
 ├── resources.json         # 资源引用：只存元数据与出处，不存第三方内容
 └── assets/
-    ├── pdf/               # 讲义、C 通道批注回传 PDF
+    ├── pdf/               # 讲义、C 通道批注回传 PDF、校历归档副本
     ├── ink/               # SVG 笔迹（D 通道）
-    └── images/            # 图片、题目截图
+    └── images/            # 图片、题目截图、课程表原始截图
 </code></pre>
-<h3 id="53">5.3 规则</h3>
+<h3 id="63-7-1">6.3 规则（问题 7 结论：① 纯开放不加密）</h3>
 <ol>
-<li><strong>纯开放格式</strong>：JSON（UTF-8）+ SVG + PDF + Markdown，别的程序也能读。</li>
+<li><strong>纯开放格式、不加密</strong>：JSON（UTF-8）+ SVG + PDF + Markdown，任何设备、别的程序都能直接读；导入无需口令。<strong>代价</strong>：拿到文件即可读到全部学习轨迹（学校、班级、薄弱点、错题），已提示并由你确认接受。</li>
 <li><strong>凭证不进包</strong>：<code>api_key</code> 排除在外，换设备重新填。</li>
-<li><strong>第三方版权内容不进包</strong>：B站视频、学科网题库只存引用与考纲标签；你自行导入的资料属本地资产，随包带走。</li>
-<li><strong>自描述 + 校验</strong>：<code>manifest.json</code> 带 <code>schemaVersion</code> 保证向前兼容，带 <code>checksum</code> 供导入时校验完整性。</li>
-<li><strong>带走的不是一堆文件，是带考纲标签、可追溯的结构化资料</strong> —— 换设备后「贴切高考」这一约束不丢。</li>
+<li><strong>第三方版权内容不进包</strong>：B站视频、学科网题库只存引用与考纲标签；自行导入的资料属本地资产，随包带走。</li>
+<li><strong>自描述 + 校验</strong>：<code>manifest.json</code> 带 <code>schemaVersion</code> 与 <code>checksum</code>。</li>
+<li><strong>考前速查卡双渲染同源导出</strong>：屏幕态与打印态内容一致。</li>
+<li><strong>带走的不是一堆文件，是带考纲标签、可追溯、带关联锚点的结构化资料</strong> —— 换设备后「贴切高考」与「两份笔记对得上」都不丢。</li>
 </ol>
-<hr />
-<h2 id="6">6. 待定事项与风险清单（暂不提问，留待后续）</h2>
-<table>
-<thead>
-<tr>
-<th>项</th>
-<th>性质</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>~~考纲版本 / 教材版本 / 地区~~</td>
-<td><strong>已确定</strong>（问题 1）</td>
-<td>广东深圳 · 新高考 I 卷 · 人教 A 版 2019 → <code>ExamProfile</code>（§3.8.1）</td>
-</tr>
-<tr>
-<td>「绿色空闲时段」判定规则、是否与系统日历同步</td>
-<td>待确认</td>
-<td>决定排期逻辑</td>
-</tr>
-<tr>
-<td>任务开始前提前多久提醒</td>
-<td>待确认</td>
-<td>当前只定了提醒方式</td>
-</tr>
-<tr>
-<td>错因归因的分类维度</td>
-<td>待设计</td>
-<td>影响未达标分支质量</td>
-</tr>
-<tr>
-<td>变式题强度 / 难度分布</td>
-<td>待设计</td>
-<td>高考对齐层细化</td>
-</tr>
-<tr>
-<td>个性化 AI 笔记是否可编辑、与手写笔记如何合并</td>
-<td>待设计</td>
-<td>涉及 NoteDocument</td>
-</tr>
-<tr>
-<td><code>.studypack</code> 是否需要加密 / 密码</td>
-<td>待确认</td>
-<td>涉及跨设备安全</td>
-</tr>
-<tr>
-<td>学科网正式 API 对接</td>
-<td>外部约束</td>
-<td>需企业资质与商业合作</td>
-</tr>
-<tr>
-<td>B站无合规关键词搜索接口</td>
-<td>外部约束</td>
-<td>已用「引用登记 + 跳转」规避</td>
-</tr>
-<tr>
-<td>DeepSeek 型号命名</td>
-<td>已澄清</td>
-<td>用 <code>deepseek-flash</code> / <code>deepseek-v4-pro</code>，勿写 4.1 Pro</td>
-</tr>
-<tr>
-<td>API key 申请</td>
-<td>用户待办</td>
-<td><code>platform.deepseek.com</code>，实名 → 充值 → 创建 key</td>
-</tr>
-<tr>
-<td><code>WFY-1-BYO/study-agent</code> 仓库</td>
-<td><strong>已启用</strong></td>
-<td>2026-11-13 起作为项目仓库，本文档每次修改自动推送 <code>origin/main</code></td>
-</tr>
-<tr>
-<td>教材版本是否为苏教版 / 人教 B 版</td>
-<td>低风险核对项</td>
-<td>已按人教 A 版落定；只需核对课本封面，若不同改 <code>ExamProfile</code> 一处</td>
-</tr>
-</tbody>
-</table>
 <hr />
 <h2 id="7">7. 决策台账（逐条核对理解）</h2>
 <table>
@@ -623,84 +970,259 @@ v0.1：2026-11-13 需求澄清收敛版
 </tr>
 <tr>
 <td>2</td>
-<td>早晨推送背单词可归类为<strong>习惯性任务</strong>，不是单指背单词</td>
-<td><code>Task.type = 习惯性/一次性</code>（§2）</td>
+<td>早晨推送背单词可归类为<strong>习惯性任务</strong></td>
+<td><code>Task.type</code>（§3）</td>
 </tr>
 <tr>
 <td>3</td>
 <td>立即开始/将来开始是<strong>两个选项</strong></td>
-<td><code>Plan.startMode</code> 字段（§3.2）</td>
+<td><code>Plan.startMode</code>（§4.6）</td>
 </tr>
 <tr>
 <td>4</td>
 <td>摸底测验<strong>不是一定要，但是有的</strong></td>
-<td>会话状态机的可跳过节点（§3.3）</td>
+<td>可跳过节点（§4.6）</td>
 </tr>
 <tr>
 <td>5</td>
 <td>复习<strong>不是二选一，就是模式 2</strong></td>
-<td>固定复习闭环（§3.5）</td>
+<td>固定复习闭环（§4.6）</td>
 </tr>
 <tr>
 <td>6</td>
 <td>导入导出固定格式<strong>由你设计</strong>，所有数据能带走</td>
-<td><code>.studypack</code>（§5）</td>
+<td><code>.studypack</code>（§6）</td>
 </tr>
 <tr>
 <td>7</td>
 <td><strong>不要从表面情境看，要深层次归纳为软件框架</strong></td>
-<td>本文整体：两闭环 + 横切层 + 数据底座</td>
+<td>本文整体</td>
 </tr>
 <tr>
 <td>8</td>
 <td>买了 Notein，能否在 App 内化一块区域打开</td>
-<td>严格内嵌不可行 → A/C/D 三通道（§3.7）</td>
+<td>内嵌不可行 → A/C/D（§4.7）</td>
 </tr>
 <tr>
 <td>9</td>
 <td>选 C + D；A 肯定可以，<strong>ACD 没问题</strong></td>
-<td>三通道并存 + NoteDocument 统一模型</td>
+<td>三通道并存</td>
 </tr>
 <tr>
 <td>10</td>
 <td><strong>内置笔记可选择显示 / 不显示</strong></td>
-<td>抽象出 L0 策略与开关层（§3.9）</td>
+<td>抽象出 L0（§4.9）</td>
 </tr>
 <tr>
 <td>11</td>
-<td>设备：vivo S7 + 联想 13" 平板 + 家人 iQOO/红米/iPhone，<strong>安卓为主</strong></td>
-<td>能力探测降级 + Flutter + iPhone 走查看器（§4）</td>
+<td>设备：vivo S7 + 联想 13" 平板 + iQOO/红米/iPhone，<strong>安卓为主</strong></td>
+<td>降级 + Flutter + iPhone 查看器（§5）</td>
 </tr>
 <tr>
 <td>12</td>
 <td>AI 来源选 <strong>4 可插拔接口</strong>，想接 DeepSeek</td>
-<td>能力接口 + Provider 适配器（§3.6）</td>
+<td>能力接口 + 适配器（§4.10）</td>
 </tr>
 <tr>
 <td>13</td>
-<td>可连学科网/B站吗；资料要<strong>贴切高考</strong>；也会自己发资料；AI 自己生成会偏离考试风格</td>
-<td>资源适配器层 + 高考对齐约束层（§3.8）</td>
+<td>可连学科网/B站吗；资料要<strong>贴切高考</strong>；也会自己发资料；AI 生成会偏离考试风格</td>
+<td>资源适配器 + 高考对齐层（§4.8）</td>
 </tr>
 <tr>
 <td>14</td>
 <td>达标 <strong>1+2</strong>；未达标 → <strong>分析原因 → 继续费曼 → 再测一遍</strong></td>
-<td>双层达标语义 + 归因回路（§3.4）</td>
+<td>双层达标 + 归因回路（§4.6）</td>
 </tr>
 <tr>
 <td>15</td>
-<td>深圳中学学生；卷别教材不清楚，<strong>但是人教</strong></td>
-<td>查证补全新高考 I 卷 + 人教 A 版 2019 → 新增 <code>ExamProfile</code> 实体与 §3.8.1 学情基线</td>
+<td>深圳中学；卷别教材不清楚，<strong>但是人教</strong></td>
+<td><code>ExamProfile</code>（§4.8.1）</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>问题 2</strong>：法一手动填 / 法二小程序爬虫 / 法三常驻 4 段 / 校运会自定义；<strong>课间用不了手机</strong></td>
+<td><code>SlotPool</code> 四源 + 绿色四条判定（§4.3）</td>
+</tr>
+<tr>
+<td>17</td>
+<td>学校智慧校园「教学管理→日程」<strong>只能截图、不能导出</strong>；截图让 AI 弄成 PDF 发给 App</td>
+<td><code>SchoolCalendar</code> + 结构化识别（PDF 只作归档）（§4.3）</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>教学区域禁用电子设备</strong>；<strong>进考场前可以用手机</strong>；纸质版也不错</td>
+<td>速查卡双渲染（§4.4 / §5）</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>问题 3</strong>：桌面小组件常驻、只显示最近任务、点开看今天或全局日历；提前 <strong>2 分钟</strong>，也可 5 分钟 / 自定义，规划时选</td>
+<td><code>WidgetView</code> + 提前量三层（§4.2）</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>问题 4</strong>：<strong>①②③ 结合</strong>；细化到「考试时直接看那个知识点 / 那种提醒薄弱」的程度</td>
+<td><code>WeakPoint</code> + 速查卡（§4.4）；闭环「脑中有思路」</td>
+</tr>
+<tr>
+<td>21</td>
+<td><strong>问题 5</strong>：<strong>2 和 4</strong>；有时想写难题挑战自己，有时只想写中档题刷自信</td>
+<td><code>SessionIntent</code> + 防污染标记（§4.5）</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>问题 6</strong>：选 <strong>4</strong>，3 太冗长；要能快速对应；「我的笔记还要交给 AI 处理吗」</td>
+<td>④ 分开存 + <code>anchorId</code> 本地索引，默认不交 AI（§4.7）</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>问题 7</strong>：选 <strong>1 纯开放不加密</strong></td>
+<td>§6.3</td>
+</tr>
+<tr>
+<td>24</td>
+<td>问题问完后完整回顾、写入文档；<strong>页面结构与画风交给千问</strong>；<strong>后面由你写代码</strong></td>
+<td>§1 完整回顾 + §9 分工</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>除了代码其他都不用 git，其他只上传最终版</strong></td>
+<td>README 的 Git 约定（本次已改）</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="8">8. 建议的推进顺序</h2>
-<ol>
-<li><strong>确认本文档</strong>（尤其 §3.8 那句理解、§7 台账有无偏差）。</li>
-<li>~~定考纲标签体系的最小集~~ → <strong>已完成</strong>：<code>ExamProfile</code> 已落定（§3.8.1），下一步是直接把知识点树按人教 A 版目录建出来。</li>
-<li>评审 <code>.studypack</code> schema，先做导入导出的可运行验证 —— 这是「数据能带走」的地基，越早定越好。</li>
-<li>原型从<strong>闭环①（任务/提醒）+ 规划创建</strong>起步，这两块不依赖 AI 与外部资源，能最快跑通。</li>
-<li>再接 <code>DeepSeekAdapter</code> 与本地资料导入，跑通一次完整会话（含未达标归因回路）。</li>
-<li>最后补 A/C/D 笔记通道与 Android 平板分屏适配。</li>
-<li>进入实际搭建时，再确认是否启用 <code>study-agent</code> 仓库。</li>
-</ol></main></div></body></html>
+<h2 id="8">8. 待办与风险清单（不再提问，留待设计/实现阶段）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>性质</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~~考纲 / 教材 / 地区~~</td>
+<td><strong>已定</strong></td>
+<td><code>ExamProfile</code>（§4.8.1）</td>
+</tr>
+<tr>
+<td>~~绿色空闲时段判定~~</td>
+<td><strong>已定</strong></td>
+<td><code>SlotPool</code> 四源（§4.3）</td>
+</tr>
+<tr>
+<td>~~提醒提前量~~</td>
+<td><strong>已定</strong></td>
+<td>2/5/自定义三层（§4.2）</td>
+</tr>
+<tr>
+<td>~~错因归因维度~~</td>
+<td><strong>已定</strong></td>
+<td>①②③ + <code>WeakPoint</code>（§4.4）</td>
+</tr>
+<tr>
+<td>~~变式题强度 / 难度~~</td>
+<td><strong>已定</strong></td>
+<td>②④ + <code>SessionIntent</code>（§4.5）</td>
+</tr>
+<tr>
+<td>~~AI 笔记与手写笔记关系~~</td>
+<td><strong>已定</strong></td>
+<td>④ + <code>anchorId</code>（§4.7）</td>
+</tr>
+<tr>
+<td>~~<code>.studypack</code> 是否加密~~</td>
+<td><strong>已定</strong></td>
+<td>① 纯开放（§6.3）</td>
+</tr>
+<tr>
+<td>课表小程序确切名称 / 是否支持分享图片</td>
+<td>低风险核对项</td>
+<td>决定 C 通道能否直接桥接；当前按截图方案执行</td>
+</tr>
+<tr>
+<td>教材版本是否为苏教版 / 人教 B 版</td>
+<td>低风险核对项</td>
+<td>已按人教 A 版落定</td>
+</tr>
+<tr>
+<td>学科网正式 API 对接</td>
+<td>外部约束</td>
+<td>需企业资质与商业合作</td>
+</tr>
+<tr>
+<td>B站无合规关键词搜索接口</td>
+<td>外部约束</td>
+<td>已用「引用登记 + 跳转」规避</td>
+</tr>
+<tr>
+<td>API key 申请</td>
+<td>用户待办</td>
+<td><code>platform.deepseek.com</code> → 实名 → 充值 → 创建</td>
+</tr>
+<tr>
+<td>已暴露的 GitHub token 建议 Revoke 重建</td>
+<td>用户待办</td>
+<td>明文出现在对话里，不算秘密</td>
+</tr>
+<tr>
+<td>仓库目前为 public</td>
+<td>用户待定</td>
+<td>含设备型号与学习规划，可转私有</td>
+</tr>
+<tr>
+<td>考纲标签体系最小集 / 知识点树实际建表</td>
+<td>设计阶段</td>
+<td>按人教 A 版目录展开</td>
+</tr>
+<tr>
+<td><code>.studypack</code> schema 的可运行导入导出验证</td>
+<td>实现阶段</td>
+<td>「数据能带走」的地基</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 分工与下一步</h2>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>负责</th>
+<th>输入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>需求与框架定稿</strong></td>
+<td>本助手（已完成）</td>
+<td>本文 v1.0</td>
+</tr>
+<tr>
+<td><strong>页面结构 + 整体画风</strong></td>
+<td><strong>千问</strong></td>
+<td><code>docs/给千问_页面设计交接简报.md</code> + 本文 v1.0</td>
+</tr>
+<tr>
+<td><strong>编码实现</strong></td>
+<td><strong>本助手</strong></td>
+<td>本文 v1.0 + 千问产出的页面/视觉方案</td>
+</tr>
+<tr>
+<td>版本管理</td>
+<td><code>WFY-1-BYO/study-agent</code></td>
+<td>代码逐次提交；文档等其它产物只在定稿时上传最终版</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议的编码推进顺序</strong>
+1. 评审 <code>.studypack</code> schema，先做导入导出的可运行验证 —— 「数据能带走」的地基。
+2. 原型从<strong>闭环①（Widget / 任务 / 提醒）+ 规划创建 + SlotPool</strong> 起步，不依赖 AI 与外部资源，最快跑通。
+3. 接 <code>DeepSeekAdapter</code> 与本地资料导入，跑通一次完整会话（含未达标归因回路）。
+4. 补 A/C/D 笔记通道、<code>anchorId</code> 关联与 Android 平板分屏适配。
+5. 页面结构与视觉由千问定稿后再统一套壳，避免边写边改。</p>
+<hr />
+<blockquote>
+<p>本文为 v1.0 定稿，是「App 内容」的唯一真源。若 §1.6 自查任一条有偏差，纠正后我会改文档并重传最终版。</p>
+</blockquote></main></div></body></html>
