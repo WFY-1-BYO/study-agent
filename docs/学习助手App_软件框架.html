@@ -1,44 +1,34 @@
-<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="utf-8">
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>学习助手 App · 软件框架文档</title>
-<style>
-:root{--bg:#ffffff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4;--accent:#0969da;--accent-soft:#ddf4ff;--panel:#f6f8fa;--code:#f6f8fa;--warn:#fff8e5;--warn-line:#e3b341}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--accent:#58a6ff;--accent-soft:#122b45;--panel:#161b22;--code:#161b22;--warn:#2b2312;--warn-line:#9e6a03}}
+<title>学习助手 App · 软件框架文档</title><style>
+:root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4;--accent:#0969da;--accent-soft:#ddf4ff;--panel:#f6f8fa;--code:#f6f8fa}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--accent:#58a6ff;--accent-soft:#122b45;--panel:#161b22;--code:#161b22}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.75;font-size:16px}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.75;font-size:16px}
 .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;display:grid;grid-template-columns:240px 1fr;gap:40px}
 nav{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-nav h3{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
-nav ul{list-style:none;padding-left:0;margin:0}
-nav ul ul{padding-left:14px}
-nav li{margin:4px 0}
-nav a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}
-nav a:hover{color:var(--accent)}
+nav h3{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.05em}
+nav ul{list-style:none;padding-left:0;margin:0}nav ul ul{padding-left:14px}nav li{margin:4px 0}
+nav a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}nav a:hover{color:var(--accent)}
 main{min-width:0}
 h1{font-size:30px;line-height:1.35;border-bottom:1px solid var(--line);padding-bottom:14px;margin-top:0}
 h2{font-size:22px;margin-top:44px;border-bottom:1px solid var(--line);padding-bottom:8px}
-h3{font-size:18px;margin-top:30px}
-h4{font-size:16px;margin-top:22px;color:var(--accent)}
-blockquote{margin:16px 0;padding:12px 16px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;color:var(--fg)}
+h3{font-size:18px;margin-top:30px}h4{font-size:16px;margin-top:22px;color:var(--accent)}
+blockquote{margin:16px 0;padding:12px 16px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}
 blockquote p{margin:6px 0}
 table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
 th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
 th{background:var(--panel);font-weight:600;white-space:nowrap}
 tr:nth-child(even) td{background:color-mix(in srgb,var(--panel) 40%,transparent)}
-code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
 pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;line-height:1.55}
 pre code{background:none;border:0;padding:0;font-size:13px}
 hr{border:0;border-top:1px solid var(--line);margin:36px 0}
-a{color:var(--accent)}
-strong{font-weight:650}
-ul,ol{padding-left:24px}
-li{margin:5px 0}
+a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5px 0}
 .meta{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted);margin-bottom:20px}
 @media(max-width:820px){.wrap{grid-template-columns:1fr;gap:0}nav{position:static;max-height:none;margin-bottom:24px}body{font-size:15px}}
 </style></head>
-<body><div class="wrap">
-<nav><h3>目录</h3><div class="toc">
+<body><div class="wrap"><nav><h3>目录</h3><div class="toc">
 <ul>
 <li><a href="#0">0. 产品定位</a></li>
 <li><a href="#1">1. 框架总览</a></li>
@@ -69,10 +59,11 @@ li{margin:5px 0}
 </ul>
 </div>
 </nav>
-<main><span class="meta">v0.1 · 需求澄清收敛版 · 2026-11-13</span>
+<main><span class="meta">v0.2 · 补入学情基线 ExamProfile · 2026-11-14</span>
 <h1 id="app">学习助手 App · 软件框架文档</h1>
 <blockquote>
-<p>版本 v0.1（需求澄清收敛版） · 2026-11-13
+<p>版本 v0.2（补入学情基线 ExamProfile） · 2026-11-14
+v0.1：2026-11-13 需求澄清收敛版
 本文不是功能清单的罗列，而是把早晨、课间、自习等零散使用情境<strong>归纳为一套软件框架</strong>：两个闭环、一个横切层、一个数据底座、若干可插拔适配器。
 来源：九轮需求澄清的全部结论。文末附「决策台账」，可逐条核对理解是否有偏差。</p>
 </blockquote>
@@ -157,7 +148,7 @@ li{margin:5px 0}
 <tr>
 <td><strong>NoteDocument 笔记</strong></td>
 <td><code>sourceChannel</code>(A/C/D)、<code>contentType</code>(结构化文本 / SVG 笔迹 / PDF 附件 / 外部引用)、关联(规划·会话·知识点)、<code>aiGenerated</code> 标记</td>
-<td>统一笔记模型，见 §5</td>
+<td>统一笔记模型，见 §3.7</td>
 </tr>
 <tr>
 <td><strong>KnowledgeAsset</strong></td>
@@ -167,17 +158,22 @@ li{margin:5px 0}
 <tr>
 <td><strong>Resource 资源</strong></td>
 <td><code>source</code>（必填）、教材版本/考纲标签、年份地区、题型·分值·难度、<code>parentId</code>（母题）</td>
-<td>高考对齐，见 §7</td>
+<td>高考对齐，见 §3.8</td>
 </tr>
 <tr>
 <td><strong>Attribution 归因</strong></td>
 <td>错因分类、涉及知识点、关联错题、建议动作</td>
-<td>未达标分支产出，见 §4.3</td>
+<td>未达标分支产出，见 §3.4</td>
+</tr>
+<tr>
+<td><strong>ExamProfile 考试档案</strong></td>
+<td>卷别 / 地区 / 考试模式 / 教材版本 / 知识点树 / 题型枚举 / 分值 / 难度分布 / 命题风格</td>
+<td><strong>高考对齐约束层的标签词典来源</strong>，见 §3.8.1</td>
 </tr>
 <tr>
 <td><strong>DataPackage</strong></td>
 <td>manifest + 各实体集合 + 资源目录</td>
-<td>见 §8</td>
+<td>见 §5</td>
 </tr>
 </tbody>
 </table>
@@ -373,6 +369,62 @@ li{margin:5px 0}
 <blockquote>
 <p>对你那句「想让 AI 自己升级的话和考试内容和风格相差很大」的理解：<strong>若让 AI 凭空生成题目/资料，会与高考真实内容、命题风格相差很远</strong>，因此必须以真实题库和你自己的资料为准。若理解有偏差请纠正。</p>
 </blockquote>
+<h4 id="381-examprofile-1-2026-11-14">3.8.1 学情基线：<code>ExamProfile</code>（问题 1 结论，2026-11-14）</h4>
+<p>上面的「教材版本/考纲标签」原本只是字段名，没有词典来源。现由用户背景查证后落定为一份<strong>可执行配置实体</strong>，它定义了整个标签体系的取值。</p>
+<p><strong>已确定值</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地区 / 学校</td>
+<td>广东深圳 / 深圳中学</td>
+</tr>
+<tr>
+<td>卷别</td>
+<td><strong>新高考 I 卷（新课标 I 卷）</strong>，语数英全国卷</td>
+</tr>
+<tr>
+<td>考试模式</td>
+<td><code>3+1+2</code>；<strong>数学不分文理</strong>；选考科目广东自主命题</td>
+</tr>
+<tr>
+<td>教材</td>
+<td><strong>人教 A 版（2019 新版）</strong>（<code>必修第一册 / 选择性必修第一~三册</code>）</td>
+</tr>
+<tr>
+<td>题型枚举</td>
+<td>单选 8×5 分 / 多选 4×5 分 / 填空 4×5 分 / 解答 6 题 70 分，满分 150</td>
+</tr>
+<tr>
+<td>主干知识</td>
+<td>三角函数 / 数列 / 统计与概率 / 立体几何 / 函数与导数 / 解析几何</td>
+</tr>
+<tr>
+<td>难度分布</td>
+<td>基础 : 中档 : 难题 ≈ 5 : 3 : 2</td>
+</tr>
+<tr>
+<td>命题风格（2026）</td>
+<td>去套路化、题型顺序重组、情境化建模增多、重思维轻计算、开放探究 + 新定义压轴、<strong>回归教材</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>框架层面的三点影响</strong></p>
+<ol>
+<li><strong>知识点树直接挂靠教材目录</strong>，而非 AI 自拟标签。首个锚点即用户原始情境中的薄弱点：
+   <code>人教A版·必修第一册 → 第二章 一元二次函数、方程和不等式 → 2.2 基本不等式</code>。
+   这让「贴切」变成<strong>可校验</strong>（能比对章节/题型/分值），而不是靠主观判断。</li>
+<li><strong>为「AI 只做检索匹配 + 讲解 + 基于母题的变式」补上硬理由</strong>：真题正在「去套路化 + 情境建模 + 开放探究」上发力，而这恰是模型最容易生成模板化题目的地方——用户的直觉与真题分析一致，因此"禁止无来源题冒充高考题"不是保守，是必需。</li>
+<li><strong><code>ExamProfile</code> 随 <code>.studypack</code> 一并导出</strong>：换设备、换年份、换教材时只需替换这一份配置，知识点树、题型枚举、资料筛选规则全部跟着走，「贴切高考」不因迁移而丢失。</li>
+</ol>
+<blockquote>
+<p>教材版本的小提醒：深圳高中数学同时存在人教 A 版与苏教版并行的情况；深中数学组深度参与人教 A 版教材编写与示范课，故按 <strong>人教 A 版</strong> 落定。若你课本封面是别的版本，说一声，只改这一处配置即可。</p>
+</blockquote>
 <h3 id="39-l0">3.9 策略与开关层（L0，横切）</h3>
 <p>所有「有这个功能，但用不用由我定」的点统一归此层，不各自造开关：</p>
 <table>
@@ -412,7 +464,7 @@ li{margin:5px 0}
 <h3 id="310">3.10 数据持久化与迁移子系统</h3>
 <ul>
 <li>全部数据本地存储；支持主动（自动快照）与手动保存。</li>
-<li><strong>固定格式导入/导出所有数据，用于其它设备使用</strong>（格式由本文设计，见 §8）。</li>
+<li><strong>固定格式导入/导出所有数据，用于其它设备使用</strong>（格式由本文设计，见 §5）。</li>
 </ul>
 <hr />
 <h2 id="4">4. 平台与技术选型</h2>
@@ -455,6 +507,7 @@ li{margin:5px 0}
 <pre><code>studypack-YYYYMMDD-HHMM/
 ├── manifest.json          # 版本/schema版本/导出时间/设备/校验和
 ├── preferences.json       # 策略与开关层全部配置
+├── exam_profile.json      # 学情基线：卷别/教材/知识点树/题型/难度（§3.8.1）
 ├── tasks.json             # 习惯性任务 + 一次性任务
 ├── plans.json             # 规划（目标、量化指标、时限、开始时机、空闲时段）
 ├── sessions.json          # 会话状态机记录、测验记录、归因记录
@@ -486,9 +539,9 @@ li{margin:5px 0}
 </thead>
 <tbody>
 <tr>
-<td>考纲版本 / 教材版本 / 地区（如新高考卷别）</td>
-<td>待确认</td>
-<td>决定考纲标签体系</td>
+<td>~~考纲版本 / 教材版本 / 地区~~</td>
+<td><strong>已确定</strong>（问题 1）</td>
+<td>广东深圳 · 新高考 I 卷 · 人教 A 版 2019 → <code>ExamProfile</code>（§3.8.1）</td>
 </tr>
 <tr>
 <td>「绿色空闲时段」判定规则、是否与系统日历同步</td>
@@ -542,8 +595,13 @@ li{margin:5px 0}
 </tr>
 <tr>
 <td><code>WFY-1-BYO/study-agent</code> 仓库</td>
-<td>暂不启用</td>
-<td>2026-11-12 创建的空公开仓库；<strong>进入实际搭建/版本管理阶段时再提醒你确认是否启用</strong></td>
+<td><strong>已启用</strong></td>
+<td>2026-11-13 起作为项目仓库，本文档每次修改自动推送 <code>origin/main</code></td>
+</tr>
+<tr>
+<td>教材版本是否为苏教版 / 人教 B 版</td>
+<td>低风险核对项</td>
+<td>已按人教 A 版落定；只需核对课本封面，若不同改 <code>ExamProfile</code> 一处</td>
 </tr>
 </tbody>
 </table>
@@ -628,17 +686,21 @@ li{margin:5px 0}
 <td>达标 <strong>1+2</strong>；未达标 → <strong>分析原因 → 继续费曼 → 再测一遍</strong></td>
 <td>双层达标语义 + 归因回路（§3.4）</td>
 </tr>
+<tr>
+<td>15</td>
+<td>深圳中学学生；卷别教材不清楚，<strong>但是人教</strong></td>
+<td>查证补全新高考 I 卷 + 人教 A 版 2019 → 新增 <code>ExamProfile</code> 实体与 §3.8.1 学情基线</td>
+</tr>
 </tbody>
 </table>
 <hr />
 <h2 id="8">8. 建议的推进顺序</h2>
 <ol>
 <li><strong>确认本文档</strong>（尤其 §3.8 那句理解、§7 台账有无偏差）。</li>
-<li>定考纲标签体系的最小集（卷别 / 教材版本 / 知识点树 / 题型 / 难度）。</li>
+<li>~~定考纲标签体系的最小集~~ → <strong>已完成</strong>：<code>ExamProfile</code> 已落定（§3.8.1），下一步是直接把知识点树按人教 A 版目录建出来。</li>
 <li>评审 <code>.studypack</code> schema，先做导入导出的可运行验证 —— 这是「数据能带走」的地基，越早定越好。</li>
 <li>原型从<strong>闭环①（任务/提醒）+ 规划创建</strong>起步，这两块不依赖 AI 与外部资源，能最快跑通。</li>
 <li>再接 <code>DeepSeekAdapter</code> 与本地资料导入，跑通一次完整会话（含未达标归因回路）。</li>
 <li>最后补 A/C/D 笔记通道与 Android 平板分屏适配。</li>
 <li>进入实际搭建时，再确认是否启用 <code>study-agent</code> 仓库。</li>
-</ol>
-</main></div></body></html>
+</ol></main></div></body></html>
