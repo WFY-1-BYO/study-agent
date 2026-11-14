@@ -10,25 +10,22 @@ nav{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);over
 nav h3{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.05em}
 nav ul{list-style:none;padding-left:0;margin:0}nav ul ul{padding-left:14px}nav li{margin:4px 0}
 nav a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}nav a:hover{color:var(--accent)}
-main{min-width:0}
-h1{font-size:30px;line-height:1.35;border-bottom:1px solid var(--line);padding-bottom:14px;margin-top:0}
-h2{font-size:22px;margin-top:44px;border-bottom:1px solid var(--line);padding-bottom:8px}
-h3{font-size:18px;margin-top:30px}h4{font-size:16px;margin-top:22px;color:var(--accent)}
-blockquote{margin:16px 0;padding:12px 16px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}
-blockquote p{margin:6px 0}
+main{min-width:0}main h1{font-size:30px;line-height:1.35;border-bottom:1px solid var(--line);padding-bottom:14px;margin-top:0}
+main h2{font-size:22px;margin-top:44px;border-bottom:1px solid var(--line);padding-bottom:8px}
+main h3{font-size:18px;margin-top:30px}main h4{font-size:16px;margin-top:22px;color:var(--accent)}
+blockquote{margin:16px 0;padding:12px 16px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}blockquote p{margin:6px 0}
 table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
-th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
-th{background:var(--panel);font-weight:600;white-space:nowrap}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}th{background:var(--panel);font-weight:600;white-space:nowrap}
 tr:nth-child(even) td{background:color-mix(in srgb,var(--panel) 40%,transparent)}
+table.arch td:first-child{background:var(--panel);font-weight:600;min-width:170px}.note{color:var(--muted);font-size:13px}
 code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
-pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;line-height:1.55}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;line-height:1.55;white-space:pre-wrap}
 pre code{background:none;border:0;padding:0;font-size:13px}
-hr{border:0;border-top:1px solid var(--line);margin:36px 0}
-a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5px 0}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5px 0}
 .meta{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted);margin-bottom:20px}
 @media(max-width:820px){.wrap{grid-template-columns:1fr;gap:0}nav{position:static;max-height:none;margin-bottom:24px}body{font-size:15px}}
-</style></head>
-<body><div class="wrap"><nav><h3>目录</h3><div class="toc">
+</style></head><body><div class="wrap">
+<nav><h3>目录</h3><div class="toc">
 <ul>
 <li><a href="#0">0. 产品定位</a></li>
 <li><a href="#1">1. 完整回顾（仔仔细细核对理解）</a><ul>
@@ -68,8 +65,7 @@ a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5
 <li><a href="#9">9. 分工与下一步</a></li>
 </ul>
 </div>
-</nav>
-<main><span class="meta">v1.0 定稿 · 完整回顾 + 七问收口 · 2026-11-14</span>
+</nav><main><span class="meta">v1.0 定稿 · 完整回顾 + 七问收口 · 2026-11-14</span>
 <h1 id="app">学习助手 App · 需求与框架定稿</h1>
 <blockquote>
 <p><strong>版本 v1.0（定稿）· 2026-11-14</strong>
@@ -326,28 +322,23 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 </blockquote>
 <hr />
 <h2 id="2">2. 框架总览</h2>
-<pre><code>┌────────────────────────────────────────────────────────────────────┐
-│  L0 策略与开关层（横切）  Preferences / Feature Toggles              │
-│  提醒方式 · 开始时机 · 摸底测验 · 笔记显隐 · 数据外发范围             │
-│  提前量(2/5/自定义) · SessionIntent(跟随/挑战/刷自信)                 │
-├──────────────────┬─────────────────────────────────────────────────┤
-│ 闭环① 任务/习惯  │ 闭环② 能力精进                                   │
-│ 维系             │  发现薄弱 → 建规划 → 会话学习 → 费曼总结          │
-│                  │   → 复习闭环(模式2) → 达成量化目标                │
-│ Widget / 今日 /  │  归因回路：未达标 → 归因 → 费曼 → 再测            │
-│ 全局日历         │  SlotPool 供时段，Session 按容量匹配环节           │
-├──────────────────┴─────────────────────────────────────────────────┤
-│  L1 能力层（可插拔）                                                │
-│  AI 服务层 ─ 能力接口(固定) + Provider 适配器(可换)                  │
-│  资源适配器层 ─ 分屏跳转(A) · 文件桥接(C) · 引用登记 · 本地导入       │
-│  笔记子系统 ─ A/C/D 三通道 + 两份独立笔记 + anchorId 关联             │
-│  高考对齐约束层 ─ 来源 / 考纲标签 / 年份地区 / 题型分值难度            │
-│  全局时间视图 ─ Widget(最小) → 今日 → 日历(任务·规划·校历叠加)        │
-├────────────────────────────────────────────────────────────────────┤
-│  L2 数据底座：本地存储 + 主动/手动保存 + .studypack 全量迁移          │
-│  （① 纯开放不加密；密钥与第三方版权内容不进包）                       │
-└────────────────────────────────────────────────────────────────────┘
-</code></pre>
+
+<table class="arch">
+<thead><tr><th>层</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td><strong>L0 策略与开关层</strong>（横切）<br><span class="note">Preferences / Feature Toggles</span></td>
+<td>提醒方式 · 开始时机 · 摸底测验 · 笔记显隐 · 数据外发范围<br>提前量(2/5/自定义) · SessionIntent(跟随/挑战/刷自信)</td></tr>
+<tr><td><strong>闭环① 任务/习惯维系</strong></td><td>Widget / 今日 / 全局日历</td></tr>
+<tr><td><strong>闭环② 能力精进</strong></td><td>发现薄弱 → 建规划 → 会话学习 → 费曼总结 → 复习闭环(模式2) → 达成量化目标<br>
+<span class="note">子回路：未达标 → 归因 → 费曼 → 再测；SlotPool 供时段，Session 按容量匹配环节</span></td></tr>
+<tr><td><strong>L1 能力层</strong>（可插拔）</td><td>AI 服务层＝能力接口(固定) + Provider 适配器(可换)<br>
+资源适配器层＝分屏跳转(A) · 文件桥接(C) · 引用登记 · 本地导入<br>
+笔记子系统＝A/C/D 三通道 + 两份独立笔记 + anchorId 关联<br>
+高考对齐约束层＝来源 / 考纲标签 / 年份地区 / 题型分值难度<br>
+全局时间视图＝Widget(最小) → 今日 → 日历(任务·规划·校历叠加)</td></tr>
+<tr><td><strong>L2 数据底座</strong></td><td>本地存储 + 主动/手动保存 + .studypack 全量迁移<br><span class="note">① 纯开放不加密；密钥与第三方版权内容不进包</span></td></tr>
+</tbody></table>
+
 <p><strong>一句话</strong>：两个闭环共用同一套 AI 能力层、笔记/资源接入层、全局时间视图与本地数据底座；所有「可选但存在」的行为统一由 L0 管理；<strong>一份坐标体系（知识点树节点 ID）贯穿资源标签 → 错因归因 → 笔记关联 → 复习调度</strong>。</p>
 <hr />
 <h2 id="3">3. 领域模型（核心实体）</h2>
@@ -604,24 +595,17 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 <li><strong>防污染设计</strong>：手动选「刷自信」做对中档题，<strong>不能算薄弱程度下降的证据</strong>。做题记录带 <code>来源模式 = 自适应 / 意图覆盖</code>，归因只认前者，否则 <code>WeakPoint</code> 评级与复习计划会被一次「刷自信」拉歪。</li>
 </ul>
 <h3 id="46">4.6 学习执行引擎（会话状态机）</h3>
-<pre><code>[AI 准备资源] ──► [摸底测验：可选，可跳过] ──► [视频学习 + 笔记]
-                                                    │
-                                                    ▼
-                                              [相关测验]
-                                                    │
-                              ┌───────────── 达标? ─────────────┐
-                              │ 是                          │ 否
-                              ▼                                 ▼
-                        [总结环节]                      [AI 错因归因 → WeakPoint]
-                   我复述 → AI 纠正 → 反复                │
-                        → 确认理解                          ▼
-                              │                    [回到费曼复述-纠正]
-                              ▼                          │
-                   [生成个性化 AI 笔记]                   ▼
-                              │                   [再测一遍] ─┐
-                              ▼                              │
-                   [生成复习计划，纳入该规划] ◄──────────────┘
-</code></pre>
+
+<table class="arch flow">
+<thead><tr><th>阶段</th><th>流转</th></tr></thead>
+<tbody>
+<tr><td>1 资源就绪</td><td>AI 准备资源 → <strong>摸底测验（可选，可跳过）</strong> → 视频学习 + 笔记</td></tr>
+<tr><td>2 测验</td><td>相关测验 → 判定达标</td></tr>
+<tr><td>3a 达标 → 总结</td><td>我复述 → AI 纠正 → 反复 → 确认理解 → 生成个性化 AI 笔记 → 生成复习计划纳入规划</td></tr>
+<tr><td>3b 未达标 → 归因回路</td><td>AI 错因归因（产出 WeakPoint）→ 回到费曼复述-纠正 → <strong>再测一遍</strong> → 回到第 2 步，循环至通过线</td></tr>
+<tr><td>4 复习闭环（固定）</td><td>下次学习前：复述上次理解 → AI 纠正 → 反复确认 → 几道简单练手题 → 今日新内容</td></tr>
+</tbody></table>
+
 <ul>
 <li>「摸底测验」是<strong>可跳过节点</strong>；内置笔记区是<strong>可开关节点</strong>（关闭时不渲染，但不影响 A/C 已归档内容）。</li>
 <li>总结环节 = 费曼式复述-纠正循环。</li>
@@ -923,26 +907,23 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 <h3 id="61">6.1 设计目标</h3>
 <p>全量可携带 · 开放可读 · 不锁死在特定程序 · 自描述可校验 · 不含密钥与第三方版权内容。</p>
 <h3 id="62">6.2 目录结构</h3>
-<pre><code>studypack-YYYYMMDD-HHMM/
-├── manifest.json          # 版本/schemaVersion/导出时间/设备/checksum
-├── preferences.json       # L0 策略与开关层全部配置
-├── exam_profile.json      # 学情基线：卷别/教材/知识点树/题型/难度
-├── school_calendar.json   # 校源日程：课程 + 考试 + 活动（含禁用规则）
-├── slot_pool.json         # 时段池 + 常驻模板 + 当天确认状态
-├── tasks.json             # 习惯性任务 + 一次性任务（含提醒提前量与跳转动作）
-├── plans.json             # 规划（目标、量化指标、时限、开始时机、slots 引用）
-├── sessions.json          # 会话状态机、测验记录、SessionIntent、来源模式标记
-├── weak_points.json       # 薄弱点条目 + 证据 + 一行考前提醒
-├── review.json            # 复习计划与状态（固定模式 2）
-├── ai_notes.json          # AI 笔记（独立一份）
-├── my_notes.json          # 我的笔记（独立一份，含 A/C/D 来源通道）
-├── anchor_links.json      # anchorId ↔ 两份笔记的块/页 关联表
-├── resources.json         # 资源引用：只存元数据与出处，不存第三方内容
-└── assets/
-    ├── pdf/               # 讲义、C 通道批注回传 PDF、校历归档副本
-    ├── ink/               # SVG 笔迹（D 通道）
-    └── images/            # 图片、题目截图、课程表原始截图
-</code></pre>
+
+<table class="arch">
+<thead><tr><th>层</th><th>内容</th></tr></thead>
+<tbody>
+<tr><td><strong>L0 策略与开关层</strong>（横切）<br><span class="note">Preferences / Feature Toggles</span></td>
+<td>提醒方式 · 开始时机 · 摸底测验 · 笔记显隐 · 数据外发范围<br>提前量(2/5/自定义) · SessionIntent(跟随/挑战/刷自信)</td></tr>
+<tr><td><strong>闭环① 任务/习惯维系</strong></td><td>Widget / 今日 / 全局日历</td></tr>
+<tr><td><strong>闭环② 能力精进</strong></td><td>发现薄弱 → 建规划 → 会话学习 → 费曼总结 → 复习闭环(模式2) → 达成量化目标<br>
+<span class="note">子回路：未达标 → 归因 → 费曼 → 再测；SlotPool 供时段，Session 按容量匹配环节</span></td></tr>
+<tr><td><strong>L1 能力层</strong>（可插拔）</td><td>AI 服务层＝能力接口(固定) + Provider 适配器(可换)<br>
+资源适配器层＝分屏跳转(A) · 文件桥接(C) · 引用登记 · 本地导入<br>
+笔记子系统＝A/C/D 三通道 + 两份独立笔记 + anchorId 关联<br>
+高考对齐约束层＝来源 / 考纲标签 / 年份地区 / 题型分值难度<br>
+全局时间视图＝Widget(最小) → 今日 → 日历(任务·规划·校历叠加)</td></tr>
+<tr><td><strong>L2 数据底座</strong></td><td>本地存储 + 主动/手动保存 + .studypack 全量迁移<br><span class="note">① 纯开放不加密；密钥与第三方版权内容不进包</span></td></tr>
+</tbody></table>
+
 <h3 id="63-7-1">6.3 规则（问题 7 结论：① 纯开放不加密）</h3>
 <ol>
 <li><strong>纯开放格式、不加密</strong>：JSON（UTF-8）+ SVG + PDF + Markdown，任何设备、别的程序都能直接读；导入无需口令。<strong>代价</strong>：拿到文件即可读到全部学习轨迹（学校、班级、薄弱点、错题），已提示并由你确认接受。</li>
