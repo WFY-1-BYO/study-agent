@@ -2,7 +2,7 @@
 
 一款**辅助学习 App** 的项目仓库：提醒日常任务、呈现日程，并在发现知识薄弱点后用 AI 陪跑「学习 → 测验 → 费曼复述 → 个性化笔记 → 复习」的完整闭环。以 Android 为主，数据本地存储、可全量导入导出。
 
-当前阶段：**需求与框架 v1.0 → 千问页面结构与画风定稿 → 双端样式 v1.0 → PRD 建设蓝图 v1.0 均已完成；第一版编码进行中**。
+当前阶段：**第一版 `v0.1.0` 已交付** —— F0–F14 全部实现，逐功能测试 + 最终全量回归 **436 用例全绿**，三档真实视口浏览器渲染校验通过。详见 [docs/测试报告.pdf](docs/测试报告.pdf)。
 
 主用设备：**vivo S7**（6.44" / 2400×1080 / 20:9 / 408ppi / 60Hz / Android 10）＋ **联想拯救者 Y900 13 英寸**（TB522FU / 约 3840×2560 / 144Hz / Android 16）。
 
@@ -18,17 +18,31 @@
 | [docs/给千问_页面设计交接简报.pdf](docs/给千问_页面设计交接简报.pdf) | 8 页 A4 · 自包含，曾作为设计输入转发给千问 |
 | [design/千问_页面结构与画风设计方案.pdf](design/千问_页面结构与画风设计方案.pdf) | **视觉真源**（千问定稿，3 页 / 8 个高保真原型）：tokens / 信息架构 / 组件规范 |
 | [docs/学习助手App_软件框架.html](docs/学习助手App_软件框架.html) | 框架网页版，带侧栏目录 |
+| **[docs/测试报告.pdf](docs/测试报告.pdf)** | **第一版测试报告 · 7 页 A4**：F0–F14 逐功能结果 / 436 用例汇总 / 浏览器三档渲染校验 / 修复记录 / 交付清单 |
+| [docs/测试报告.html](docs/测试报告.html) | 测试报告网页版 |
 | `docs/*.md` | 各文档源文件（改后跑构建脚本重出 PDF/HTML） |
 
-> **改文档后**：`python3.11 tools/build_docs.py` 一键重出全部 PDF 与网页版。脚本把 ASCII 字符画自动转成结构化表格、目录页码自动生成；中文用 Noto CJK 嵌入，PDF 可复制可搜索。
+> **改文档后**：`python3.11 tools/build_docs.py` 一键重出全部 PDF 与网页版；也可只传文件名（如 `python3.11 tools/build_docs.py 测试报告.md`）单独构建，避免触碰已定稿 PDF。脚本把 ASCII 字符画自动转成结构化表格、目录页码自动生成；中文用 Noto CJK 嵌入，PDF 可复制可搜索。
 
-## 代码结构（第一版）
+## 代码结构（第一版 v0.1.0）
 
 ```
 lib/     Dart 领域内核 —— 业务规则唯一真源（零第三方依赖，兼容 Dart 2.17）
-test/    每功能测试 tFxx_*.dart + run_all.dart 全量回归
-web/     可运行界面（轻量查看器形态，消费同一份 .studypack schema）
-tools/   文档构建脚本
+         F0 core / F1 models / F2 studypack / F3 storage / F4 preferences
+         F5 tasks / F6 slotpool / F7 plans / F8 session / F9 weakpoint
+         F10 variants / F11 notes / F12 resources / F13 ai / F14 ui + viewer
+test/    每功能测试 tFxx_*.dart（15 个）+ framework.dart + run_all.dart 全量回归
+web/     可运行界面 index.html（轻量查看器形态，消费同一份 .studypack schema）
+         shot_phone.png / shot_medium.png / shot_pad.png 为浏览器渲染校验留痕
+tools/   build_docs.py（文档）/ gen_viewer.dart（生成查看器）/ browser_check.mjs（CDP 渲染校验）
+```
+
+**运行方式**
+
+```bash
+dart test/run_all.dart                    # 全量回归，436 用例
+dart tools/gen_viewer.dart                # 生成 web/index.html
+node tools/browser_check.mjs              # CDP 强制 360/720/1280 真实视口校验并截图
 ```
 
 ## 分工
@@ -39,7 +53,7 @@ tools/   文档构建脚本
 | **页面结构 + 整体画风** | **千问** | ✅ 定稿 |
 | **设备适配层（双端样式）** | 本助手 | ✅ v1.0 |
 | **PRD 建设蓝图** | 本助手 | ✅ v1.0 终版 |
-| **编码实现（第一版 v0.1.0）** | 本助手 | ⏳ 进行中 |
+| **编码实现（第一版 v0.1.0）** | 本助手 | ✅ 已完成 · 436 用例全绿 |
 
 需求归框架文档，画风归千问定稿，适配归双端样式；**开发与修改统一以 PRD 建设蓝图为准**。
 
@@ -55,7 +69,7 @@ tools/   文档构建脚本
 - **每写一个功能，立即测试；全部通过才进入下一个功能**。不删断言、不放宽断言、不跳过失败用例。
 - 所有功能完成后跑**全量回归**，`run_all.dart` 全绿之后才交付。
 - 界面另做无头浏览器渲染校验（无溢出 / 错位 / 中文方块）。
-- 测试结果留痕于 `docs/测试报告.md`。
+- 测试结果留痕于 **[docs/测试报告.pdf](docs/测试报告.pdf)**（另有 `docs/测试报告.md` / `.html`）。第一版结论：15 个功能测试文件 / 436 用例 / 通过 436 / 失败 0 / `ALL_GREEN`。
 
 ## 关键约束速览
 

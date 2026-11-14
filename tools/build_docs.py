@@ -213,6 +213,23 @@ SPECS = [
         web=False,
         kicker="STUDY-AGENT · DEVICE ADAPTATION",
     ),
+    dict(
+        md="测试报告.md",
+        title="学习助手 App\n第一版测试报告",
+        subtitle="F0–F14 逐功能测试 · 436 用例全绿 · 三档浏览器渲染校验",
+        meta=[
+            ("版本", "v0.1.0 · 2026-11-14"),
+            ("结论", "15 个功能测试文件 / 436 用例 / 通过 436 / 失败 0 / ALL_GREEN"),
+            ("质量门禁", "每功能测试通过才进下一功能；每功能后全量回归；全部完成后再全量测验；不删断言、不放宽、不跳过"),
+            ("浏览器校验", "CDP 强制真实视口 360 / 720 / 1280，overflow=NO、元素无越界、中文 Noto CJK 正常"),
+            ("仓库", "WFY-1-BYO/study-agent"),
+        ],
+        foot="本文为 PRD §10「每次测试结果留痕」的落实记录。<br>第一版 v0.1.0 依 PRD 建设蓝图实现，业务真源为 Dart 领域内核。<br>测试期望算错修期望，实现有错修实现，全程未降低要求。",
+        web=True,
+        web_title="学习助手 App · 第一版测试报告 v0.1.0",
+        web_meta="v0.1.0 · 436 用例全绿 · 2026-11-14",
+        kicker="STUDY-AGENT · TEST REPORT / V0.1.0",
+    ),
 ]
 
 
@@ -253,7 +270,17 @@ def build(spec: dict) -> None:
 
 
 if __name__ == "__main__":
+    import sys
+    # 不带参数 = 全量重建；带 md 文件名 = 只构建指定文档（避免触碰已定稿 PDF）。
+    wanted = set(sys.argv[1:])
+    built = 0
     for s in SPECS:
+        if wanted and s["md"] not in wanted:
+            continue
         print(f"构建: {s['md']}")
         build(s)
-    print("完成。")
+        built += 1
+    if wanted and built == 0:
+        print(f"未匹配到任何文档: {', '.join(sorted(wanted))}")
+        sys.exit(1)
+    print(f"完成（构建 {built} 份）。")
