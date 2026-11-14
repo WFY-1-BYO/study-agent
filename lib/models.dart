@@ -25,7 +25,7 @@ class E {
   static const sourceModes = ['adaptive', 'intentOverride'];
   static const sessionStages = [
     'resources', 'pretest', 'study', 'quiz', 'passed', 'summary',
-    'aiNote', 'reviewPlan', 'attribution', 'remediation', 'done'
+    'aiNote', 'reviewPlan', 'attribution', 'remediation', 'review', 'done'
   ];
   static const reviewModes = ['fixed2'];
   static const slotSources = [
