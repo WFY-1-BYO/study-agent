@@ -180,6 +180,21 @@ SPECS = [
         foot="编码实现由本助手按千问定稿承担。<br>三者共用框架文档 v1.0 作为输入基准。",
         web=False,
     ),
+    dict(
+        md="双端样式设计_vivoS7与Y900.md",
+        title="双端样式设计\nvivo S7 / 联想拯救者 Y900",
+        subtitle="设备适配层 · 断点 / 导航 / 双端分工 / 分屏降级",
+        meta=[
+            ("版本", "v1.0 · 2026-11-14"),
+            ("边界", "画风与信息架构沿用千问定稿；本文只补设备适配层"),
+            ("设备", "vivo S7（6.44\" / 2400×1080 / 20:9 / 360dp / Android 10）· 联想拯救者 Y900 13\"（TB522FU / 约 3840×2560 / 144Hz / Android 16）"),
+            ("内容", "千问方案重评 / 断点与导航 / 手机端规格 / Pad 端规格 / A 通道分屏三形态 / 8 屏双端对照 / 分工矩阵 / 编码落地清单"),
+            ("配套", "双端样式对照稿.html（可视化）、design/千问_页面结构与画风设计方案.pdf（设计基准）"),
+        ],
+        foot="画风归千问定稿，需求归框架文档 v1.0，设备适配归本文。<br>绿色语义冲突（方案 A/B/C）待千问或用户拍板。",
+        web=False,
+        kicker="STUDY-AGENT · DEVICE ADAPTATION",
+    ),
 ]
 
 
@@ -196,8 +211,9 @@ def build(spec: dict) -> None:
     rows = "".join(
         f"<tr><td>{htmlmod.escape(k)}</td><td>{v}</td></tr>" for k, v in spec["meta"]
     )
+    kicker = spec.get("kicker", "STUDY-AGENT · 需求与框架")
     doc = f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><style>{PRINT_CSS}</style></head><body>
-<div class="cover"><div class="kicker">STUDY-AGENT · 需求与框架</div>
+<div class="cover"><div class="kicker">{kicker}</div>
 <h1>{htmlmod.escape(spec['title'])}</h1><div class="sub">{spec['subtitle']}</div><div class="rule"></div>
 <table>{rows}</table><div class="foot">{spec['foot']}</div></div>
 <div class="tocpage"><h2>目录</h2><div class="toc">{toc}</div></div>

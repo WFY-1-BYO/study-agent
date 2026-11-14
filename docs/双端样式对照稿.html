@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学习助手 App · 双端样式对照稿（vivo S7 / 联想拯救者 Y900）</title>
+<style>
+:root{
+  --brand:#204066; --brand-soft:#E8EEF5; --action:#E0892E; --action-soft:#FBEFDC;
+  --green:#2E7D5B; --green-soft:#E2F0E9; --alert:#C0492F; --alert-soft:#F8E7E2;
+  --paper:#F5F2EB; --card:#FFFFFF; --ink:#1E2733; --muted:#70787F; --line:#DDD9CF;
+  --grid:#EBE7DE; --rail:#EDF1F6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.7;font-size:14px}
+.wrap{max-width:1240px;margin:0 auto;padding:36px 24px 90px}
+header{border-bottom:2px solid var(--brand);padding-bottom:18px;margin-bottom:8px}
+.kicker{font-size:11px;letter-spacing:.22em;color:var(--action);font-weight:700}
+h1{font-family:"Noto Serif SC",serif;font-size:29px;margin:8px 0 6px;color:var(--brand);line-height:1.35}
+.sub{color:var(--muted);font-size:13px}
+.banner{background:var(--brand-soft);border-left:4px solid var(--brand);padding:12px 16px;
+  border-radius:0 8px 8px 0;margin:22px 0 30px;font-size:13px}
+.banner b{color:var(--brand)}
+h2{font-family:"Noto Serif SC",serif;font-size:20px;color:var(--brand);margin:44px 0 6px;
+  padding-bottom:8px;border-bottom:1px solid var(--line)}
+h2 .n{color:var(--action);font-size:14px;margin-right:10px;font-family:sans-serif}
+.lead{color:var(--muted);font-size:13px;margin:0 0 20px}
+/* ---- 色板 ---- */
+.tokens{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.tok{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tok .sw{height:52px}
+.tok .tx{padding:10px 12px;font-size:12px}
+.tok .tx b{display:block;font-size:13px;color:var(--brand)}
+.tok .tx span{color:var(--muted)}
+/* ---- 断点 ---- */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--rail);color:var(--brand);font-weight:700;white-space:nowrap}
+tr:nth-child(even) td{background:#FBF9F4}
+/* ---- 设备框 ---- */
+.pair{display:grid;grid-template-columns:230px 1fr;gap:26px;align-items:start;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0}
+.pair.right{grid-template-columns:1fr 230px}
+.devlabel{font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;font-weight:700}
+.devlabel b{color:var(--brand);font-size:13px}
+.devspec{font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px}
+.phone{width:196px;height:414px;border:9px solid #2A313A;border-radius:26px;background:var(--paper);
+  position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(32,64,102,.13)}
+.phone::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:62px;height:11px;background:#2A313A;border-radius:0 0 9px 9px;z-index:5}
+.status{height:20px;display:flex;justify-content:space-between;align-items:center;
+  padding:3px 10px 0;font-size:8px;color:var(--muted)}
+.pad{width:100%;aspect-ratio:3/2;border:10px solid #2A313A;border-radius:16px;background:var(--paper);
+  position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(32,64,102,.13)}
+.padstatus{height:22px;display:flex;justify-content:space-between;align-items:center;
+  padding:2px 14px;font-size:9px;color:var(--muted);border-bottom:1px solid var(--line)}
+/* 手机内部 */
+.ptitle{font-family:"Noto Serif SC",serif;font-size:13px;font-weight:700;color:var(--brand);padding:4px 12px 6px}
+.cd{margin:0 12px 8px;background:var(--action-soft);border-radius:12px;padding:9px 11px}
+.cd .t{font-size:9px;color:var(--muted)}
+.cd .big{font-size:22px;font-weight:700;color:var(--action);font-variant-numeric:tabular-nums;line-height:1.2}
+.cd .big small{font-size:10px}
+.row{display:flex;gap:6px;margin:0 12px 6px;align-items:stretch}
+.row .time{width:34px;flex:none;font-size:9px;color:var(--muted);padding-top:6px}
+.chip{flex:1;background:#fff;border:1px solid var(--grid);border-left:3px solid var(--muted);
+  border-radius:8px;padding:6px 8px;font-size:10px}
+.chip b{display:block;font-size:10.5px;color:var(--ink)}
+.chip.g{border-left-color:var(--green);background:var(--green-soft)}
+.chip.a{border-left-color:var(--action);background:#FDF6EC}
+.chip.r{border-left-color:var(--alert);background:var(--alert-soft)}
+.chip .m{font-size:8.5px;color:var(--muted)}
+.tabs{position:absolute;bottom:0;left:0;right:0;height:38px;background:#fff;border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;align-items:center;font-size:8.5px;color:var(--muted)}
+.tabs .on{color:var(--brand);font-weight:700}
+.pbody{padding-bottom:42px}
+/* pad 内部：rail + 双栏 */
+.padgrid{display:grid;grid-template-columns:52px 1fr;height:calc(100% - 22px)}
+.rail{background:var(--rail);border-right:1px solid var(--line);padding:12px 0;
+  display:flex;flex-direction:column;align-items:center;gap:14px}
+.rail i{width:22px;height:22px;border-radius:6px;background:#C9D3E0;display:block}
+.rail i.on{background:var(--brand)}
+.pcontent{padding:12px 16px;overflow:hidden}
+.ptitle2{font-family:"Noto Serif SC",serif;font-size:15px;font-weight:700;color:var(--brand);margin-bottom:10px}
+.two{display:grid;grid-template-columns:1.05fr 1fr;gap:14px;height:calc(100% - 34px)}
+.three{display:grid;grid-template-columns:0.9fr 1.15fr 0.95fr;gap:12px;height:calc(100% - 34px)}
+.pane{background:#fff;border:1px solid var(--grid);border-radius:10px;padding:10px 11px;overflow:hidden}
+.pane h4{margin:0 0 8px;font-size:10.5px;color:var(--brand);letter-spacing:.04em}
+.pline{height:7px;border-radius:3px;background:var(--grid);margin:6px 0}
+.pline.s{width:62%}.pline.m{width:84%}
+.pcard{border:1px solid var(--grid);border-left:3px solid var(--muted);border-radius:7px;
+  padding:6px 8px;margin:6px 0;font-size:9.5px;background:#FCFBF7}
+.pcard.g{border-left-color:var(--green);background:var(--green-soft)}
+.pcard.a{border-left-color:var(--action);background:var(--action-soft)}
+.pcard.r{border-left-color:var(--alert);background:var(--alert-soft)}
+.pcard .m{font-size:8.5px;color:var(--muted)}
+.video{background:#2A313A;border-radius:8px;height:64%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;position:relative}
+.video::after{content:"▶";font-size:20px;color:var(--action)}
+.inkzone{background:repeating-linear-gradient(0deg,#fff,#fff 13px,#EDF1F6 14px);
+  border:1px dashed #C9D3E0;border-radius:8px;height:100%;padding:10px;position:relative}
+.inkzone svg{width:100%;height:60%}
+.stage{display:flex;gap:4px;margin-bottom:9px}
+.stage span{flex:1;text-align:center;font-size:8.5px;padding:4px 2px;border-radius:5px;background:var(--grid);color:var(--muted)}
+.stage span.done{background:var(--brand);color:#fff}
+.stage span.now{background:var(--action);color:#fff}
+.anchor{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:8.5px;
+  border-radius:4px;padding:1px 5px;margin-top:4px}
+.printbtn{display:inline-block;border:1px solid var(--brand);color:var(--brand);border-radius:5px;
+  padding:3px 8px;font-size:9px;margin-top:8px}
+/* 分屏形态 */
+.splitrow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0}
+.splitbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.splitbox h4{margin:0 0 4px;font-size:13px;color:var(--brand)}
+.splitbox .tag{font-size:10px;color:var(--action);font-weight:700}
+.splitvis{display:flex;height:96px;border:6px solid #2A313A;border-radius:9px;margin:10px 0;overflow:hidden;background:#fff}
+.splitvis div{display:flex;align-items:center;justify-content:center;font-size:10px;padding:4px;text-align:center}
+.splitvis .app{background:var(--brand-soft);color:var(--brand)}
+.splitvis .note{background:#EFEAE0;color:#6A6257}
+.splitbox p{font-size:11.5px;color:var(--muted);margin:6px 0 0}
+/* 冲突卡 */
+.conflict{background:var(--alert-soft);border:1px solid #E6C4BA;border-left:4px solid var(--alert);
+  border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0;font-size:13px}
+.conflict b{color:var(--alert)}
+.pill{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:20px;
+  padding:2px 10px;font-size:11px;margin:3px 4px 3px 0}
+.foot{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+.legend{font-size:11px;color:var(--muted);margin:8px 0 0}
+.legend b{color:var(--green)}
+@media(max-width:900px){
+  .pair,.pair.right{grid-template-columns:1fr}
+  .tokens,.splitrow{grid-template-columns:repeat(2,1fr)}
+  .phone{margin:0 auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">STUDY-AGENT · DEVICE ADAPTATION / 设备适配层</div>
+  <h1>双端样式对照稿</h1>
+  <div class="sub">vivo S7（Compact · 360dp） ⟷ 联想拯救者 Y900 13"（Expanded · 横屏宽屏）　·　v1.0 · 2026-11-14</div>
+</header>
+
+<div class="banner">
+  <b>边界声明：</b>配色、字号、组件规范、信息架构沿用<b>千问定稿</b>（墨蓝 / 琥珀 / 松绿 / 朱砂、Noto Serif SC 标题、4dp 网格、卡片 16dp、Widget 22dp 圆角），本稿不改画风。
+  这里只补千问稿没做的<b>设备适配层</b>：断点、导航形态、栏数、两端分工、A 通道分屏降级。
+</div>
+
+<h2><span class="n">01</span>设计系统 Tokens（沿用千问，不改）</h2>
+<div class="tokens">
+  <div class="tok"><div class="sw" style="background:#204066"></div><div class="tx"><b>墨蓝 Brand</b><span>#204066 · 导航 / 品牌 / 主按钮 / 达标（方案A）</span></div></div>
+  <div class="tok"><div class="sw" style="background:#E0892E"></div><div class="tx"><b>琥珀 Action</b><span>#E0892E · 倒计时 / 进行中 / 提醒</span></div></div>
+  <div class="tok"><div class="sw" style="background:#2E7D5B"></div><div class="tx"><b>松绿 Slot</b><span>#2E7D5B · <b style="display:inline;color:#2E7D5B">仅「可学习空闲时段」专色</b></span></div></div>
+  <div class="tok"><div class="sw" style="background:#C0492F"></div><div class="tx"><b>朱砂 Alert</b><span>#C0492F · 薄弱点 / 未达标 / 挑战</span></div></div>
+</div>
+<div class="conflict">
+  <b>待拍板 · 绿色语义冲突：</b>千问 tokens 把松绿定义为「达标/完成/≥75%」，组件规范里又用它标「可学习时段」和 Stepper「已过」——一绿三义，与交接简报硬约束 2（<b>绿色 = 可学习空闲时段专色，不得挪作成功/完成</b>）冲突。
+  本稿按<b>方案 A</b> 出图：松绿只留给时段，达标改用<b>墨蓝实心 + 对勾/文字</b>，Stepper 已过用墨蓝填充；4 色不增不减。最终由千问或用户拍板。
+</div>
+<p class="legend">图例：<b>绿色块</b> = 可学习空闲时段（唯一语义）　·　琥珀 = 倒计时/进行中　·　朱砂 = 薄弱/未达标　·　描边 + 文字为打印态冗余编码</p>
+
+<h2><span class="n">02</span>断点与导航形态</h2>
+<table>
+  <tr><th>Window class</th><th>有效宽度</th><th>触发</th><th>导航</th><th>栏数</th></tr>
+  <tr><td><b>Compact</b></td><td>&lt; 600dp</td><td>vivo S7 竖屏 360dp</td><td>底部 4 Tab（千问定稿）</td><td>单栏，每屏一件事</td></tr>
+  <tr><td><b>Medium</b></td><td>600–840dp</td><td><b>Y900 被系统分屏后的半屏</b></td><td>NavigationRail 72–80dp</td><td>双栏或单栏＋侧栏</td></tr>
+  <tr><td><b>Expanded</b></td><td>≥ 840dp</td><td>Y900 全屏横屏（约 1536–1920dp）</td><td>常驻 NavigationRail 96dp / Drawer，<b>取消底部 Tab</b></td><td>双栏 / 三栏</td></tr>
+</table>
+<div class="banner" style="margin:14px 0 0">
+  <b>关键规则：</b>断点按<b>当前窗口宽度</b>判断，不按设备型号。Y900 一旦与 Notein 系统分屏，App 窗口宽度骤降到 Medium，必须自动切回单栏 + Rail —— 这是「能力探测 + 自动降级」在样式层的落点。
+</div>
+
+<h2><span class="n">03</span>同一屏 · 两端布局差异</h2>
+
+<!-- 对比 1：今日 -->
+<div class="pair">
+  <div>
+    <div class="devlabel"><b>vivo S7</b> · Compact 360dp</div>
+    <div class="phone"><div class="pbody">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="ptitle">今日</div>
+      <div class="cd"><div class="t">距下一个任务</div><div class="big">02:14 <small>还剩</small></div></div>
+      <div class="row"><div class="time">07:30</div><div class="chip"><b>背单词 · 习惯</b><span class="m">例行任务 · 一键打开</span></div></div>
+      <div class="row"><div class="time">17:20</div><div class="chip g"><b>基本不等式 · 会话</b><span class="m">整块 60min · 排新内容</span></div></div>
+      <div class="row"><div class="time">21:30</div><div class="chip a"><b>错题复述</b><span class="m">碎片 20min · 复习闭环</span></div></div>
+      <div class="row"><div class="time">—</div><div class="chip r"><b>课间 / 教学区</b><span class="m">禁用静默，不响不亮屏</span></div></div>
+      <div class="tabs"><span class="on">今日</span><span>规划</span><span>笔记</span><span>我的</span></div>
+    </div></div>
+    <div class="devspec">单栏 · 倒计时主卡置顶 · 时间轴串起任务/规划/复习<br>60Hz / 4000mAh → 不做秒级刷新<br>顶部避让刘海，底部避让手势条</div>
+  </div>
+  <div>
+    <div class="devlabel"><b>联想拯救者 Y900 13"</b> · Expanded 横屏宽屏</div>
+    <div class="pad">
+      <div class="padstatus"><span>9:41　周三 · 11月14日</span><span>全局日历 ›　●●●</span></div>
+      <div class="padgrid">
+        <div class="rail"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="pcontent">
+          <div class="ptitle2">今日 <span style="font-size:10px;color:var(--muted);font-weight:400">· 任务 / 规划 / 校历三层叠加</span></div>
+          <div class="two">
+            <div class="pane">
+              <h4>今日时间轴</h4>
+              <div class="pcard"><b>07:30 背单词</b><div class="m">习惯 · 已完成</div></div>
+              <div class="pcard g"><b>17:20 基本不等式 · 会话</b><div class="m">整块 60min · 排新内容</div></div>
+              <div class="pcard a"><b>21:30 错题复述</b><div class="m">碎片 20min · 复习闭环</div></div>
+              <div class="pcard"><b>校历：周五运动会</b><div class="m">自动供给临时时段</div></div>
+            </div>
+            <div class="pane">
+              <h4>下一任务 · 详情常驻</h4>
+              <div class="cd" style="margin:0 0 8px"><div class="t">距下一个任务</div><div class="big" style="font-size:19px">02:14 <small>还剩</small></div></div>
+              <div class="pcard g"><b>可学习时段池（绿色 = 唯一语义）</b><div class="m">07:00–07:30 / 13:00–13:30 / 17:20–18:20 / 21:30–21:50</div></div>
+              <div class="pcard"><b>按容量匹配环节</b><div class="m">碎片放复习 · 整块排新内容 · 会话可拆分续接</div></div>
+              <div class="pline m"></div><div class="pline s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="devspec">左侧 NavigationRail 取代底部 Tab · 双栏 List-Detail：左时间轴 320–360dp 固定，右详情弹性<br>正文栏 ≤720dp 不拉伸 · 字号与手机一致，大屏增加的是并列信息量，不是字号</div>
+  </div>
+</div>
+
+<!-- 对比 2：会话学习引擎 -->
+<div class="pair">
+  <div>
+    <div class="devlabel"><b>vivo S7</b> · Compact 单栏</div>
+    <div class="phone"><div class="pbody">
+      <div class="status"><span>17:24</span><span>●●●</span></div>
+      <div class="ptitle" style="font-size:11px">学习会话 · 基本不等式</div>
+      <div class="stage" style="margin:0 12px 8px"><span class="done">✓</span><span class="now">2</span><span>3</span><span>4</span><span>5</span></div>
+      <div class="row" style="margin:0 12px 6px"><div class="chip" style="border-left-color:var(--brand)"><b style="font-size:9.5px">1 资源就绪 · 视频 + 笔记</b></div></div>
+      <div class="cd" style="margin:0 12px 8px;background:#2A313A;color:#fff;text-align:center;padding:14px"><div style="font-size:18px;color:var(--action)">▶</div><div class="t" style="color:#B9C2CC">课程视频</div></div>
+      <div class="row"><div class="chip a"><b>3 测验作答中</b><span class="m">达标线 ≥75% 进总结</span></div></div>
+      <div class="row"><div class="chip"><b>4 费曼总结 · 复述纠正</b></div></div>
+      <div class="row"><div class="chip r"><b>未达标 → 归因回路</b><span class="m">继续费曼 → 再测一遍</span></div></div>
+      <div class="tabs"><span>今日</span><span class="on">规划</span><span>笔记</span><span>我的</span></div>
+    </div></div>
+    <div class="devspec">纵向堆叠：视频在上、笔记折叠在下（可显隐、隐藏不占位）<br>D 通道轻量笔迹 · A 通道降级为「一键跳转 Notein + 回位」</div>
+  </div>
+  <div>
+    <div class="devlabel"><b>Y900</b> · Expanded 双栏并列（pad 最大价值）</div>
+    <div class="pad">
+      <div class="padstatus"><span>17:24　学习会话 · 基本不等式 · 60min</span><span>专注模式 ⟶</span></div>
+      <div class="padgrid">
+        <div class="rail"><i></i><i class="on"></i><i></i><i></i></div>
+        <div class="pcontent">
+          <div class="stage"><span class="done">✓ 资源就绪</span><span class="done">✓ 视频学习</span><span class="now">3 测验</span><span>4 费曼</span><span>5 AI笔记+复习</span></div>
+          <div class="two" style="height:calc(100% - 30px)">
+            <div class="pane">
+              <h4>视频 / 题目</h4>
+              <div class="video">课程视频</div>
+              <div class="pcard a" style="margin-top:8px"><b>测验 · 达标线 ≥75%</b><div class="m">达标进总结；未达标 → 归因 → 费曼 → 再测</div></div>
+            </div>
+            <div class="pane">
+              <h4>内置笔记区（D 通道）· 可显隐</h4>
+              <div class="inkzone">
+                <svg viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M6 40 C30 12 44 52 66 26 S104 44 128 20 S170 38 194 16" stroke="#204066" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+                <div class="pline m"></div><div class="pline s"></div><div class="pline m"></div>
+                <span class="anchor">锚点 #KP2.2·S07 ↔ 笔迹 2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="devspec">左视频/题目 + 右手写笔迹区同屏，不必切走 · 144Hz 用于压感笔迹平滑<br>阶段进度条横置顶部 · 专注模式可隐藏 Rail 全屏</div>
+  </div>
+</div>
+
+<!-- 对比 3：笔记双栏 -->
+<div class="pair">
+  <div>
+    <div class="devlabel"><b>vivo S7</b> · Compact「双栏」降级为分段切换</div>
+    <div class="phone"><div class="pbody">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="ptitle">笔记</div>
+      <div class="row" style="margin:0 12px 8px"><div class="chip" style="background:var(--brand);color:#fff;border:0;text-align:center"><b style="color:#fff">AI 笔记</b></div><div class="chip" style="text-align:center"><b>我的笔迹</b></div></div>
+      <div class="row"><div class="chip" style="border-left-color:var(--brand)"><b>2.2 基本不等式 · Session 07</b><span class="m">核心：一正 · 二定 · 三相等</span></div></div>
+      <div class="row"><div class="chip"><b>AI 生成 · 点锚点可跳笔迹</b><span class="anchor">笔迹 2 ↗</span></div></div>
+      <div class="row"><div class="chip"><div class="pline m"></div><div class="pline s"></div></div></div>
+      <div class="tabs"><span>今日</span><span>规划</span><span class="on">笔记</span><span>我的</span></div>
+    </div></div>
+    <div class="devspec">360dp 硬塞两栏会挤 → 改分段切换 + 「笔迹 2」角标跳转<br>两份仍分开存，不合订（用户明确否决）</div>
+  </div>
+  <div>
+    <div class="devlabel"><b>Y900</b> · Expanded 真双栏对应</div>
+    <div class="pad">
+      <div class="padstatus"><span>9:41　笔记 · anchorId 本地索引</span><span>两份独立存储 · 双向关联</span></div>
+      <div class="padgrid">
+        <div class="rail"><i></i><i></i><i class="on"></i><i></i></div>
+        <div class="pcontent">
+          <div class="ptitle2">笔记 <span style="font-size:10px;color:var(--muted);font-weight:400">· AI 笔记 ‖ 我的手写，不合订</span></div>
+          <div class="two" style="height:calc(100% - 34px)">
+            <div class="pane">
+              <h4>AI 笔记（结构化文本块）</h4>
+              <div class="pcard"><b>2.2 基本不等式</b><div class="m">核心：一正 · 二定 · 三相等</div></div>
+              <div class="pline m"></div><div class="pline s"></div>
+              <div class="pcard" style="border-left-color:var(--brand)"><b>等号成立条件</b><span class="anchor">笔迹 2 ↗</span></div>
+              <div class="pline m"></div>
+            </div>
+            <div class="pane">
+              <h4>我的手写笔记（C / D 归档）</h4>
+              <div class="inkzone" style="height:78%">
+                <svg viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M8 34 C34 14 50 48 74 24 S112 42 140 18 S176 36 194 22" stroke="#204066" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+                <div style="font-size:9px;color:var(--muted)">「积定值，先问等号能不能取到 ✗」</div>
+                <span class="anchor">↖ 跳回 AI 笔记段落</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="devspec">千问「笔记·双栏对应」在 expanded 才真正落地 · anchorId 双向跳转，纯本地索引，不需要把笔迹交给 AI<br>识别结果只作可检索摘要，绝不覆盖原始笔迹</div>
+  </div>
+</div>
+
+<h2><span class="n">04</span>A 通道分屏：三形态 + 降级（Y900 独占主战场）</h2>
+<div class="splitrow">
+  <div class="splitbox">
+    <div class="tag">形态 ①　优先</div><h4>系统分屏 60:40</h4>
+    <div class="splitvis"><div class="app" style="width:60%">学习 App<br>视频 / 题目 / AI 笔记</div><div class="note" style="width:40%">Notein<br>手写</div></div>
+    <p>检测到多窗口 / Activity Embedding → App 窗口降到 <b>Medium</b>，自动切单栏 + NavigationRail。顶部留「返回学习会话」。</p>
+  </div>
+  <div class="splitbox">
+    <div class="tag">形态 ②</div><h4>自由窗口 / 悬浮窗</h4>
+    <div class="splitvis"><div class="app" style="width:100%">学习 App（紧凑单栏）<div style="position:relative;background:#EFEAE0;padding:6px 10px;border-radius:6px;font-size:9px">Notein 悬浮窗</div></div></div>
+    <p>系统支持自由窗口时用；App 收成紧凑单栏。笔迹归档仍走 C 通道 PDF 桥接。</p>
+  </div>
+  <div class="splitbox">
+    <div class="tag">形态 ③　降级</div><h4>一键跳转 + 自动回位</h4>
+    <div class="splitvis"><div class="app" style="width:100%">学习 App 全屏　→　切到 Notein　→　自动回到会话</div></div>
+    <p>分屏不可用时与手机同构。A 通道只登记「外部引用 + 可选快照」，原始笔迹入不了我们库。</p>
+  </div>
+</div>
+<div class="banner" style="margin-top:6px">
+  <b>能力探测顺序：</b>④ App 内 D 通道（永远可用，数据 100% 归本地）→ ① 系统分屏 → ② 自由窗口 → ③ 跳转降级。
+  <b>C 通道</b>（导出讲义 PDF → Notein 批注 → 归档回来）在所有形态下补齐「笔迹能带走」这一缺口。
+</div>
+
+<h2><span class="n">05</span>两端分工矩阵（编码判断依据）</h2>
+<table>
+  <tr><th>维度</th><th>vivo S7</th><th>联想拯救者 Y900 13"</th></tr>
+  <tr><td><b>场景</b></td><td>在校碎片、路上、进考场前</td><td>回家整块、桌面支架、手写与打印</td></tr>
+  <tr><td><b>主跑闭环</b></td><td>① 任务/习惯维系 + 提醒 + 速览</td><td>② 能力精进 + 会话 + 笔记</td></tr>
+  <tr><td><b>SlotPool 对应</b></td><td>07:00 / 13:00 / 21:30 碎片 → 复习闭环、练手、速查</td><td>17:20–18:20 整块 → 新内容、视频、费曼复述</td></tr>
+  <tr><td><b>导航 / 栏数</b></td><td>底部 4 Tab · 单栏</td><td>NavigationRail · 双栏 / 三栏</td></tr>
+  <tr><td><b>笔记</b></td><td>分段切换 + 角标，D 通道轻量</td><td>真双栏 + A 通道分屏 Notein</td></tr>
+  <tr><td><b>Widget</b></td><td>2×2 / 4×1 最小态，墨蓝实底，分钟级刷新</td><td>4×2，内容仍最小态（不因屏大放宽）</td></tr>
+  <tr><td><b>打印</b></td><td>导出 PDF 交给外部打印</td><td>本机预览 + 导出黑白 A4 / 口袋卡</td></tr>
+  <tr><td><b>电子禁用</b></td><td>教学区域静默、不响不亮屏</td><td>提供纸质输出供教学区域使用</td></tr>
+</table>
+
+<h2><span class="n">06</span>待拍板 / 待确认</h2>
+<p>
+  <span class="pill">① 绿色语义：方案 A（推荐）/ B / C</span>
+  <span class="pill">② Y900 是否支持压感笔及级数（已设计退化路径）</span>
+  <span class="pill">③ 全局日历高保真屏（千问仅文字下钻说明）</span>
+  <span class="pill">④ 任务详情/编辑页（两端都缺独立稿）</span>
+  <span class="pill">⑤ 深色专注模式是否列入一期</span>
+  <span class="pill">⑥ 分屏默认比例（建议 60:40 偏 App）</span>
+</p>
+
+<div class="foot">
+  学习助手 App · 双端样式设计 v1.0　|　画风归千问定稿，需求与领域模型归框架文档 v1.0，设备适配归本文与《双端样式设计_vivoS7与Y900.md》<br>
+  设备规格 2026-11 查证：vivo S7（6.44" / 2400×1080 / 20:9 / 408ppi / 60Hz / Android 10）· 联想拯救者 Y900 13"（TB522FU / 约 3840×2560 / 144Hz / Android 16 / 骁龙 8 至尊版）。不写死分辨率，用断点与弹性布局吸收差异。
+</div>
+
+</div>
+</body>
+</html>

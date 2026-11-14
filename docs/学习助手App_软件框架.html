@@ -190,7 +190,7 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 </tr>
 <tr>
 <td><strong>设备</strong></td>
-<td>vivo S7（主用）、联想 13" 安卓平板、家人 iQOO / 红米 / iPhone，<strong>安卓为主</strong> → Flutter；A 通道做<strong>能力探测 + 自动降级</strong>；iPhone 只走导出包 + 轻量查看器</td>
+<td><strong>vivo S7</strong>（6.44" / 2400×1080 / 20:9 / 408ppi / 60Hz / Android 10，主用）＋ <strong>联想拯救者 Y900 13 英寸</strong>（约 3840×2560 / 144Hz / Android 16 / 骁龙 8 至尊版，Pad 端）；家人 iQOO / 红米 / iPhone，<strong>安卓为主</strong> → Flutter；A 通道做<strong>能力探测 + 自动降级</strong>；iPhone 只走导出包 + 轻量查看器。双端样式规格见 <code>docs/双端样式设计_vivoS7与拯救者Y900.md</code></td>
 </tr>
 <tr>
 <td><strong>AI 来源</strong></td>
@@ -879,12 +879,12 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 </thead>
 <tbody>
 <tr>
-<td>vivo S7 手机</td>
-<td>主用；屏幕小，分屏基本不可用，A 通道<strong>自动降级为一键跳转 + 回位</strong></td>
+<td><strong>vivo S7 手机</strong></td>
+<td>主用，随身；6.44" / 20:9 / 360dp 设计基准。屏幕小、60Hz、骁龙 765G、Android 10 → 分屏基本不可用，A 通道<strong>自动降级为一键跳转 + 回位</strong></td>
 </tr>
 <tr>
-<td>联想 13 英寸安卓平板</td>
-<td><strong>A 通道分屏主战场</strong>，同屏两块区域体验最好</td>
+<td><strong>联想拯救者 Y900 13 英寸</strong>（TB522FU）</td>
+<td><strong>Pad 端 / A 通道分屏主战场</strong>；约 3840×2560、144Hz、Android 16、骁龙 8 至尊版、12700mAh → 横屏双栏、系统分屏、手写笔迹区都在这台落地</td>
 </tr>
 <tr>
 <td>家人 iQOO / 红米</td>
@@ -896,6 +896,46 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 </tr>
 </tbody>
 </table>
+<p><strong>已核实的硬件基准</strong>（2026-11 查证，样式设计以此为准）</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>vivo S7</th>
+<th>联想拯救者 Y900 13"</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>屏幕</td>
+<td>6.44" AMOLED，2400×1080，20:9，408ppi，60Hz</td>
+<td>13" LCD，约 3840×2560（宽屏横屏），144Hz</td>
+</tr>
+<tr>
+<td>系统 / 芯片</td>
+<td>Android 10（Funtouch OS 10.5）/ 骁龙 765G / 4000mAh</td>
+<td>Android 16 / 骁龙 8 至尊版 / 12700mAh·68W</td>
+</tr>
+<tr>
+<td>机身</td>
+<td>158.82×74.2×7.39mm，170g</td>
+<td>291.78×200.35×5.99mm，599g，Wi-Fi</td>
+</tr>
+<tr>
+<td>设计基准</td>
+<td><strong>360dp 宽</strong>（千问定；实机约 360–393dp，用弹性布局吸收）</td>
+<td><strong>smallestWidth ≥ 1000dp，expanded</strong>；按常见 density 2.0 估算约 1920×1280dp，以实机 <code>MediaQuery</code> 为准</td>
+</tr>
+<tr>
+<td>手写</td>
+<td>指尖为主</td>
+<td>按支持手写笔预留笔迹区；压感级数以实机为准，无 pressure 时退化为匀速笔迹</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>不写死分辨率/比例：Y900 官方口径 3840×2560、商品页又标「3.8K/4K」，故样式按「宽屏横屏 expanded」处理，用断点与弹性布局吸收差异，不依赖单一比例。</p>
+</blockquote>
 <p><strong>推论</strong>
 1. A 通道做「<strong>能力探测 + 自动降级</strong>」，不写死。
 2. <strong>技术栈建议 Flutter</strong>：一套代码覆盖全部安卓机型 + 保留 iOS 可能；手写笔记生态在安卓平板已验证成熟。
@@ -996,8 +1036,8 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 </tr>
 <tr>
 <td>11</td>
-<td>设备：vivo S7 + 联想 13" 平板 + iQOO/红米/iPhone，<strong>安卓为主</strong></td>
-<td>降级 + Flutter + iPhone 查看器（§5）</td>
+<td>设备：vivo S7 + <strong>联想拯救者 Y900 13"</strong>（Pad 端，型号后补）+ iQOO/红米/iPhone，<strong>安卓为主</strong></td>
+<td>降级 + Flutter + iPhone 查看器（§5）；双端样式见 <code>docs/双端样式设计_vivoS7与拯救者Y900.md</code></td>
 </tr>
 <tr>
 <td>12</td>
@@ -1201,7 +1241,7 @@ v0.1：2026-11-13 需求澄清收敛版</p>
 1. 评审 <code>.studypack</code> schema，先做导入导出的可运行验证 —— 「数据能带走」的地基。
 2. 原型从<strong>闭环①（Widget / 任务 / 提醒）+ 规划创建 + SlotPool</strong> 起步，不依赖 AI 与外部资源，最快跑通。
 3. 接 <code>DeepSeekAdapter</code> 与本地资料导入，跑通一次完整会话（含未达标归因回路）。
-4. 补 A/C/D 笔记通道、<code>anchorId</code> 关联与 Android 平板分屏适配。
+4. 补 A/C/D 笔记通道、<code>anchorId</code> 关联与 <strong>Y900 Pad 端分屏 / 双栏适配</strong>（见双端样式文档）。
 5. 页面结构与视觉由千问定稿后再统一套壳，避免边写边改。</p>
 <hr />
 <blockquote>
