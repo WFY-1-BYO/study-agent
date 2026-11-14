@@ -11,6 +11,11 @@ import 'dart:io';
 import '../lib/core.dart' show stableStringify, ValidationError;
 
 class Harness {
+  /// quiet=true 用于「验证失败确会被记录」的子 Harness，
+  /// 避免故意的 FAIL 行污染真实测试输出。
+  final bool quiet;
+  Harness({this.quiet = false});
+
   int pass = 0;
   final List<String> failures = <String>[];
   String _group = '';
@@ -20,7 +25,7 @@ class Harness {
   void group(String name, void Function() body) {
     final prev = _group;
     _group = prev.isEmpty ? name : '$prev / $name';
-    stdout.writeln('\n[$_group]');
+    if (!quiet) stdout.writeln('\n[$_group]');
     try {
       body();
     } finally {
@@ -32,10 +37,10 @@ class Harness {
     try {
       body();
       pass++;
-      stdout.writeln('  PASS  $name');
+      if (!quiet) stdout.writeln('  PASS  $name');
     } catch (e) {
       failures.add('$_group / $name :: $e');
-      stdout.writeln('  FAIL  $name :: $e');
+      if (!quiet) stdout.writeln('  FAIL  $name :: $e');
     }
   }
 

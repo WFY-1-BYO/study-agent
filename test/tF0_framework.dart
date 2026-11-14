@@ -12,7 +12,7 @@ void runF0(Harness h) {
       h.isFalse(1 > 2);
     });
     h.test('eq 失败确实被记录为 FAIL（用独立子 Harness 验证，不污染主统计）', () {
-      final sub = Harness();
+      final sub = Harness(quiet: true);
       sub.test('故意失败', () => sub.eq(1, 2));
       h.eq(sub.pass, 0);
       h.eq(sub.failures.length, 1);
@@ -21,7 +21,7 @@ void runF0(Harness h) {
     h.test('throwsOn 捕获异常', () => h.throwsOn(() => throw StateError('x')));
     h.test('throwsValidation 只认 ValidationError', () {
       h.throwsValidation(() => throw const ValidationError('bad'));
-      final sub = Harness();
+      final sub = Harness(quiet: true);
       sub.test('类型不符应 FAIL', () {
         sub.throwsValidation(() => throw StateError('wrong type'));
       });
@@ -29,7 +29,7 @@ void runF0(Harness h) {
     });
     h.test('jsonEq 忽略 key 顺序但认值差异', () {
       h.jsonEq({'a': 1, 'b': 2}, {'b': 2, 'a': 1});
-      final sub = Harness();
+      final sub = Harness(quiet: true);
       sub.test('值不同应 FAIL', () => sub.jsonEq({'a': 1}, {'a': 2}));
       h.eq(sub.failures.length, 1);
     });
