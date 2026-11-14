@@ -1,4 +1,5 @@
-/// 生成 F14 可运行查看器 web/index.html。
+/// 生成 F14「规格基准页」web/spec.html（静态、供 F14 契约断言与追溯使用）。
+/// 交付给用户的可交互 App 是 web/index.html（独立真源，不由本脚本覆盖）。
 /// 用法：dart tools/gen_viewer.dart
 library study_agent.tools.gen_viewer;
 
@@ -74,7 +75,7 @@ void main() {
   final html = HtmlRenderer.render(state);
   final dir = Directory('web');
   if (!dir.existsSync()) dir.createSync(recursive: true);
-  final out = File('web/index.html');
+  final out = File('web/spec.html');
   out.writeAsStringSync(html);
-  stdout.writeln('已生成 ${out.path}（${html.length} 字符，UTF-8）');
+  stdout.writeln('已生成 ${out.path}（${html.length} 字符，UTF-8）；交付界面 web/index.html 不受影响');
 }

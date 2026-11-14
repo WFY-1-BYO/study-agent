@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学习助手 App · 交互验收报告 v0.2.0</title><style>
+:root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4;--accent:#0969da;--accent-soft:#ddf4ff;--panel:#f6f8fa;--code:#f6f8fa}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--accent:#58a6ff;--accent-soft:#122b45;--panel:#161b22;--code:#161b22}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.75;font-size:16px}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;display:grid;grid-template-columns:250px 1fr;gap:40px}
+nav{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+nav h3{margin:0 0 10px;font-size:13px;color:var(--muted);letter-spacing:.05em}
+nav ul{list-style:none;padding-left:0;margin:0}nav ul ul{padding-left:14px}nav li{margin:4px 0}
+nav a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}nav a:hover{color:var(--accent)}
+main{min-width:0}main h1{font-size:30px;line-height:1.35;border-bottom:1px solid var(--line);padding-bottom:14px;margin-top:0}
+main h2{font-size:22px;margin-top:44px;border-bottom:1px solid var(--line);padding-bottom:8px}
+main h3{font-size:18px;margin-top:30px}main h4{font-size:16px;margin-top:22px;color:var(--accent)}
+blockquote{margin:16px 0;padding:12px 16px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0}blockquote p{margin:6px 0}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}th{background:var(--panel);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--panel) 40%,transparent)}
+table.arch td:first-child{background:var(--panel);font-weight:600;min-width:170px}.note{color:var(--muted);font-size:13px}
+code{background:var(--code);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto;line-height:1.55;white-space:pre-wrap}
+pre code{background:none;border:0;padding:0;font-size:13px}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}a{color:var(--accent)}strong{font-weight:650}ul,ol{padding-left:24px}li{margin:5px 0}
+.meta{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted);margin-bottom:20px}
+@media(max-width:820px){.wrap{grid-template-columns:1fr;gap:0}nav{position:static;max-height:none;margin-bottom:24px}body{font-size:15px}}
+</style></head><body><div class="wrap">
+<nav><h3>目录</h3><div class="toc">
+<ul>
+<li><a href="#_1">边界（如实说明）</a></li>
+</ul>
+</div>
+</nav><main><span class="meta">v0.2.0 · 真实点击验收 · 2026-11-14</span>
+<h1 id="v020">交互验收报告 · v0.2.0</h1>
+<blockquote>
+<p>本报告的每一条都由真实浏览器（CDP 强制视口）<strong>点击 / 输入 / 勾选</strong>后读取 DOM 与 localStorage 得出，
+不是对纯 Dart 规则函数的断言。旧 436 用例仍保留，但不作为「界面可用」的验收凭证。</p>
+</blockquote>
+<ul>
+<li>执行时间：2026-11-14T11:15:58.216Z</li>
+<li>断言通过：<strong>39</strong>；失败：<strong>0</strong>；结论：<strong>ALL_GREEN</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>结果</th>
+<th>项目</th>
+<th>细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASS</td>
+<td>① 顶栏 logo 与标题不再重叠（修复截图中的文字压叠）</td>
+<td>overlap=false</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>② 11 类页面全部存在</td>
+<td>count=11</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>② 点「全局日历」真的切页（其它页隐藏）</td>
+<td>active=calendar</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>② 切页写了可见反馈条</td>
+<td>count 1→2</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>③ 勾选任务 → 完成计数变化</td>
+<td>taskDone=1</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>③ 勾选任务 → 出现「✓ 已达标」墨蓝标记（绿色未挪作达标）</td>
+<td>✓ 已达标</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>③ 勾选任务 → 写入本机 localStorage</td>
+<td>stored=true</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>③ 勾选任务 → 反馈条递增</td>
+<td>3→4</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>④ 倒计时每秒真的刷新（不是静态数字）</td>
+<td>tick 1→3</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>④ 倒计时格式正确且标注提前量 / 提醒方式</td>
+<td>02:15 后</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑤ 提醒方式切到「声音」→ 倒计时说明即时更新</td>
+<td>下一个可学习时段：21:30 晚间（提前 2 分钟提醒 · 声音）</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑥ 一键打开有明确反馈（不假装跳转成功、不含凭证）</td>
+<td>已反馈[19:15:54] 一键打开：已请求打开习惯性任务（外部 App 跳转，本版为本地提示，不含任何凭证）</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑦ 空目标提交 → 有红字错误 + 失败反馈（不静默）</td>
+<td>失败[19:15:54] 创建规划失败：目标为空</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑦ 创建规划 → 生成规划 + 会话并写回全局日历</td>
+<td>✓ 已创建 P-1：精进基本不等式，能解决 75% 相关题目 · 15 天 · 75% · 已生成会话 SE-1 · 已</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑦ 创建规划 → 反馈条递增</td>
+<td>8→9</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑧ 摸底测验可选可跳过 → 阶段真的从 pretest 跳到 study</td>
+<td>当前阶段：摸底测验（可选） · 测验提交次数 0 → 当前阶段：看视频 / 学习 · 测验提交次数 0</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑧ 80% ≥ 75% → 达标并进入费曼式总结</td>
+<td>✓ 已达标（80% ≥ 75%）：进入费曼式总结（我复述 → AI 纠正 → 反复）</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑧ 60% &lt; 75% → 进入归因回路再测一遍</td>
+<td>未达标（60% &lt; 75%）：进入错因归因 → 继续费曼 → 再测一遍（第 2 次）</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑧ 非法成绩 → 明确报错 + 失败反馈</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑨ 固定模式 2 四步可逐步推进并收口</td>
+<td>✓ 已达标：固定模式 2 全部完成，进入今日学习内容</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑨ 尝试改复习模式被明确拒绝（不可配置）</td>
+<td>失败[19:15:54] 已拒绝：复习闭环固定模式 2，不可配置、不可跳过</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑩ 我的笔记保存 → 落盘 + 可见「已保存」反馈</td>
+<td>我的手写笔记：一正二定三相等</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑩ 按 anchorId 建立双向关联</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑩ 内置笔记区「不显示」真的隐藏（A/C 归档不删）</td>
+<td>hidden=true</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑪ 提前量点 5 min → 生效并持久化</td>
+<td>leadMinutes=5</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑪ SessionIntent=挑战 → 反馈含 L4 说明</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑪ 数据外发白名单可切换且有反馈</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑫ 未填 Key 点测试 → 明确失败反馈，不伪造回复</td>
+<td>【未获得 AI 回复】未填写 API Key：请到「我的 → AI 服务」填一次，只存本机</td>
+</tr>
+<tr>
+<td>（此处不会编造内容）</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑫ Key 保存只在本机（设置页回填被清空）</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑫ 点测试先显示「请求中」再给结果（不是无反应）</td>
+<td>busy=busy → bad</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑫ 请求失败 → 显示真实原因，且界面标注「不会编造内容」</td>
+<td>【未获得 AI 回复】浏览器直连失败（多为跨域 / 网络限制）：Failed to fetch；装到 App 内可走原生通道</td>
+</tr>
+<tr>
+<td>（此处不会编造内容）</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑫ 失败时不出现伪造的 AI 成功回复</td>
+<td>noFake=true</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑬ 导出生成 manifest + 实体，界面可见预览</td>
+<td></td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑬ API Key 绝不进导出包</td>
+<td>len=3085</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑬ 导入同一份包可恢复数据</td>
+<td>ok=true</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑭ 全部可点按钮都有反馈（零静默操作）</td>
+<td>按钮 29 个，静默 0 个，跳过 1 个</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>⑭ 跳过项说明</td>
+<td>importPack(会弹文件选择，单独验证)</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑮ 360px 视口无横向溢出 / 越界</td>
+<td>LAYOUT_AUDIT overflow=NO win=360 boxes=none</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑮ 720px 视口无横向溢出 / 越界</td>
+<td>LAYOUT_AUDIT overflow=NO win=720 boxes=none</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>⑮ 1280px 视口无横向溢出 / 越界</td>
+<td>LAYOUT_AUDIT overflow=NO win=1280 boxes=none</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>DeepSeek 真实端点</td>
+<td>可达，假 Key 返回 HTTP 401（说明请求格式 / 鉴权头正确；真 Key 由用户在本机填写）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">边界（如实说明）</h2>
+<ul>
+<li>沙箱内没有用户的真实 API Key，<strong>无法验证 AI 的真实回复内容</strong>；已验证：请求体格式与鉴权头、端点可达性、
+  原生桥接代码编译进 APK、以及「请求中 → 成功 / 失败」两态反馈与「失败绝不伪造回复」。</li>
+<li>浏览器预览从 <code>file://</code> 直连 API 会受跨域策略拦截，故 APK 内改由 <code>AiBridge</code> 原生发请求再回调 JS。</li>
+<li>桌面 Widget 常驻、系统分屏 / Notein 跳转、精确闹钟、打印预览、原生 Flutter 客户端仍属第二版。</li>
+</ul></main></div></body></html>

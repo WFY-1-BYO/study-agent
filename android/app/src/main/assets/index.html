@@ -1,484 +1,761 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>学习助手 App · 界面第一版（F14 可验收查看器）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学习助手 App · v0.2.0 可交互版</title>
 <style>
 :root{
   --brand:#204066; --action:#E0892E; --pine:#2E7D5B; --alert:#C0492F;
-  --ink:#1B2A3A; --paper:#F7F5F0; --line:#D9D4C8; --muted:#6B7684;
-  --radius:16px;
+  --bg:#F6F7F9; --paper:#FFFFFF; --ink:#1F2933; --muted:#6B7785;
+  --line:#DDE3EA; --soft:#EEF2F6;
 }
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  font-family:"Noto Sans CJK SC","Noto Sans SC","Source Han Sans SC",sans-serif;
-  background:var(--paper); color:var(--ink); line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3{font-family:"Noto Serif CJK SC","Noto Serif SC",serif;margin:0;}
-.num,.countdown{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
-a{color:inherit;text-decoration:none;}
-code{font-family:ui-monospace,monospace;background:#EFEBE1;padding:1px 5px;border-radius:4px;font-size:12px;}
-.app{max-width:100%;min-height:100vh;padding-bottom:76px;}
-.topbar{
-  background:var(--brand); color:#fff; padding:16px;
-  display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;
-}
-.topbar h1{font-size:18px;}
-.topbar .sub{font-size:12px;opacity:.85;}
-.topbar .badge{margin-left:auto;font-size:11px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:2px 10px;}
-.shell{display:block;}
-.rail{display:none;background:#fff;border-right:1px solid var(--line);padding:12px 8px;}
-.rail-item{display:block;padding:8px 10px;border-radius:10px;font-size:13px;color:var(--muted);}
-.rail-item:hover,.rail-item.active{background:#EFEBE1;color:var(--brand);font-weight:600;}
-.content{padding:16px;max-width:100%;}
-.hero{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
-.hero h2{font-size:16px;margin-bottom:6px;}
-.hero p{margin:0;font-size:13px;color:var(--muted);}
-.cards{display:grid;grid-template-columns:1fr;gap:12px;}
-.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-width:0;}
-.card.active{outline:2px solid var(--brand);}
-.card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.card-head h2{font-size:15px;}
-.page-no{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:24px;height:24px;border-radius:8px;background:var(--brand);color:#fff;
-  font-size:12px;font-weight:700;flex:0 0 auto;
-}
-.chip{display:inline-block;font-size:11px;border-radius:999px;padding:2px 9px;background:#EFEBE1;color:var(--brand);margin:2px 4px 2px 0;}
-.chip.muted{background:#EDEAE2;color:var(--muted);}
-.route{font-size:12px;color:var(--muted);margin:8px 0;}
-.card ul{margin:8px 0;padding-left:18px;font-size:13px;}
-.card li{margin:3px 0;word-break:break-word;}
-.links{font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin:8px 0 0;word-break:break-word;}
-.tabbar{
-  position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;
-  border-top:1px solid var(--line);z-index:10;
-}
-.tab{flex:1;text-align:center;padding:9px 2px;font-size:11px;color:var(--muted);min-width:0;}
-.tab-dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--line);margin:0 auto 4px;}
-.tab.active{color:var(--brand);font-weight:700;}
-.tab.active .tab-dot{background:var(--brand);}
-.block{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:16px;}
-.block h2{font-size:16px;margin-bottom:8px;}
-.block p{font-size:13px;color:var(--muted);margin:6px 0;}
-table{border-collapse:collapse;width:100%;font-size:12px;}
-th,td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top;word-break:break-word;}
-th{background:#EFEBE1;color:var(--brand);font-weight:600;}
-.table-wrap{overflow-x:auto;}
-.widget{
-  background:var(--brand);color:#fff;border-radius:22px;padding:16px;max-width:340px;
-}
-.widget .label{font-size:11px;opacity:.8;letter-spacing:.08em;}
-.widget .task{font-size:15px;font-weight:700;margin:6px 0;word-break:break-word;}
-.widget .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-.widget .countdown{font-size:26px;font-weight:700;}
-.widget .open{font-size:12px;border:1px solid rgba(255,255,255,.7);border-radius:999px;padding:3px 12px;}
-.slot-chip{background:var(--pine);color:#fff;border-radius:8px;padding:3px 10px;font-size:12px;}
-.achieved-chip{background:var(--brand);color:#fff;border-radius:8px;padding:3px 10px;font-size:12px;}
-.weak-chip{background:var(--alert);color:#fff;border-radius:8px;padding:3px 10px;font-size:12px;}
-.legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:12px;align-items:center;}
-.print-card{
-  border:2px dashed #222;background:#fff;color:#111;padding:12px;margin-top:10px;
-  font-size:13px;word-break:break-word;
-}
-.print-card .marker{font-weight:700;letter-spacing:.04em;}
-.mono-note{font-size:12px;color:var(--muted);}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px;}
-.stat{display:flex;justify-content:space-between;background:#EFEBE1;border-radius:10px;padding:7px 10px;font-size:12px;}
-.device-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;}
-.device{background:#EFEBE1;border-radius:12px;padding:10px;font-size:12px;word-break:break-word;}
-.device b{color:var(--brand);}
-.footer{text-align:center;font-size:11px;color:var(--muted);padding:18px 12px 8px;}
-/* Compact: <600dp —— 底部 4 Tab 单栏 */
-@media (min-width:600px){
-  .app{padding-bottom:0;}
-  .tabbar{display:none;}
-  .shell{display:grid;grid-template-columns:80px minmax(0,1fr);}
-  .rail{display:block;}
-  .content{padding:20px;}
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .device-row{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .stats{grid-template-columns:repeat(3,minmax(0,1fr));}
-}
-/* Expanded: >=840dp —— 常驻 Rail，取消底部 Tab，双栏 */
-@media (min-width:840px){
-  .shell{grid-template-columns:200px minmax(0,1fr);}
-  .content{max-width:1180px;margin:0 auto;padding:24px;}
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .topbar{padding:18px 28px;}
-  .topbar h1{font-size:22px;}
-}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Serif CJK SC","Noto Sans CJK SC","Source Han Serif SC","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px;line-height:1.6;-webkit-tap-highlight-color:transparent}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit;font-size:14px}
+button{cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);padding:7px 12px;transition:background .12s,border-color .12s}
+button:hover{border-color:var(--brand)}
+button:active{background:var(--soft)}
+button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+button.warn{color:var(--alert);border-color:var(--alert)}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff;color:var(--ink);width:100%}
+textarea{resize:vertical;min-height:76px}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px}
+.field{margin-bottom:10px}
+.topbar{display:flex;align-items:center;gap:12px;background:var(--brand);color:#fff;padding:10px 16px;min-height:58px}
+.topbar .logo{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#fff;color:var(--brand);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;border:2px solid rgba(255,255,255,.65)}
+.topbar .titles{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.topbar h1{margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .sub{margin:0;font-size:11px;opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .ver{flex:0 0 auto;font-size:11px;border:1px solid rgba(255,255,255,.5);border-radius:12px;padding:2px 8px;white-space:nowrap}
+#statusbar{background:#FFF8EA;border-bottom:1px solid #EBD9B4;color:#6B4A10;padding:6px 16px;font-size:12px;
+  min-height:30px;display:flex;align-items:center;gap:8px}
+#statusbar .tag{flex:0 0 auto;font-weight:700;letter-spacing:.5px}
+#statusbar .msg{flex:1 1 auto;word-break:break-all}
+#statusbar.bad{background:#FDECE8;border-bottom-color:#E9B5A9;color:#8A2E1B}
+#statusbar.busy{background:#EAF1FA;border-bottom-color:#B9CCE4;color:#1B3D6B}
+#toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(14px);background:var(--ink);
+  color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;max-width:88vw;text-align:center;
+  opacity:0;pointer-events:none;transition:.2s;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.layout{display:flex;min-height:calc(100vh - 88px)}
+.rail{display:none;flex:0 0 172px;background:#fff;border-right:1px solid var(--line);padding:10px 0}
+.rail .rail-title{font-size:11px;color:var(--muted);padding:4px 14px 8px;letter-spacing:1px}
+.rail-item{display:block;padding:9px 14px;font-size:13px;border-left:3px solid transparent;cursor:pointer}
+.rail-item:hover{background:var(--soft)}
+.rail-item.active{border-left-color:var(--brand);background:#EAF0F7;color:var(--brand);font-weight:700}
+main{flex:1 1 auto;min-width:0;padding:14px}
+.tabbar{display:flex;position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:10}
+.tabbar .tab{flex:1;text-align:center;padding:10px 4px;font-size:12px;cursor:pointer;border-top:3px solid transparent}
+.tabbar .tab.active{border-top-color:var(--brand);color:var(--brand);font-weight:700}
+section[data-page]{display:none}
+section[data-page].active{display:block}
+.hero{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.hero h2{margin:0 0 6px;font-size:17px;color:var(--brand)}
+.hero p{margin:0;color:var(--muted);font-size:12px}
+.card,.block{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+h3{margin:0 0 10px;font-size:15px;color:var(--brand)}
+h4{margin:12px 0 6px;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr;gap:0 12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:0 0 auto}
+.grow{flex:1 1 160px!important}
+.muted{color:var(--muted);font-size:12px}
+.hint{background:var(--soft);border-left:3px solid var(--brand);padding:8px 10px;font-size:12px;border-radius:4px;margin:8px 0}
+.err{color:var(--alert);font-size:12px;min-height:18px;font-weight:700}
+.ok{color:var(--brand);font-size:12px;font-weight:700}
+.badge{display:inline-block;font-size:11px;border-radius:10px;padding:1px 8px;border:1px solid var(--line);color:var(--muted)}
+.badge.pine{background:#E8F4EE;border-color:var(--pine);color:var(--pine)}
+.badge.brand{background:#E9EFF7;border-color:var(--brand);color:var(--brand)}
+.badge.alert{background:#FCEDE9;border-color:var(--alert);color:var(--alert)}
+.badge.action{background:#FDF2E2;border-color:var(--action);color:#8A5A14}
+.pass{background:var(--brand);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+.slot{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--pine);color:var(--pine);
+  background:#EAF6F0;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;margin:3px 4px 3px 0}
+.slot.off{opacity:.45;border-style:dashed;background:#fff}
+.slot.on{box-shadow:0 0 0 2px rgba(46,125,91,.18)}
+ul.clean{list-style:none;margin:0;padding:0}
+ul.clean li{padding:8px 0;border-bottom:1px solid var(--line)}
+ul.clean li:last-child{border-bottom:0}
+.task{display:flex;align-items:center;gap:9px}
+.task input[type=checkbox]{width:18px;height:18px;flex:0 0 18px}
+.task .t{flex:1 1 auto;min-width:0}
+.task.done .t{text-decoration:line-through;color:var(--muted)}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.stat .box{flex:1 1 90px;background:var(--soft);border-radius:8px;padding:8px 10px;text-align:center}
+.stat .num{display:block;font-size:20px;font-weight:700;color:var(--brand)}
+.stat .lb{font-size:11px;color:var(--muted)}
+.countdown{font-size:26px;font-weight:700;color:var(--action);letter-spacing:1px}
+.stage{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.stage span{font-size:11px;padding:3px 7px;border-radius:6px;background:var(--soft);color:var(--muted)}
+.stage span.cur{background:var(--brand);color:#fff;font-weight:700}
+.stage span.done{background:#E9EFF7;color:var(--brand)}
+pre.out{background:#0F1B2A;color:#D8E4F2;border-radius:8px;padding:10px;font-size:11px;
+  white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto;margin:8px 0}
+.widget{border:2px solid var(--brand);border-radius:12px;padding:12px;background:#fff}
+.widget .big{font-size:18px;font-weight:700}
+.printcard{border:2px dashed #000;padding:10px;margin-top:10px;background:#fff;color:#000}
+.printcard .mk{font-size:11px;letter-spacing:1px}
+.hidden{display:none!important}
+#layout-audit{position:absolute;left:-9999px;top:-9999px}
+@media (min-width:600px){.rail{display:block}.tabbar{display:none}main{padding:18px 22px}.grid2{grid-template-columns:1fr 1fr}}
+@media (min-width:840px){.rail{flex-basis:196px}main{padding:20px 28px;max-width:1280px;margin:0 auto}.grid2{grid-template-columns:1fr 1fr}}
 @media print{
-  .topbar,.rail,.tabbar,.no-print{display:none !important;}
-  .app{padding:0;}
-  .shell{display:block;}
-  .content{padding:0;max-width:none;}
-  body{background:#fff;color:#000;}
-  .card,.block,.hero{box-shadow:none;border:1px solid #000;break-inside:avoid;}
-  .print-card{border:2px dashed #000;}
-  .cards{grid-template-columns:repeat(2,1fr);}
+  .topbar,.rail,.tabbar,#statusbar,#toast,button,input,select,textarea,.no-print{display:none!important}
+  body{background:#fff}
+  section[data-page]{display:none!important}
+  section[data-page].active{display:block!important}
+  .card,.block,.hero{box-shadow:none;border:1px solid #000;break-inside:avoid}
+  .printcard{display:block!important}
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar no-print">
-    <h1>学习助手 App · 界面第一版</h1>
-    <span class="sub">静观专注 · 学术克制 ｜ F14 可验收查看器</span>
-    <span class="badge">v0.1.0 · 双端响应式</span>
-  </header>
 
-  <div class="shell">
-    <nav class="rail no-print" aria-label="侧栏导航">
-      <a class="rail-item" href="#page-widget" data-page="widget">桌面 Widget 最小态</a>
-<a class="rail-item" href="#page-today" data-page="today">今日视图</a>
-<a class="rail-item" href="#page-calendar" data-page="calendar">全局日历</a>
-<a class="rail-item" href="#page-taskDetail" data-page="taskDetail">任务详情 / 编辑</a>
-<a class="rail-item" href="#page-planCreate" data-page="planCreate">规划创建</a>
-<a class="rail-item" href="#page-studySession" data-page="studySession">学习会话页</a>
-<a class="rail-item" href="#page-reviewLoop" data-page="reviewLoop">复习闭环页</a>
-<a class="rail-item" href="#page-examCard" data-page="examCard">薄弱点速查卡</a>
-<a class="rail-item" href="#page-notes" data-page="notes">笔记</a>
-<a class="rail-item" href="#page-mine" data-page="mine">我的（L0 开关）</a>
-<a class="rail-item" href="#page-dataTransfer" data-page="dataTransfer">数据导入导出</a>
+<header class="topbar">
+  <div class="logo" aria-hidden="true">Y</div>
+  <div class="titles"><h1>学习助手 App</h1><p class="sub">可交互版 · 双闭环 · 高考对齐 · 本地存储</p></div>
+  <span class="ver">v0.2.0</span>
+</header>
 
-    </nav>
+<div id="statusbar" data-count="0"><span class="tag">就绪</span><span class="msg">界面已加载。点任意按钮都会在这里给出反馈。</span></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
-    <main class="content">
-      <section class="hero">
-        <h2>建设蓝图落地页</h2>
-        <p>按 PRD §5 视觉规范实现：墨蓝 / 琥珀 / 松绿 / 朱砂四色不增不减；绿色只表示可学习空闲时段（方案 A）；手机与 Pad 两端同源响应式；打印态黑白可读。</p>
-        <p>首个知识点锚点：人教 A 版·必修第一册·第二章·2.2 <strong>基本不等式</strong>（一正二定三相等）。</p>
-      </section>
+<div class="layout">
+  <nav class="rail no-print" aria-label="侧栏导航">
+    <div class="rail-title">全部页面</div>
+    <a class="rail-item" href="#page-widget" data-nav="widget">Widget 最小态</a>
+    <a class="rail-item" href="#page-today" data-nav="today">今日视图</a>
+    <a class="rail-item" href="#page-calendar" data-nav="calendar">全局日历</a>
+    <a class="rail-item" href="#page-taskDetail" data-nav="taskDetail">任务详情 / 编辑</a>
+    <a class="rail-item" href="#page-planCreate" data-nav="planCreate">规划创建</a>
+    <a class="rail-item" href="#page-studySession" data-nav="studySession">学习会话页</a>
+    <a class="rail-item" href="#page-reviewLoop" data-nav="reviewLoop">复习闭环页</a>
+    <a class="rail-item" href="#page-examCard" data-nav="examCard">薄弱点速查卡</a>
+    <a class="rail-item" href="#page-notes" data-nav="notes">笔记</a>
+    <a class="rail-item" href="#page-mine" data-nav="mine">我的（L0 / AI）</a>
+    <a class="rail-item" href="#page-dataTransfer" data-nav="dataTransfer">数据导入导出</a>
+  </nav>
 
-      <div class="cards">
-        <section class="card" id="page-today">
-  <div class="card-head">
-    <span class="page-no">1</span>
-    <h2>今日视图</h2>
-    <span class="chip muted">tab</span>
-  </div>
-  <p class="route">路由 <code>/today</code></p>
-  <ul>
-    <li>最近任务一键跳转外部 App（习惯性任务可抽象替换）</li>
-    <li>今日时间轴：任务 / 规划学习 / 复习在同一条线</li>
-    <li>距下一个任务倒计时（等宽数字，跳动不抖动）</li>
-    <li>绿色 = 可学习空闲时段，叠加在时间轴上</li>
-  </ul>
-  <p class="links">可达：taskDetail · planCreate · calendar · studySession · widget</p>
-</section>
-<section class="card" id="page-calendar">
-  <div class="card-head">
-    <span class="page-no">2</span>
-    <h2>全局日历</h2>
-    <span class="chip muted">rail</span>
-  </div>
-  <p class="route">路由 <code>/calendar</code></p>
-  <ul>
-    <li>月 / 周视图，全局而非仅今日</li>
-    <li>任务 / 规划学习 / 校历三层叠加</li>
-    <li>绿色时段可点选，直接作为规划排期入口</li>
-    <li>特殊时段（校运会等）可自定义</li>
-  </ul>
-  <p class="links">可达：today · planCreate · taskDetail</p>
-</section>
-<section class="card" id="page-taskDetail">
-  <div class="card-head">
-    <span class="page-no">3</span>
-    <h2>任务详情 / 编辑</h2>
-    <span class="chip muted">flow</span>
-  </div>
-  <p class="route">路由 <code>/task/:id</code></p>
-  <ul>
-    <li>习惯性任务 vs 一次性任务</li>
-    <li>周期、提醒方式：振动 / 声音 / 无</li>
-    <li>提前量可自定义，也可直接点 2 min / 5 min</li>
-    <li>一键跳转动作不含任何凭证</li>
-  </ul>
-  <p class="links">可达：today</p>
-</section>
-<section class="card" id="page-planCreate">
-  <div class="card-head">
-    <span class="page-no">4</span>
-    <h2>规划创建</h2>
-    <span class="chip muted">tab</span>
-  </div>
-  <p class="route">路由 <code>/plan/new</code></p>
-  <ul>
-    <li>目标 + 75% + 15 天 + 挑绿色空闲时段</li>
-    <li>立即开始 / 将来开始两个选项（不代选）</li>
-    <li>分步向导，一屏一步，别一屏塞满</li>
-    <li>Pad 端单屏双栏：左表单，右日历 + 容量匹配预览</li>
-  </ul>
-  <p class="links">可达：calendar · studySession · today</p>
-</section>
-<section class="card" id="page-studySession">
-  <div class="card-head">
-    <span class="page-no">5</span>
-    <h2>学习会话页</h2>
-    <span class="chip muted">flow</span>
-  </div>
-  <p class="route">路由 <code>/session/:id</code></p>
-  <ul>
-    <li>视频 / 题目 / 内置笔记区（可显示 / 不显示）</li>
-    <li>测验 → 达标进费曼总结；未达标记错因归因回路</li>
-    <li>5 阶段状态可见；AI 待处理不阻塞看视频 / 记笔记</li>
-    <li>SessionIntent：跟随 / 挑战 / 刷自信，进练习前点选</li>
-  </ul>
-  <p class="links">可达：reviewLoop · examCard · notes · today</p>
-</section>
-<section class="card" id="page-reviewLoop">
-  <div class="card-head">
-    <span class="page-no">6</span>
-    <h2>复习闭环页</h2>
-    <span class="chip muted">flow</span>
-  </div>
-  <p class="route">路由 <code>/review/:id</code></p>
-  <ul>
-    <li>下次学习前先复述上次理解 → AI 纠正</li>
-    <li>没问题后给几道题简单练手 → 今日学习内容</li>
-    <li>固定模式 2，不可跳过、不可配置</li>
-    <li>碎片时段（20/30min）跑复习，整块时段上新内容</li>
-  </ul>
-  <p class="links">可达：studySession · examCard</p>
-</section>
-<section class="card" id="page-examCard">
-  <div class="card-head">
-    <span class="page-no">7</span>
-    <h2>薄弱点速查卡</h2>
-    <span class="chip muted">flow</span>
-  </div>
-  <p class="route">路由 <code>/exam-card</code></p>
-  <ul>
-    <li>每条一行：知识点 + 一行提醒 + 薄弱程度</li>
-    <li>屏幕态与打印态同源，文本一字不差</li>
-    <li>教学区域禁用电子设备 → 纸质卡是刚需</li>
-    <li>打印态黑白可读：描边 + ▲ 图标 + 文字标签，不只靠颜色</li>
-  </ul>
-  <p class="links">可达：notes · today</p>
-</section>
-<section class="card" id="page-notes">
-  <div class="card-head">
-    <span class="page-no">8</span>
-    <h2>笔记</h2>
-    <span class="chip muted">tab</span>
-  </div>
-  <p class="route">路由 <code>/notes</code></p>
-  <ul>
-    <li>AI 笔记 / 我的笔记两份独立存，不合订</li>
-    <li>角标「笔迹 2」双向跳转（anchorId 本地索引）</li>
-    <li>A 分屏跳转 / C PDF 归档 / D 内置笔记区三通道</li>
-    <li>默认不把笔记交给 AI；OCR 摘要不覆盖原始笔迹</li>
-  </ul>
-  <p class="links">可达：mine · examCard · studySession</p>
-</section>
-<section class="card" id="page-mine">
-  <div class="card-head">
-    <span class="page-no">9</span>
-    <h2>我的（L0 开关）</h2>
-    <span class="chip muted">tab</span>
-  </div>
-  <p class="route">路由 <code>/mine</code></p>
-  <ul>
-    <li>L0 策略开关：有这个功能，但用不用由我定</li>
-    <li>提醒方式 / 提前量 / 摸底测验 / 笔记区显隐</li>
-    <li>数据外发白名单 / AI Provider 配置</li>
-    <li>复习模式固定 2，此处不提供开关</li>
-  </ul>
-  <p class="links">可达：notes · dataTransfer · today</p>
-</section>
-<section class="card" id="page-dataTransfer">
-  <div class="card-head">
-    <span class="page-no">10</span>
-    <h2>数据导入导出</h2>
-    <span class="chip muted">rail</span>
-  </div>
-  <p class="route">路由 <code>/data</code></p>
-  <ul>
-    <li>.studypack 纯开放不加密，所有用户数据能带走</li>
-    <li>13 类实体 + manifest（schemaVersion / checksum）</li>
-    <li>凭证不进包；第三方版权内容只存引用与标签</li>
-    <li>导出 / 导入 / 校验 / 敏感内容说明</li>
-  </ul>
-  <p class="links">可达：mine · today</p>
-</section>
-<section class="card" id="page-widget">
-  <div class="card-head">
-    <span class="page-no">11</span>
-    <h2>桌面 Widget 最小态</h2>
-    <span class="chip muted">widget</span>
-  </div>
-  <p class="route">路由 <code>/widget</code></p>
-  <ul>
-    <li>只显示最近一个任务 + 倒计时，一键打开</li>
-    <li>常驻桌面，不打开 App 也能看</li>
-    <li>另有考前速览态：一行一个坑</li>
-    <li>信息克制：不塞整张日程 / 全部任务</li>
-  </ul>
-  <p class="links">可达：today · calendar · examCard</p>
-</section>
+  <main>
 
+    <section class="card" data-page="today">
+      <div class="hero"><h2>今日视图</h2><p>习惯性任务 + 规划学习 + 复习闭环写在同一条时间线上；绿色只表示可学习空闲时段。</p></div>
+      <div class="stat">
+        <div class="box"><span class="num" id="taskTotal">0</span><span class="lb">今日任务</span></div>
+        <div class="box"><span class="num" id="taskDone">0</span><span class="lb">已完成</span></div>
+        <div class="box"><span class="num" id="planCount">0</span><span class="lb">进行中规划</span></div>
       </div>
+      <h3>距下一个任务</h3>
+      <div class="countdown" id="countdown">--:--:--</div>
+      <div class="muted" id="nextTaskLabel">正在计算…</div>
+      <h4>今日任务</h4>
+      <ul class="clean" id="taskList"></ul>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" data-action="openHabit">一键打开（习惯性任务）</button>
+        <label class="muted" style="margin:0">提醒方式</label>
+        <select id="reminderMode" class="grow" data-change="reminderMode" style="max-width:150px">
+          <option value="vibration">振动</option><option value="sound">声音</option><option value="none">无</option>
+        </select>
+      </div>
+      <div class="hint">任务勾选、提醒方式、倒计时都会即时反馈并写入本机；数据不上传。</div>
+    </section>
 
-      <section class="block" id="widget-demo">
-        <h2>桌面 Widget 最小态契约</h2>
-        <p>只显示最近一个任务 + 倒计时 + 一键打开；信息克制，不打开 App 也能用。</p>
-        <div class="widget">
-          <div class="label">最近任务</div>
-          <div class="task">打开不背单词 · 背单词（习惯性任务）</div>
-          <div class="row">
-            <span class="countdown">00:12</span>
-            <span class="open">一键打开 ›</span>
+    <section class="card" data-page="widget">
+      <div class="hero"><h2>桌面 Widget 最小态</h2><p>信息克制：只显示最近一个任务与倒计时；点卡片进今日 / 全局日历。</p></div>
+      <div class="widget" id="widgetCard">
+        <div class="muted">最近任务</div><div class="big" id="wTask">--</div>
+        <div class="countdown" id="wCountdown">--:--:--</div>
+        <div class="row" style="margin-top:8px"><button class="primary" data-action="widgetToday">看今日</button><button data-action="widgetCalendar">看全局日历</button></div>
+      </div>
+      <h4>考前速览态（一行一个坑，最多 8 行）</h4>
+      <ul class="clean" id="examQuick"></ul>
+      <div class="printcard">
+        <div class="mk">▲ 描边 · 文字标签 · 程度标记（黑白打印可读）</div>
+        <div>等号成立条件｜一正二定三相等，先问等号取不取得到</div>
+      </div>
+    </section>
+
+    <section class="card" data-page="calendar">
+      <div class="hero"><h2>全局日历</h2><p>已描述每个时段干什么任务。绿色时段可点选，用于规划排期。</p></div>
+      <h3>绿色空闲时段（多来源，按天确认，会变化）</h3>
+      <div id="slotList"></div>
+      <div class="field" style="margin-top:10px">
+        <label>自定义临时时段（如校运会，格式 07:00-07:30）</label>
+        <div class="row"><input id="customSlot" class="grow" placeholder="14:00-15:30"><button data-action="addSlot">添加时段</button></div>
+      </div>
+      <h3>日历条目</h3><ul class="clean" id="calendarList"></ul>
+      <div class="hint">教学区域禁用电子设备，课间不能用手机；绿色 = 空闲 ∧ 设备可用 ∧ 时长够。</div>
+    </section>
+
+    <section class="card" data-page="taskDetail">
+      <div class="hero"><h2>任务详情 / 编辑</h2><p>习惯性任务 vs 一次性任务；提前量可自定义或直接点 2 / 5 分钟。</p></div>
+      <div class="grid2">
+        <div>
+          <div class="field"><label>任务标题</label><input id="tdTitle" value="打开不背单词 · 背单词"></div>
+          <div class="field"><label>类型</label><select id="tdType"><option value="habit">习惯性任务</option><option value="once">一次性任务</option></select></div>
+          <div class="field"><label>提前量（分钟）</label><input id="tdLead" type="number" value="2" min="0" max="120"></div>
+        </div>
+        <div>
+          <div class="field"><label>快捷提前量</label><div class="row"><button data-action="lead2">2 min</button><button data-action="lead5">5 min</button></div></div>
+          <div class="field"><label>备注</label><textarea id="tdNote">课间用不了手机，只在绿色时段做。</textarea></div>
+        </div>
+      </div>
+      <button class="primary" data-action="saveTask">保存任务</button>
+      <div class="err" id="tdErr"></div>
+      <div class="hint">一键跳转不含任何凭证；外部 App 只做引用登记与跳转，不内嵌。</div>
+    </section>
+
+    <section class="card" data-page="planCreate">
+      <div class="hero"><h2>新建规划</h2><p>目标 + 时间界限 + 绿色空闲时段 + 开始时机；提交后写回全局日历并生成会话。</p></div>
+      <div class="grid2">
+        <div>
+          <div class="field"><label>目标（必填）</label><input id="pGoal" value="精进基本不等式，能解决 75% 相关题目"></div>
+          <div class="field"><label>目标正确率 %（单层测验通过线，也是 15 天规划目标线）</label><input id="pTarget" type="number" value="75" min="1" max="100"></div>
+          <div class="field"><label>时间界限（天）</label><input id="pDays" type="number" value="15" min="1" max="365"></div>
+        </div>
+        <div>
+          <div class="field"><label>挑选绿色空闲时段（至少 1 个）</label><div id="pSlots"></div></div>
+          <div class="field"><label>开始时机</label><select id="pStart"><option value="immediate">立即开始</option><option value="later">将来开始</option></select></div>
+        </div>
+      </div>
+      <div class="row"><button class="primary" data-action="createPlan">创建规划</button><button data-action="resetPlan">重置</button></div>
+      <div class="err" id="pErr"></div><div id="pResult" class="ok"></div>
+      <h3>已创建的规划</h3><ul class="clean" id="planList"></ul>
+    </section>
+
+    <section class="card" data-page="studySession">
+      <div class="hero"><h2>学习会话页</h2><p>状态机逐阶段推进；摸底测验可选可跳过；未达标走归因回路再测一遍。</p></div>
+      <div class="stage" id="stageBar"></div>
+      <div class="hint" id="stageDesc">当前阶段：resources</div>
+      <div class="row" style="margin:10px 0">
+        <button class="primary" data-action="stageNext" id="btnNext">下一步</button>
+        <button data-action="skipPretest" id="btnSkip">跳过摸底测验</button>
+        <button data-action="resetSession">重开会话</button>
+      </div>
+      <div class="grid2">
+        <div>
+          <h4>AI 准备资料（真实调用 DeepSeek）</h4>
+          <button data-action="aiResources">让 AI 准备本时段资料</button>
+          <pre class="out" id="aiResourceOut">尚未请求。点上方按钮会真实发起请求；失败会原样显示原因，不会编造内容。</pre>
+          <h4>我的复述（费曼）</h4>
+          <textarea id="restatement" placeholder="用自己的话复述基本不等式的理解…">基本不等式要求一正二定三相等，先看等号能不能取到。</textarea>
+          <button data-action="aiCorrect" style="margin-top:6px">让 AI 纠正我的复述</button>
+          <pre class="out" id="aiCorrectOut">尚未请求。</pre>
+        </div>
+        <div>
+          <h4>测验成绩（%）</h4>
+          <div class="row"><input id="quizScore" type="number" value="80" min="0" max="100" class="grow"><button class="primary" data-action="submitQuiz">提交成绩</button></div>
+          <div class="err" id="quizErr"></div><div class="ok" id="quizResult"></div>
+          <h4>AI 笔记（真实调用生成）</h4>
+          <button data-action="aiNote">生成个性化 AI 笔记</button>
+          <pre class="out" id="aiNoteOut">尚未生成。</pre>
+          <div class="hint">AI 只做检索匹配 + 讲解 + 基于真实母题的变式，禁止凭空造题冒充高考题。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" data-page="reviewLoop">
+      <div class="hero"><h2>复习闭环页（固定模式 2，不可配置）</h2><p>下次学习前先复述上次理解 → AI 纠正 → 没问题后给几道题练手 → 今日学习内容。</p></div>
+      <div class="hint" id="reviewLock">模式锁定：固定模式 2 · 不可跳过 · 不可配置</div>
+      <ul class="clean" id="reviewSteps"></ul>
+      <div class="row"><button class="primary" data-action="reviewNext">完成当前步，进入下一步</button><button data-action="reviewReset">重置闭环</button></div>
+      <div class="ok" id="reviewResult"></div>
+    </section>
+
+    <section class="card" data-page="examCard">
+      <div class="hero"><h2>薄弱点速查卡</h2><p>屏幕态与黑白打印态同源，文本一字不差；不靠颜色，靠描边 / ▲ / 文字标签。</p></div>
+      <div class="stat">
+        <div class="box"><span class="num" id="wpCount">0</span><span class="lb">薄弱点</span></div>
+        <div class="box"><span class="num" id="wpMax">0</span><span class="lb">最高程度</span></div>
+      </div>
+      <ul class="clean" id="wpList"></ul>
+      <div class="printcard">
+        <div class="mk">▲ 描边 · 文字标签 · 程度标记（黑白打印可读）</div>
+        <div>等号成立条件｜一正二定三相等，先问等号取不取得到</div>
+      </div>
+      <div class="hint">进考场前可以用手机看屏幕态；教学区域禁用电子设备，纸质卡是刚需。</div>
+    </section>
+
+    <section class="card" data-page="notes">
+      <div class="hero"><h2>笔记</h2><p>AI 笔记与我的笔记两份独立存，靠 anchorId 本地索引双向关联；内置笔记区可显示 / 不显示。</p></div>
+      <div class="row">
+        <label class="muted" style="margin:0">内置笔记区</label>
+        <select id="noteVisible" data-change="noteVisible" style="max-width:130px"><option value="show">显示</option><option value="hide">不显示</option></select>
+        <span class="badge brand" id="anchorBadge">anchorId: --</span>
+      </div>
+      <div id="noteArea" style="margin-top:10px">
+        <div class="grid2">
+          <div>
+            <h4>我的笔记（原始笔迹 / 文本，默认不交给 AI）</h4>
+            <textarea id="myNote" placeholder="在这里写自己的笔记…"></textarea>
+            <div class="row" style="margin-top:6px"><button class="primary" data-action="saveMyNote">保存我的笔记</button><button data-action="linkNotes">按 anchorId 关联两份笔记</button></div>
+            <div class="ok" id="myNoteSaved"></div>
+          </div>
+          <div>
+            <h4>AI 笔记（独立存）</h4>
+            <pre class="out" id="aiNoteView">尚未生成。到「学习会话页」点「生成个性化 AI 笔记」。</pre>
+            <div class="muted" id="noteLinkState">尚未建立双向关联。</div>
           </div>
         </div>
-      </section>
+      </div>
+      <div class="hint">隐藏内置笔记不影响 A（分屏跳转）/ C（PDF 桥接）归档；OCR 摘要只作可检索索引，绝不覆盖原件。</div>
+    </section>
 
-      <section class="block" id="semantic-colors">
-        <h2>语义色（方案 A）</h2>
-        <p>松绿只绑「可学习空闲时段」；达标 / 完成 / ≥75% 改用墨蓝实心 + 对勾或文字，绝不挪作绿色。</p>
-        <div class="legend">
-          <span class="slot-chip">可学 · 07:00–07:30</span>
-          <span class="achieved-chip">✓ 已达标（文字）</span>
-          <span class="weak-chip">▲ 薄弱（文字标签）</span>
+    <section class="card" data-page="mine">
+      <div class="hero"><h2>我的 · L0 策略开关 · AI 服务</h2><p>所有「有这个功能，但用不用由我定」都在这里；复习模式固定模式 2，不可配。</p></div>
+      <div class="grid2">
+        <div>
+          <h3>L0 策略开关</h3>
+          <div class="field"><label>默认提醒方式</label><select id="prefReminder" data-change="prefReminder"><option value="vibration">振动</option><option value="sound">声音</option><option value="none">无</option></select></div>
+          <div class="field"><label>提前量</label><div class="row"><button data-action="prefLead2">2 min</button><button data-action="prefLead5">5 min</button><input id="prefLead" type="number" value="2" min="0" max="120" class="grow"></div></div>
+          <div class="field"><label>摸底测验</label><select id="prefPretest" data-change="prefPretest"><option value="show">显示（可选可跳过）</option><option value="hide">不显示</option></select></div>
+          <div class="field"><label>数据外发白名单</label><select id="prefWhitelist" data-change="prefWhitelist"><option value="localOnly">仅本地，不外发</option><option value="aiMinimal">仅 AI 最小必要上下文</option></select></div>
+          <div class="field"><label>本次会话意图 SessionIntent</label><select id="prefIntent" data-change="prefIntent"><option value="follow">跟随（按薄弱自适应）</option><option value="challenge">挑战（直上难题 + L4）</option><option value="confidence">刷自信（锁中档，不升变形档）</option></select></div>
+          <div class="field"><label>复习模式（只读）</label><input value="固定模式 2 · 不可配置" readonly disabled></div>
+          <button data-action="tryChangeReview" class="warn">尝试修改复习模式（应被拒绝）</button>
         </div>
-        <p class="mono-note">墨蓝 #204066 ｜ 琥珀 #E0892E ｜ 松绿 #2E7D5B ｜ 朱砂 #C0492F</p>
-      </section>
+        <div>
+          <h3>AI 服务（可插拔 Provider）</h3>
+          <div class="field"><label>Base URL</label><input id="aiBase" value="https://api.deepseek.com"></div>
+          <div class="field"><label>Model ID（按你控制台显示的型号填写，可直接改）</label><input id="aiModel" value="deepseek-chat"></div>
+          <div class="field"><label>API Key（只存本机，不进包、不进导出、不上传）</label><input id="aiKey" type="password" placeholder="sk-…" autocomplete="off"></div>
+          <div class="row"><button class="primary" data-action="saveAi">保存设置</button><button data-action="testAi">测试连接</button><button data-action="clearAi">清除 Key</button></div>
+          <div class="err" id="aiErr"></div>
+          <pre class="out" id="aiTestResult">尚未测试。点击「测试连接」会真实发起一次请求。</pre>
+          <div class="hint">浏览器预览里 file:// 直连常被跨域策略拦截，会如实报错；装到 App 内由原生通道发请求，无跨域问题。两种通道都不会伪造回复。</div>
+        </div>
+      </div>
+    </section>
 
-      <section class="block" id="print-card">
-        <h2>考前速查卡 · 屏幕态 / 打印态同源</h2>
-        <p>教学区域禁用电子设备，纸质卡是刚需；进考场前可用手机，所以屏幕态同样有效。两态文本一字不差，黑白打印不只靠颜色。</p>
-        <div class="print-card">
-          <span class="marker">【程度:重】</span>
-          等号成立条件｜一正二定三相等，先问等号取不取得到
-          <span class="marker"> ▲ 描边 文字标签</span>
-        </div>
-        <div class="print-card">
-          <span class="marker">【程度:中】</span>
-          一正二定三相等｜凑积为定值前先确认各项为正
-          <span class="marker"> ▲ 描边 文字标签</span>
-        </div>
-      </section>
+    <section class="card" data-page="dataTransfer">
+      <div class="hero"><h2>数据导入导出 · .studypack</h2><p>纯开放不加密的固定格式，所有用户数据能带走；API Key 绝不进包。</p></div>
+      <div class="row">
+        <button class="primary" data-action="exportPack">导出全部数据</button>
+        <button data-action="importPack">导入 .studypack</button>
+        <input type="file" id="importFile" accept=".json,.studypack" class="hidden">
+        <button data-action="clearAll" class="warn">清空本机数据</button>
+      </div>
+      <div class="ok" id="transferMsg"></div>
+      <h4>导出内容预览（manifest + 13 类实体）</h4>
+      <pre class="out" id="exportPreview">尚未导出。</pre>
+      <div class="hint">本地保存的就是这份开放格式；带 checksum 校验，跨设备恢复后可继续使用。</div>
+    </section>
 
-      <section class="block no-print" id="breakpoints">
-        <h2>双端断点契约（按窗口宽度，不按设备型号）</h2>
-        <p>分屏导致窗口宽度回落到 Medium 时自动重组：底部 Tab 取消、NavigationRail 出现、笔记降级为双栏 list-detail。</p>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>档位</th><th>示例宽度</th><th>导航</th><th>栏数</th><th>底部 Tab</th><th>笔记形态</th></tr></thead>
-            <tbody><tr>
-  <td><strong>Compact · 手机竖屏（vivo S7 360dp）</strong></td>
-  <td class="num">360dp</td>
-  <td>bottomTabs</td>
-  <td class="num">1</td>
-  <td>底部 4 Tab</td>
-  <td>分段切换 + 角标跳转</td>
-</tr>
-<tr>
-  <td><strong>Medium · 分屏回落 / S7 横屏</strong></td>
-  <td class="num">720dp</td>
-  <td>navigationRail</td>
-  <td class="num">2</td>
-  <td>取消底部 Tab</td>
-  <td>双栏 list-detail</td>
-</tr>
-<tr>
-  <td><strong>Expanded · Pad 全屏（Lenovo Y900 13"）</strong></td>
-  <td class="num">1280dp</td>
-  <td>navigationRail</td>
-  <td class="num">2</td>
-  <td>取消底部 Tab</td>
-  <td>真双栏：左 AI 笔记 ‖ 右手写</td>
-</tr>
-</tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="block" id="device-matrix">
-        <h2>设备矩阵 · 两台设备各跑一半闭环</h2>
-        <div class="device-row">
-          <div class="device"><b>vivo S7 · 360dp · Compact</b><br>碎片端：07:00 / 13:00 / 21:30 的 20·30min → 闭环①提醒、倒计时、复习复述、考前速览。笔记「双栏对应」降级为分段切换 + 角标跳转；A 通道降级为一键跳转 Notein + 自动回位。</div>
-          <div class="device"><b>Lenovo Y900 13" · Expanded</b><br>整块端：17:20–18:20 的 60min → 闭环②视频、测验、费曼、手写笔记、打印。真双栏：左 AI 笔记 ‖ 右手写，anchorId 双向跳；A 通道系统分屏主战场。</div>
-        </div>
-      </section>
-
-      <section class="block" id="l0">
-        <h2>L0 策略开关（有这个功能，但用不用由我定）</h2>
-        <div><span class="chip">reminderMode</span>
-<span class="chip">leadMinutes</span>
-<span class="chip">pretestVisible</span>
-<span class="chip">noteVisible</span>
-<span class="chip">dataOutboundWhitelist</span>
-<span class="chip">aiProvider</span>
+    <div id="layout-audit" aria-hidden="true">overflow=NO boxes=none</div>
+  </main>
 </div>
-        <p>复习闭环固定模式 2 不可配；笔记显隐只影响渲染，不删除 A/C 归档；默认不把笔记交给 AI。</p>
-      </section>
 
-      <section class="block" id="data">
-        <h2>数据导入导出 · .studypack</h2>
-        <p>纯开放不加密；13 类实体 + manifest（schemaVersion / checksum）；凭证不进包，第三方版权内容只存引用与考纲标签。界面读写的数据可导出并被 F2 导入。</p>
-        <div class="stats"><div class="stat"><span>任务</span><strong class="num">2</strong></div>
-<div class="stat"><span>规划</span><strong class="num">1</strong></div>
-<div class="stat"><span>时段</span><strong class="num">4</strong></div>
-<div class="stat"><span>会话</span><strong class="num">1</strong></div>
-<div class="stat"><span>薄弱点</span><strong class="num">1</strong></div>
-<div class="stat"><span>AI 笔记</span><strong class="num">1</strong></div>
-<div class="stat"><span>我的笔记</span><strong class="num">2</strong></div>
-<div class="stat"><span>锚点关联</span><strong class="num">1</strong></div>
-<div class="stat"><span>资源</span><strong class="num">1</strong></div>
-</div>
-        <p class="mono-note">格式：studypack-open-v1 ｜ 本地储存 · 主动 / 手动保存 · 全量可迁移</p>
-      </section>
+<nav class="tabbar no-print" aria-label="底部导航">
+  <div class="tab" data-nav="today">今日</div><div class="tab" data-nav="planCreate">规划</div>
+  <div class="tab" data-nav="notes">笔记</div><div class="tab" data-nav="mine">我的</div>
+</nav>
 
-      <div class="footer">学习助手 App · 第一版 v0.1.0 ｜ 业务规则唯一真源 lib/ ｜ 本页为轻量查看器形态</div>
-    </main>
-  </div>
-
-  <nav class="tabbar no-print" aria-label="底部导航">
-    <a class="tab" href="#page-today" data-page="today"><span class="tab-dot"></span>今日视图</a>
-<a class="tab" href="#page-planCreate" data-page="planCreate"><span class="tab-dot"></span>规划创建</a>
-<a class="tab" href="#page-notes" data-page="notes"><span class="tab-dot"></span>笔记</a>
-<a class="tab" href="#page-mine" data-page="mine"><span class="tab-dot"></span>我的（L0 开关）</a>
-
-  </nav>
-</div>
 <script>
-(function(){
-  var links=document.querySelectorAll('[data-page]');
-  links.forEach(function(a){
-    a.addEventListener('click',function(){
-      document.querySelectorAll('.card').forEach(function(c){c.classList.remove('active');});
-      document.querySelectorAll('[data-page]').forEach(function(x){x.classList.remove('active');});
-      var el=document.getElementById('page-'+a.getAttribute('data-page'));
-      if(el){el.classList.add('active');}
-      a.classList.add('active');
+"use strict";
+var KEY='sa_state_v2', AIKEY='sa_ai_key';
+var PAGE_IDS=['widget','today','calendar','taskDetail','planCreate','studySession','reviewLoop','examCard','notes','mine','dataTransfer'];
+var STAGES=['resources','pretest','study','quiz','passed','summary','aiNote','reviewPlan','done'];
+var STAGE_CN={resources:'准备资料',pretest:'摸底测验（可选）',study:'看视频 / 学习',quiz:'相关测验',passed:'已达标',summary:'费曼式总结',aiNote:'生成 AI 笔记',reviewPlan:'复习计划纳入规划',done:'完成',attribution:'错因归因',remediation:'继续费曼'};
+var DEFAULT_SLOTS=[
+  {id:'S-1',start:'07:00',end:'07:30',label:'早间',capacity:30},
+  {id:'S-2',start:'13:00',end:'13:30',label:'午间',capacity:30},
+  {id:'S-3',start:'17:20',end:'18:20',label:'傍晚',capacity:60},
+  {id:'S-4',start:'21:30',end:'21:50',label:'晚间',capacity:20}
+];
+var REVIEW_STEPS=['先复述上次理解（我复述）','AI 纠正，反复到没问题','给几道题简单练手','进入今日学习内容'];
+function fresh(){
+  return {page:'today',
+    tasks:[{id:'T-1',title:'打开不背单词 · 背单词（习惯性任务）',type:'habit',done:false},
+      {id:'T-2',title:'数学 · 基本不等式专项',type:'once',done:false},
+      {id:'T-3',title:'复习闭环 · 上次理解复述',type:'review',done:false}],
+    reminderMode:'vibration',leadMinutes:2,
+    slots:DEFAULT_SLOTS.map(function(s){return Object.assign({},s,{on:true});}),
+    selectedSlots:['S-1','S-3'],plans:[],calendar:[],sessions:[],
+    stage:'resources',stageIndex:0,quizAttempts:0,quizScore:null,reviewStep:0,
+    myNote:'',aiNote:'',noteVisible:'show',anchorId:'RJ-A-BX1-CH2-2.2-EQ::SE-1::WP-1',linked:false,
+    pretest:'show',whitelist:'localOnly',intent:'follow',
+    aiBase:'https://api.deepseek.com',aiModel:'deepseek-chat',
+    weakPoints:[{id:'WP-1',node:'人教A版·必修第一册·第二章·2.2 基本不等式',severity:4,
+      line:'一正二定三相等，先问等号取不取得到',axis:'知识结构·条件 / 高考能力·去套路化 / 费曼暴露·假懂'}],
+    taskDraft:{title:'打开不背单词 · 背单词',type:'habit',lead:2,note:'课间用不了手机，只在绿色时段做。'},
+    planDraft:{goal:'精进基本不等式，能解决 75% 相关题目',target:75,days:15,start:'immediate'}};
+}
+var S;
+try{S=JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){S=fresh();}
+var _f=fresh();Object.keys(_f).forEach(function(k){if(!(k in S))S[k]=_f[k];});
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+function el(id){return document.getElementById(id);}
+function q(sel,root){return (root||document).querySelector(sel);}
+function qa(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel));}
+var fbCount=0,toastTimer=null;
+function feedback(msg,kind){
+  fbCount++;var bar=el('statusbar'),t=el('toast');bar.className=kind||'';
+  bar.setAttribute('data-count',String(fbCount));
+  q('.tag',bar).textContent=kind==='bad'?'失败':(kind==='busy'?'进行中':'已反馈');
+  q('.msg',bar).textContent='['+new Date().toLocaleTimeString('zh-CN',{hour12:false})+'] '+msg;
+  t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove('show');},2600);
+}
+function fail(msg){feedback(msg,'bad');}
+var PageLabel={widget:'Widget 最小态',today:'今日视图',calendar:'全局日历',taskDetail:'任务详情 / 编辑',
+  planCreate:'规划创建',studySession:'学习会话页',reviewLoop:'复习闭环页',examCard:'薄弱点速查卡',
+  notes:'笔记',mine:'我的（L0 / AI）',dataTransfer:'数据导入导出'};
+function showPage(id,silent){
+  if(PAGE_IDS.indexOf(id)<0){fail('未登记的页面：'+id);return;}
+  S.page=id;save();
+  qa('section[data-page]').forEach(function(s){s.classList.toggle('active',s.dataset.page===id);});
+  qa('[data-nav]').forEach(function(a){a.classList.toggle('active',a.dataset.nav===id);});
+  if(!silent)feedback('切换到「'+(PageLabel[id]||id)+'」，已记住当前页');
+}
+function nextOccurrence(){
+  var now=new Date(),cur=now.getHours()*60+now.getMinutes(),best=null;
+  S.slots.forEach(function(s){var p=s.start.split(':'),m=(+p[0])*60+(+p[1]);
+    if(m>cur){var d=m-cur;if(!best||d<best.d)best={d:d,label:s.start+' '+s.label};}});
+  if(!best){var first=S.slots[0],p2=first.start.split(':');
+    best={d:(24*60-cur)+(+p2[0])*60+(+p2[1]),label:'明日 '+first.start+' '+first.label};}
+  return best;
+}
+function reminderCn(v){return v==='sound'?'声音':(v==='none'?'无':'振动');}
+function tick(){
+  var n=nextOccurrence(),h=Math.floor(n.d/60),m=n.d%60;
+  var txt=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+' 后';
+  var cd=el('countdown');
+  cd.setAttribute('data-tick',String((parseInt(cd.getAttribute('data-tick')||'0',10)+1)));
+  cd.textContent=txt;el('wCountdown').textContent=txt;
+  el('nextTaskLabel').textContent='下一个可学习时段：'+n.label+'（提前 '+S.leadMinutes+' 分钟提醒 · '+reminderCn(S.reminderMode)+'）';
+  var nx=S.tasks.filter(function(t){return !t.done;})[0];
+  el('wTask').textContent=nx?nx.title:'今日任务已全部完成 ✓ 已达标';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function renderTasks(){
+  var box=el('taskList');box.innerHTML='';
+  S.tasks.forEach(function(t){
+    var li=document.createElement('li');li.className='task'+(t.done?' done':'');
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=t.done;
+    cb.setAttribute('data-task',t.id);cb.setAttribute('data-change','taskDone');
+    var span=document.createElement('span');span.className='t';span.textContent=t.title;
+    var b=document.createElement('span');b.className='badge '+(t.type==='habit'?'pine':'brand');
+    b.textContent=t.type==='habit'?'习惯性':(t.type==='review'?'复习':'一次性');
+    li.appendChild(cb);li.appendChild(span);li.appendChild(b);
+    if(t.done){var pass=document.createElement('span');pass.className='pass';pass.textContent='✓ 已达标';li.appendChild(pass);}
+    box.appendChild(li);
+  });
+  el('taskTotal').textContent=String(S.tasks.length);
+  el('taskDone').textContent=String(S.tasks.filter(function(t){return t.done;}).length);
+  el('planCount').textContent=String(S.plans.length);
+}
+function renderSlots(){
+  var a=el('slotList'),b=el('pSlots');a.innerHTML='';b.innerHTML='';
+  S.slots.forEach(function(s){
+    var on=S.selectedSlots.indexOf(s.id)>=0;
+    var d=document.createElement('span');d.className='slot '+(on?'on':'off');
+    d.textContent=s.start+'-'+s.end+' · '+s.label+' · '+s.capacity+'min';
+    d.setAttribute('data-slot',s.id);d.setAttribute('data-action','toggleSlot');a.appendChild(d);
+    var l=document.createElement('label');l.className='slot '+(on?'on':'off');
+    var cb=document.createElement('input');cb.type='checkbox';cb.checked=on;cb.style.width='auto';
+    cb.setAttribute('data-pslot',s.id);cb.setAttribute('data-change','planSlot');
+    l.appendChild(cb);l.appendChild(document.createTextNode(' '+s.start+'-'+s.end));b.appendChild(l);
+  });
+}
+function renderPlans(){
+  var p=el('planList');p.innerHTML='';
+  if(!S.plans.length)p.innerHTML='<li class="muted">还没有规划，去「规划创建」建一个。</li>';
+  S.plans.forEach(function(x){
+    var li=document.createElement('li');
+    li.innerHTML='<strong>'+escapeHtml(x.goal)+'</strong> <span class="badge brand">'+x.target+'%</span> '
+      +'<span class="badge">'+x.days+' 天</span> <span class="badge action">'+(x.start==='immediate'?'立即开始':'将来开始')+'</span>'
+      +'<div class="muted">'+x.id+' · 时段 '+x.slots.join(' / ')+(x.sessionId?' · 已生成会话 '+x.sessionId:'')+'</div>';
+    p.appendChild(li);
+  });
+  var c=el('calendarList');c.innerHTML='';
+  if(!S.calendar.length)c.innerHTML='<li class="muted">日历为空。创建规划后会自动写入条目。</li>';
+  S.calendar.forEach(function(x){
+    var li=document.createElement('li');
+    li.innerHTML='<span class="badge pine">'+escapeHtml(x.slot)+'</span> '+escapeHtml(x.title)+' <div class="muted">'+escapeHtml(x.desc)+'</div>';
+    c.appendChild(li);
+  });
+}
+function renderStage(){
+  var bar=el('stageBar');bar.innerHTML='';
+  STAGES.forEach(function(st,i){var sp=document.createElement('span');
+    if(S.stage===st)sp.className='cur';else if(i<S.stageIndex)sp.className='done';
+    sp.textContent=STAGE_CN[st]||st;bar.appendChild(sp);});
+  el('stageDesc').textContent='当前阶段：'+(STAGE_CN[S.stage]||S.stage)+' · 测验提交次数 '+S.quizAttempts;
+  el('btnNext').textContent=S.stage==='quiz'?'提交成绩后推进':'下一步 → '+(STAGE_CN[STAGES[Math.min(S.stageIndex+1,STAGES.length-1)]]||'');
+  el('btnSkip').disabled=!(S.stage==='pretest');
+}
+function renderReview(){
+  var ul=el('reviewSteps');ul.innerHTML='';
+  REVIEW_STEPS.forEach(function(t,i){
+    var li=document.createElement('li'),done=i<S.reviewStep,cur=i===S.reviewStep;
+    li.innerHTML=(done?'<span class="pass">✓ 已达标</span> ':(cur?'<span class="badge action">进行中</span> ':'<span class="badge">待办</span> '))+escapeHtml(t);
+    ul.appendChild(li);
+  });
+  el('reviewResult').textContent=S.reviewStep>=REVIEW_STEPS.length?'✓ 已达标：固定模式 2 全部完成，进入今日学习内容':'';
+}
+function renderWp(){
+  el('wpCount').textContent=String(S.weakPoints.length);
+  el('wpMax').textContent=String(Math.max.apply(null,S.weakPoints.map(function(w){return w.severity;}).concat([0])));
+  var ul=el('wpList');ul.innerHTML='';
+  S.weakPoints.forEach(function(w){
+    var li=document.createElement('li');
+    li.innerHTML='<strong>'+escapeHtml(w.node)+'</strong> <span class="badge alert">程度 '+w.severity+'/5</span>'
+      +'<div class="muted">'+escapeHtml(w.axis)+'</div><div>提醒：'+escapeHtml(w.line)+' <span class="badge">▲ 描边 文字标签</span></div>';
+    ul.appendChild(li);
+  });
+  el('examQuick').innerHTML=['一正：各项为正','二定：和或积为定值','三相等：先验等号能否取到'].map(function(x){return '<li>'+escapeHtml(x)+'</li>';}).join('');
+}
+function renderNotes(){
+  el('noteArea').classList.toggle('hidden',S.noteVisible==='hide');
+  el('anchorBadge').textContent='anchorId: '+S.anchorId;
+  el('myNote').value=S.myNote||'';
+  el('aiNoteView').textContent=S.aiNote||'尚未生成。到「学习会话页」点「生成个性化 AI 笔记」。';
+  el('noteLinkState').textContent=S.linked?'已按 anchorId 建立双向关联（AI 笔记 ↔ 我的笔记），两份独立存。':'尚未建立双向关联。';
+  el('myNoteSaved').textContent=S.myNote?'✓ 已保存到本机（我的笔记，独立存储）':'';
+}
+function renderPrefs(){
+  el('prefReminder').value=S.reminderMode;el('prefLead').value=S.leadMinutes;
+  el('prefPretest').value=S.pretest;el('prefWhitelist').value=S.whitelist;el('prefIntent').value=S.intent;
+  el('reminderMode').value=S.reminderMode;el('noteVisible').value=S.noteVisible;
+  el('pGoal').value=S.planDraft.goal;el('pTarget').value=S.planDraft.target;
+  el('pDays').value=S.planDraft.days;el('pStart').value=S.planDraft.start;
+  el('tdTitle').value=S.taskDraft.title;el('tdType').value=S.taskDraft.type;
+  el('tdLead').value=S.taskDraft.lead;el('tdNote').value=S.taskDraft.note;
+  el('aiBase').value=S.aiBase||'';el('aiModel').value=S.aiModel||'';
+}
+function renderAll(){renderTasks();renderSlots();renderPlans();renderStage();renderReview();renderWp();renderNotes();renderPrefs();tick();}
+
+/* ---- AI 通道：原生桥接 / 浏览器直连，失败绝不伪造 ---- */
+function aiCfg(){
+  return {baseUrl:(el('aiBase').value||'').trim()||'https://api.deepseek.com',
+    model:(el('aiModel').value||'').trim()||'deepseek-chat',key:(localStorage.getItem(AIKEY)||'').trim()};
+}
+var aiSeq=0,aiPending={};
+window.__saAiResult=function(cbId,jsonStr){
+  var p=aiPending[cbId];if(!p)return;delete aiPending[cbId];
+  var data;try{data=JSON.parse(jsonStr);}catch(e){data={ok:false,error:'返回解析失败：'+String(jsonStr).slice(0,200)};}
+  p(data);
+};
+function aiRequest(messages){
+  var cfg=aiCfg();
+  if(!cfg.key)return Promise.resolve({ok:false,error:'未填写 API Key：请到「我的 → AI 服务」填一次，只存本机'});
+  var payload={baseUrl:cfg.baseUrl,model:cfg.model,key:cfg.key,messages:messages};
+  if(window.StudyAgentNative&&window.StudyAgentNative.callAi){
+    return new Promise(function(resolve){
+      var cb='cb'+(++aiSeq);aiPending[cb]=resolve;
+      try{window.StudyAgentNative.callAi(JSON.stringify(payload),cb);}
+      catch(e){delete aiPending[cb];resolve({ok:false,error:'原生桥接异常：'+e.message});return;}
+      setTimeout(function(){if(aiPending[cb]){delete aiPending[cb];resolve({ok:false,error:'AI 请求超时（25s），未收到响应'});}},25000);
     });
+  }
+  var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},9000);
+  return fetch(cfg.baseUrl.replace(/\/+$/,'')+'/chat/completions',{
+    method:'POST',signal:ctrl.signal,
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},
+    body:JSON.stringify({model:cfg.model,messages:messages,stream:false})
+  }).then(function(r){return r.text().then(function(txt){return {r:r,txt:txt};});})
+    .then(function(x){clearTimeout(timer);
+      if(!x.r.ok)return {ok:false,http:x.r.status,error:'HTTP '+x.r.status+' · '+x.txt.slice(0,300)};
+      try{var j=JSON.parse(x.txt),c=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;
+        return {ok:true,http:x.r.status,content:c||'(空回复)',raw:j};}
+      catch(e){return {ok:false,http:x.r.status,error:'返回非 JSON：'+x.txt.slice(0,200)};}})
+    .catch(function(e){clearTimeout(timer);
+      return {ok:false,error:'浏览器直连失败（多为跨域 / 网络限制）：'+e.message+'；装到 App 内可走原生通道'};});
+}
+function aiRun(label,messages,outId,onOk){
+  feedback(label+'：请求中…','busy');
+  var out=el(outId);if(out)out.textContent='请求中…（正在等待 '+aiCfg().model+'，超时 9s / App 内 25s）';
+  return aiRequest(messages).then(function(res){
+    if(res.ok){feedback(label+'：成功（HTTP '+res.http+'）');if(out)out.textContent=res.content;if(onOk)onOk(res.content);}
+    else{fail(label+'：失败 → '+(res.error||'未知原因'));
+      if(out)out.textContent='【未获得 AI 回复】'+(res.error||'未知原因')+'\n（此处不会编造内容）';}
+    return res;
   });
-  var first=document.querySelector('.tab');
-  if(first){first.classList.add('active');}
-})();
-(function(){
-  var winW=window.innerWidth;
-  var docW=document.documentElement.scrollWidth;
-  var overflow=docW>winW+1;
-  var boxes=[];
-  document.querySelectorAll('.card,.block,.hero,.widget,.device').forEach(function(el){
-    var r=el.getBoundingClientRect();
-    if(r.right>winW+1){boxes.push(el.id||el.className);}
-  });
-  var d=document.createElement('div');
-  d.id='layout-audit';
-  d.setAttribute('data-overflow',overflow?'YES':'NO');
-  d.setAttribute('data-doc',String(docW));
-  d.setAttribute('data-win',String(winW));
-  d.setAttribute('data-boxes',boxes.length?boxes.join('|'):'none');
-  d.textContent='LAYOUT_AUDIT overflow='+(overflow?'YES':'NO')+
-    ' doc='+docW+' win='+winW+' boxes='+(boxes.length?boxes.join('|'):'none');
-  document.body.appendChild(d);
-})();
+}
+function sysPrompt(){
+  return [{role:'system',content:'你是高考数学辅助学习助手。学情：广东深圳·深圳中学，新高考 I 卷，人教 A 版（2019）。'
+    +'知识点：必修第一册 第二章 2.2 基本不等式。硬约束：只做检索匹配、讲解与基于真实母题的变式，'
+    +'禁止凭空编造题目冒充高考题；不输出任何密钥；回答简洁，中文。'}];
+}
+
+/* ---- .studypack 导出 / 导入（Key 绝不进包） ---- */
+function buildPack(){
+  var entities={};
+  var m={tasks:S.tasks,plans:S.plans,sessions:S.sessions,slots:S.slots,calendar:S.calendar,
+    weakPoints:S.weakPoints,myNotes:S.myNote?[{id:'MN-1',owner:'mine',text:S.myNote,channel:'D'}]:[],
+    aiNotes:S.aiNote?[{id:'AN-1',owner:'ai',text:S.aiNote}]:[],
+    anchorLinks:S.linked?[{anchorId:S.anchorId,aiNoteIds:['AN-1'],myNoteIds:['MN-1']}]:[],
+    resources:[],reviewPlans:[],notes:[],profiles:[{paper:'新高考 I 卷（新课标 I 卷）',totalScore:150}]};
+  Object.keys(m).forEach(function(k){entities[k+'.json']=m[k];});
+  var pack={manifest:{schemaVersion:1,app:'study-agent',device:'local',checksum:'pending',exportedAt:new Date().toISOString()},
+    entities:entities,prefs:{reminderMode:S.reminderMode,leadMinutes:S.leadMinutes,pretest:S.pretest,
+      whitelist:S.whitelist,intent:S.intent,noteVisible:S.noteVisible,stage:S.stage,
+      quizAttempts:S.quizAttempts,reviewStep:S.reviewStep,aiBase:S.aiBase,aiModel:S.aiModel}};
+  var body=JSON.stringify({entities:entities,prefs:pack.prefs}),sum=0;
+  for(var i=0;i<body.length;i++)sum=(sum*31+body.charCodeAt(i))>>>0;
+  pack.manifest.checksum=sum.toString(16);return pack;
+}
+window.__saExportText=function(){return JSON.stringify(buildPack(),null,2);};
+window.__saImportText=function(txt){
+  try{var p=JSON.parse(txt);
+    if(!p.entities||!p.manifest)throw new Error('缺少 manifest / entities');
+    if(p.entities['tasks.json'])S.tasks=p.entities['tasks.json'];
+    if(p.entities['plans.json'])S.plans=p.entities['plans.json'];
+    if(p.entities['calendar.json'])S.calendar=p.entities['calendar.json'];
+    if(p.entities['slots.json'])S.slots=p.entities['slots.json'];
+    if(p.entities['myNotes.json']&&p.entities['myNotes.json'].length)S.myNote=p.entities['myNotes.json'][0].text||'';
+    if(p.entities['aiNotes.json']&&p.entities['aiNotes.json'].length)S.aiNote=p.entities['aiNotes.json'][0].text||'';
+    if(p.prefs)Object.keys(p.prefs).forEach(function(k){if(k in S)S[k]=p.prefs[k];});
+    save();renderAll();return {ok:true};
+  }catch(e){return {ok:false,error:e.message};}
+};
+
+/* ---- 中央事件委托：任何 [data-action] 都先反馈，绝不静默 ---- */
+var HANDLERS={
+  openHabit:function(){feedback('一键打开：已请求打开习惯性任务（外部 App 跳转，本版为本地提示，不含任何凭证）');},
+  widgetToday:function(){showPage('today');},
+  widgetCalendar:function(){showPage('calendar');},
+  addSlot:function(){var v=(el('customSlot').value||'').trim();
+    if(!/^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/.test(v)){fail('临时时段格式不对，应为 07:00-07:30');return;}
+    var p=v.split('-');S.slots.push({id:'S-C'+Date.now(),start:p[0],end:p[1],label:'自定义',capacity:0,on:true});
+    S.selectedSlots.push(S.slots[S.slots.length-1].id);save();renderSlots();
+    feedback('已添加临时时段 '+v+'（绿色 = 可学习空闲时段）');el('customSlot').value='';},
+  toggleSlot:function(btn){var id=btn.dataset.slot,i=S.selectedSlots.indexOf(id);
+    if(i>=0)S.selectedSlots.splice(i,1);else S.selectedSlots.push(id);
+    save();renderSlots();feedback('时段 '+id+' 已'+(i>=0?'取消':'选中')+'（按天确认，会变化）');},
+  lead2:function(){S.taskDraft.lead=2;el('tdLead').value=2;save();feedback('提前量设为 2 分钟');},
+  lead5:function(){S.taskDraft.lead=5;el('tdLead').value=5;save();feedback('提前量设为 5 分钟');},
+  saveTask:function(){var t=(el('tdTitle').value||'').trim(),e=el('tdErr');
+    if(!t){e.textContent='标题不能为空';fail('保存任务失败：标题为空');return;}
+    var lead=parseInt(el('tdLead').value,10);
+    if(isNaN(lead)||lead<0||lead>120){e.textContent='提前量须在 0–120 分钟';fail('保存任务失败：提前量非法');return;}
+    e.textContent='';S.taskDraft={title:t,type:el('tdType').value,lead:lead,note:el('tdNote').value};
+    S.leadMinutes=lead;save();tick();
+    e.innerHTML='<span class="ok">✓ 已保存：'+escapeHtml(t)+'（'+lead+' min，'+reminderCn(S.reminderMode)+'）</span>';
+    feedback('任务已保存到本机：'+t);},
+  createPlan:function(){
+    var goal=(el('pGoal').value||'').trim(),target=parseInt(el('pTarget').value,10),days=parseInt(el('pDays').value,10),e=el('pErr');
+    if(!goal){e.textContent='目标不能为空';fail('创建规划失败：目标为空');return;}
+    if(isNaN(target)||target<1||target>100){e.textContent='正确率须在 1–100';fail('创建规划失败：正确率非法');return;}
+    if(isNaN(days)||days<1||days>365){e.textContent='天数须在 1–365';fail('创建规划失败：天数非法');return;}
+    if(!S.selectedSlots.length){e.textContent='至少选 1 个绿色空闲时段';fail('创建规划失败：未选时段');return;}
+    e.textContent='';var pid='P-'+(S.plans.length+1),sid='SE-'+(S.plans.length+1),start=el('pStart').value;
+    var slotLabels=S.selectedSlots.map(function(id){var s=S.slots.filter(function(x){return x.id===id;})[0];return s?s.start+'-'+s.end:id;});
+    S.plans.push({id:pid,goal:goal,target:target,passLine:target/100,quantTarget:target/100,days:days,start:start,slots:slotLabels,sessionId:start==='immediate'?sid:null});
+    if(start==='immediate')S.sessions.push({id:sid,planId:pid,stage:'resources'});
+    slotLabels.forEach(function(lb){S.calendar.push({slot:lb,title:goal,desc:pid+' · '+(start==='immediate'?'立即开始，会话 '+sid:'将来开始，待排期')+' · '+days+' 天目标 '+target+'%'});});
+    S.planDraft={goal:goal,target:target,days:days,start:start};save();renderPlans();
+    el('pResult').textContent='✓ 已创建 '+pid+'：'+goal+' · '+days+' 天 · '+target+'%'+(start==='immediate'?' · 已生成会话 '+sid:' · 待将来开始')+' · 已写回全局日历';
+    feedback('规划创建成功：'+pid+'，日历已更新');},
+  resetPlan:function(){S.selectedSlots=['S-1','S-3'];save();renderSlots();el('pErr').textContent='';el('pResult').textContent='';feedback('规划表单已重置');},
+  stageNext:function(){
+    if(S.stage==='quiz'){fail('请先提交测验成绩，再推进');return;}
+    var nxt=STAGES[Math.min(S.stageIndex+1,STAGES.length-1)];
+    if(S.stage==='resources'&&S.pretest==='hide'){S.stage='study';S.stageIndex=STAGES.indexOf('study');}
+    else{S.stage=nxt;S.stageIndex=STAGES.indexOf(nxt);}
+    save();renderStage();feedback('会话推进到「'+(STAGE_CN[S.stage]||S.stage)+'」');},
+  skipPretest:function(){if(S.stage!=='pretest'){fail('当前不在摸底测验阶段，不能跳过');return;}
+    S.stage='study';S.stageIndex=STAGES.indexOf('study');save();renderStage();
+    feedback('已跳过摸底测验（该环节存在但可选），直接进入看视频 / 学习');},
+  resetSession:function(){S.stage='resources';S.stageIndex=0;S.quizAttempts=0;S.quizScore=null;save();renderStage();
+    el('quizResult').textContent='';el('quizErr').textContent='';feedback('会话已重开，回到准备资料阶段');},
+  submitQuiz:function(){var v=parseInt(el('quizScore').value,10);
+    if(isNaN(v)||v<0||v>100){el('quizErr').textContent='成绩须在 0–100';fail('提交成绩失败：数值非法');return;}
+    el('quizErr').textContent='';S.quizAttempts++;S.quizScore=v;var pass=v>=75;
+    el('quizResult').textContent=pass?'✓ 已达标（'+v+'% ≥ 75%）：进入费曼式总结（我复述 → AI 纠正 → 反复）'
+      :'未达标（'+v+'% < 75%）：进入错因归因 → 继续费曼 → 再测一遍（第 '+S.quizAttempts+' 次）';
+    S.stage=pass?'summary':'attribution';S.stageIndex=pass?STAGES.indexOf('summary'):5;
+    save();renderStage();feedback(pass?'测验达标，进入总结':'测验未达标，进入归因回路（不重学、不直接换题）');},
+  aiResources:function(){return aiRun('AI 准备资料',sysPrompt().concat([{role:'user',content:'为「基本不等式」当前时段准备学习资料：列出应看的课程视频方向、应做的相关题目类型，并说明每个资料应挂靠的真实来源。不要编造具体题号。'}]),'aiResourceOut');},
+  aiCorrect:function(){var txt=(el('restatement').value||'').trim();
+    if(!txt){fail('复述内容为空，无法让 AI 纠正');return;}
+    return aiRun('AI 纠正复述',sysPrompt().concat([{role:'user',content:'以下是我对基本不等式的复述，请指出理解错误并纠正，再问我一个问题检验：'+txt}]),'aiCorrectOut');},
+  aiNote:function(){return aiRun('生成 AI 笔记',sysPrompt().concat([{role:'user',content:'基于本会话（基本不等式，人教A版必修一2.2，目标75%）生成一份简短的个性化 AI 笔记，含：核心条件、易错点、解题入手顺序、考前一句话提醒。'}]),'aiNoteOut',
+    function(content){S.aiNote=content;save();renderNotes();});},
+  reviewNext:function(){if(S.reviewStep>=REVIEW_STEPS.length){feedback('固定模式 2 已完成，无需重复推进');return;}
+    S.reviewStep++;save();renderReview();feedback('复习闭环：完成第 '+S.reviewStep+' 步「'+REVIEW_STEPS[S.reviewStep-1]+'」');},
+  reviewReset:function(){S.reviewStep=0;save();renderReview();feedback('复习闭环已重置，仍按固定模式 2 顺序推进');},
+  saveMyNote:function(){S.myNote=el('myNote').value||'';save();renderNotes();
+    feedback('我的笔记已保存到本机（独立存储，anchorId '+S.anchorId+'）');},
+  linkNotes:function(){S.linked=true;save();renderNotes();feedback('已按 anchorId 建立双向关联：'+S.anchorId+'（两份笔记仍分开存）');},
+  prefLead2:function(){S.leadMinutes=2;el('prefLead').value=2;save();tick();feedback('L0 提前量设为 2 分钟，倒计时已刷新');},
+  prefLead5:function(){S.leadMinutes=5;el('prefLead').value=5;save();tick();feedback('L0 提前量设为 5 分钟，倒计时已刷新');},
+  tryChangeReview:function(){fail('已拒绝：复习闭环固定模式 2，不可配置、不可跳过');},
+  saveAi:function(){
+    S.aiBase=(el('aiBase').value||'').trim()||'https://api.deepseek.com';
+    S.aiModel=(el('aiModel').value||'').trim()||'deepseek-chat';
+    var k=(el('aiKey').value||'').trim();if(k)localStorage.setItem(AIKEY,k);
+    save();el('aiErr').textContent='';
+    feedback('AI 设置已保存：'+S.aiBase+' / '+S.aiModel+' / Key '+(k?'已存本机（不进包、不进导出）':'未填写'));
+    el('aiKey').value='';},
+  clearAi:function(){localStorage.removeItem(AIKEY);el('aiTestResult').textContent='Key 已清除。';feedback('API Key 已从本机清除');},
+  testAi:function(){return aiRun('测试连接',sysPrompt().concat([{role:'user',content:'只回复两个字：连通'}]),'aiTestResult');},
+  exportPack:function(){var txt=window.__saExportText();el('exportPreview').textContent=txt;
+    el('transferMsg').textContent='✓ 已生成 .studypack（manifest + 13 类实体，checksum 已算），Key 不在包内';
+    try{var blob=new Blob([txt],{type:'application/json'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download='study-agent.studypack.json';a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},1500);}catch(e){}
+    feedback('导出完成：数据已生成，可带走；API Key 未写入包');},
+  importPack:function(){el('importFile').click();feedback('请选择 .studypack 文件（导入后本机数据被替换）');},
+  clearAll:function(){S=fresh();localStorage.removeItem(AIKEY);save();renderAll();showPage('today',true);
+    el('exportPreview').textContent='尚未导出。';el('transferMsg').textContent='';
+    feedback('本机数据已清空，恢复默认状态（AI Key 一并清除）');}
+};
+document.addEventListener('click',function(ev){
+  var nav=ev.target.closest('[data-nav]');
+  if(nav){ev.preventDefault();showPage(nav.dataset.nav);return;}
+  var btn=ev.target.closest('[data-action]');if(!btn)return;
+  var act=btn.dataset.action,fn=HANDLERS[act];
+  if(!fn){fail('未实现的动作：'+act);return;}
+  try{var r=fn(btn);if(r&&typeof r.then==='function')r.catch(function(e){fail('动作 '+act+' 异常：'+e.message);});}
+  catch(e){fail('动作 '+act+' 异常：'+e.message);}
+});
+document.addEventListener('change',function(ev){
+  var t=ev.target,k=t.dataset.change||'',id=t.dataset.task||t.dataset.pslot||'';
+  if(k==='taskDone'){var task=S.tasks.filter(function(x){return x.id===id;})[0];
+    if(task){task.done=t.checked;save();renderTasks();feedback('任务「'+task.title+'」'+(task.done?'已完成 ✓ 已达标':'重新标为未完成'));}}
+  else if(k==='planSlot'){var i=S.selectedSlots.indexOf(id);
+    if(t.checked&&i<0)S.selectedSlots.push(id);if(!t.checked&&i>=0)S.selectedSlots.splice(i,1);
+    save();renderSlots();feedback('规划时段 '+id+' 已'+(t.checked?'选中':'取消'));}
+  else if(k==='reminderMode'){S.reminderMode=t.value;save();tick();feedback('今日提醒方式改为「'+reminderCn(t.value)+'」');}
+  else if(k==='prefReminder'){S.reminderMode=t.value;el('reminderMode').value=t.value;save();tick();feedback('L0 默认提醒方式改为「'+reminderCn(t.value)+'」');}
+  else if(k==='prefPretest'){S.pretest=t.value;save();feedback('L0 摸底测验：'+(t.value==='show'?'显示（可选可跳过）':'不显示，会话直接进学习'));}
+  else if(k==='prefWhitelist'){S.whitelist=t.value;save();feedback('L0 数据外发白名单：'+(t.value==='localOnly'?'仅本地，不外发':'仅 AI 最小必要上下文'));}
+  else if(k==='prefIntent'){S.intent=t.value;save();feedback('SessionIntent = '+t.value+(t.value==='challenge'?'（直上 hard + L4 开放探究）':t.value==='confidence'?'（锁中档，不升变形档）':'（按薄弱程度自适应）'));}
+  else if(k==='noteVisible'){S.noteVisible=t.value;save();renderNotes();feedback('内置笔记区已'+(t.value==='show'?'显示':'隐藏')+'（只影响渲染，A/C 归档数据未删除）');}
+});
+el('importFile').addEventListener('change',function(ev){
+  var f=ev.target.files&&ev.target.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){var r=window.__saImportText(String(rd.result));
+    if(r.ok){el('transferMsg').textContent='✓ 导入成功，数据已恢复';feedback('导入 .studypack 成功，界面数据已恢复');}
+    else{el('transferMsg').textContent='';fail('导入失败：'+r.error);}};
+  rd.onerror=function(){fail('读取文件失败');};rd.readAsText(f);ev.target.value='';
+});
+el('prefLead').addEventListener('change',function(ev){
+  var v=parseInt(ev.target.value,10);
+  if(isNaN(v)||v<0||v>120){fail('提前量非法，须在 0–120 分钟');ev.target.value=S.leadMinutes;return;}
+  S.leadMinutes=v;save();tick();feedback('L0 提前量自定义为 '+v+' 分钟');
+});
+function audit(){
+  var win=window.innerWidth,bad=[];
+  qa('.card,.block,.hero,.widget,.device,.topbar,.tabbar,.stat').forEach(function(e){
+    var r=e.getBoundingClientRect();
+    if(r.width>0&&(r.right>win+1||r.left<-1))bad.push((e.id||e.className)+'@'+Math.round(r.left)+'-'+Math.round(r.right));});
+  el('layout-audit').textContent='LAYOUT_AUDIT overflow='+(bad.length?'YES':'NO')+' win='+win+' boxes='+(bad.length?bad.slice(0,6).join('|'):'none');
+}
+window.addEventListener('resize',audit);
+window.addEventListener('load',function(){audit();setTimeout(audit,300);});
+renderAll();showPage(S.page||'today',true);
+feedback('界面已加载：11 个页面可切换，任务 / 规划 / 会话 / 笔记 / L0 / AI 均可操作');
+setInterval(tick,1000);
 </script>
 </body>
 </html>

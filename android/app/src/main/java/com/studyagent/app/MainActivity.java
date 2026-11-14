@@ -7,12 +7,18 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * 学习助手 App 第一版容器。
+ * 学习助手 App 容器。
  *
- * 界面本体是仓库 web/index.html（随 APK 打进 assets），由 PRD F14 的
- * lib/ui.dart + lib/viewer.dart 生成，三档断点由 WebView 的 CSS 视口驱动。
- * 业务规则真源仍是 lib/ 下的纯 Dart 内核；本容器只负责离线承载界面，
- * 不引入任何网络请求、不申请任何权限、不上传数据。
+ * 界面本体是仓库 web/index.html（随 APK 打进 assets），三档断点由 WebView 的
+ * CSS 视口驱动；所有交互（任务 / 规划 / 会话 / 笔记 / L0）都在页面内真实可用，
+ * 每个操作都写全局反馈条。
+ *
+ * AI 能力通过 AiBridge 原生桥接：页面调用 window.StudyAgentNative.callAi，
+ * 由本进程用 HttpURLConnection 真实请求 OpenAI 兼容接口，再回调 JS。
+ * 这样绕开 file:// 页面直连 API 的跨域限制；API Key 只由用户在设置页填写并
+ * 存于本机 WebView localStorage，不写入本容器、不落盘、不进包、不进导出。
+ *
+ * 除 AI 请求外不联网；不上报任何数据；不申请定位 / 通讯录 / 存储等权限。
  */
 public class MainActivity extends Activity {
 
@@ -34,6 +40,11 @@ public class MainActivity extends Activity {
         settings.setBuiltInZoomControls(false);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(false);
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
+
+        // 注册 AI 原生通道；页面内 window.StudyAgentNative 即指向该对象。
+        webView.addJavascriptInterface(new AiBridge(webView), "StudyAgentNative");
 
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/index.html");
