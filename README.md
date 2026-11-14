@@ -37,6 +37,8 @@ test/    每功能测试 tFxx_*.dart（15 个）+ framework.dart + run_all.dart 
 web/     可运行界面 index.html（轻量查看器形态，消费同一份 .studypack schema）
          shot_phone.png / shot_medium.png / shot_pad.png 为浏览器渲染校验留痕
 tools/   build_docs.py（文档）/ gen_viewer.dart（生成查看器）/ browser_check.mjs（CDP 渲染校验）
+android/ Android WebView 容器工程，把 web/index.html 打进 assets 离线运行
+.github/ workflow：push 到 main 时由 GitHub Actions 云端编译出 APK
 ```
 
 **运行方式**
@@ -46,6 +48,14 @@ dart test/run_all.dart                    # 全量回归，436 用例
 dart tools/gen_viewer.dart                # 生成 web/index.html
 node tools/browser_check.mjs              # CDP 强制 360/720/1280 真实视口校验并截图
 ```
+
+## Android 安装包
+
+**交付件**：`学习助手App_v0.1.0_安装包.apk`（对话交付区）／ Release 附件 [`StudyAgent_v0.1.0_debug.apk`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v0.1.0)。由 `.github/workflows/build-apk.yml` 在 GitHub Actions 云端编译（JDK 17 + AGP 8.1.4 + Gradle 8.0），不依赖本地 Android SDK。
+
+- `minSdk 23` / `targetSdk 34`，覆盖 vivo S7 与 Lenovo Y900；debug 签名，可直接安装。
+- 离线承载界面第一版，不联网、不申请权限、不上传数据。
+- 原生桌面 Widget、系统分屏 / Notein 桥接、精确闹钟、打印预览仍属第二版。
 
 ## 分工
 
