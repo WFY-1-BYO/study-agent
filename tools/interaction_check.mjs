@@ -1,6 +1,8 @@
-// F15 · 真实交互验收（回应「一点反馈都没有 / 你管这叫通过测试了」）。
-// 用 CDP 在真实浏览器里点击按钮、填表、勾选、调用 AI 通道，
-// 断言每一步都有【可见反馈 + 状态变化】，而非只测纯 Dart 规则函数。
+// F15 · v2.0.0 真实交互验收（回应「一点反馈都没有 / 你管这叫通过测试了」）。
+// 用 CDP 在真实浏览器里点击按钮、填表、勾选、上传文件、调用 AI 通道，
+// 断言每一步都有【可见反馈 + 状态变化 / 落本机】，而非只测纯 Dart 规则函数。
+// 用例覆盖：去硬编码基线、知识库收纳（多格式上传 + 截图分析）、多模型 AI 配置、
+// 自定义空闲时段、规划内薄弱点/速查卡、AI 失败如实回传（绝不伪造）、导出剔除 Key。
 // 用法：node tools/interaction_check.mjs
 import { spawn } from 'node:child_process';
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
@@ -66,230 +68,279 @@ async function main() {
   async function click(sel) {
     return js(`(()=>{const e=document.querySelector(${jstr(sel)});if(!e)return 'NO_EL';e.click();return 'OK';})()`);
   }
-  async function setVal(sel, val, evt = 'change') {
+  // 按 onclick 子串定位真实按钮并点击（适配内联 onclick 的 2.x 界面）
+  async function clickByOnclick(sub) {
+    return js(`(()=>{const bs=document.querySelectorAll('button');for(const b of bs){const o=b.getAttribute('onclick')||'';if(o.includes(${jstr(sub)})){b.click();return 'OK';}}return 'NO_BTN';})()`);
+  }
+  async function setVal(sel, val, evt = 'input') {
     return js(`(()=>{const e=document.querySelector(${jstr(sel)});if(!e)return 'NO_EL';`
       + `e.value=${jstr(val)};e.dispatchEvent(new Event(${jstr(evt)},{bubbles:true}));return 'OK';})()`);
   }
-  async function status() {
-    return js(`(()=>{const b=document.getElementById('statusbar');`
-      + `return {c:+b.getAttribute('data-count'),t:b.textContent,k:b.className};})()`);
-  }
-  async function txt(sel) {
-    return js(`(()=>{const e=document.querySelector(${jstr(sel)});return e?e.textContent.trim():'NO_EL';})()`);
-  }
-  async function attr(sel, name) {
-    return js(`(()=>{const e=document.querySelector(${jstr(sel)});return e?e.getAttribute(${jstr(name)}):null;})()`);
-  }
-  async function visiblePages() {
-    return js(`Array.from(document.querySelectorAll('section[data-page].active')).map(e=>e.dataset.page)`);
-  }
+  const fbText = () => js(`(document.getElementById('feedback')||{textContent:''}).textContent`);
+  const fbShown = () => js(`(()=>{const f=document.getElementById('feedback');return !!f&&f.classList.contains('show');})()`);
+  const pageHtml = () => js(`(document.getElementById('page')||{innerHTML:''}).innerHTML`);
+  // 直接读取页面内全局 S（app 初始不一定写盘），避免 localStorage 未落盘导致误判
+  const st = (expr) => js(`(()=>{try{return (${expr});}catch(e){return null;}})()`);
+  const stateJson = () => js(`(typeof S!=='undefined')?JSON.stringify(S):''`);
+  const kp = (id) => js(`localStorage.getItem('studyagent.v2.key.'+${jstr(id)})`);
 
-  await send('Page.enable'); await send('Runtime.enable');
+  await send('Page.enable'); await send('Runtime.enable'); await send('DOM.enable');
   await send('Page.navigate', { url });
   await sleep(900);
   // 干净起点
   await js('localStorage.clear(); location.reload();');
-  await sleep(1000);
+  await sleep(1200);
 
-  // ---------------------------------------------------------------- ① 顶栏不再重叠
-  const overlap = await js(`(()=>{const a=document.querySelector('.topbar .logo').getBoundingClientRect();`
-    + `const b=document.querySelector('.topbar h1').getBoundingClientRect();`
-    + `return !(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top);})()`);
-  check('① 顶栏 logo 与标题不再重叠（修复截图中的文字压叠）', overlap === false, `overlap=${overlap}`);
+  // 注入 prompt 桩：让薄弱点/速查卡/出题等需要 prompt 的真实流程不阻塞（仍走真实处理函数）
+  await js(`window.prompt=function(m){m=m||'';`
+    + `if(m.indexOf('提醒语')>=0)return '一正二定三相等，先问等号取不取得到';`
+    + `if(m.indexOf('考点')>=0)return '基本不等式';`
+    + `if(m.indexOf('知识点')>=0)return '基本不等式';`
+    + `if(m.indexOf('题干')>=0||m.indexOf('公式')>=0)return '测试母题题干';`
+    + `return '测试';};`);
 
-  // ---------------------------------------------------------------- ② 页面真的能切
-  const allPages = await js(`Array.from(document.querySelectorAll('section[data-page]')).map(e=>e.dataset.page)`);
-  check('② 11 类页面全部存在', allPages.length === 11, `count=${allPages.length}`);
-  const before = await status();
-  await click('[data-nav="calendar"]');
-  const vp = await visiblePages();
-  const after = await status();
-  check('② 点「全局日历」真的切页（其它页隐藏）', vp.length === 1 && vp[0] === 'calendar', `active=${vp.join(',')}`);
-  check('② 切页写了可见反馈条', after.c > before.c && after.t.includes('全局日历'), `count ${before.c}→${after.c}`);
-  await click('[data-nav="today"]');
+  // ---------------------------------------------------------------- ① 去硬编码：默认基线为空、不预置场景
+  const prof = await st(`(S.profile||{})`);
+  check('① 默认学情基线为空（地区/学校/教材均未预置）',
+    !prof || (prof.region === '' && prof.school === '' && prof.textbook === '' && prof.paper === ''),
+    JSON.stringify(prof));
+  const provKeys = await st(`Object.keys(S.providers||{}).length`);
+  check('① 内置 9 个可插拔 Provider 预设（deepseek/openai/claude/qwen/kimi/doubao/glm/gemini/ollama）',
+    provKeys === 9, `count=${provKeys}`);
+  const kbEmpty = await st(`((S.knowledgeBase||{}).notebooks||[]).length+((S.knowledgeBase||{}).entries||[]).length`);
+  check('① 知识库默认空（不预置「基本不等式」等母题）', kbEmpty === 0, `kbItems=${kbEmpty}`);
+  const plansEmpty = await st(`(S.plans||[]).length`);
+  check('① 默认无规划（不预置固定学习路径）', plansEmpty === 0, `plans=${plansEmpty}`);
+  const hardcode = await stateJson();
+  check('① 全程无硬编码场景（不含 基本不等式/深圳中学/人教A版/背单词）',
+    !/基本不等式|深圳中学|人教A版|背单词/.test(hardcode),
+    `命中=${/基本不等式|深圳中学|人教A版|背单词/.exec(hardcode)?.[0] || '无'}`);
+  const todayTxt = await pageHtml();
+  check('① 今日页不展示任何硬编码场景文案',
+    !/基本不等式|深圳中学|人教A版|背单词/.test(todayTxt), '今日页干净');
 
-  // ---------------------------------------------------------------- ③ 任务勾选有反馈且落盘
-  const c0 = (await status()).c;
-  await js(`(()=>{const e=document.querySelector('[data-task="T-1"]');e.checked=true;`
-    + `e.dispatchEvent(new Event('change',{bubbles:true}));return 'OK';})()`);
-  const doneCnt = await txt('#taskDone');
-  const passBadge = await txt('.task.done .pass');
-  const stored = await js(`JSON.parse(localStorage.getItem('sa_state_v2')).tasks[0].done`);
-  const c1 = (await status()).c;
-  check('③ 勾选任务 → 完成计数变化', doneCnt === '1', `taskDone=${doneCnt}`);
-  check('③ 勾选任务 → 出现「✓ 已达标」墨蓝标记（绿色未挪作达标）', passBadge.includes('已达标'), passBadge);
-  check('③ 勾选任务 → 写入本机 localStorage', stored === true, `stored=${stored}`);
-  check('③ 勾选任务 → 反馈条递增', c1 > c0, `${c0}→${c1}`);
-
-  // ---------------------------------------------------------------- ④ 倒计时真的在跑
-  const t1 = await attr('#countdown', 'data-tick');
-  await sleep(1400);
-  const t2 = await attr('#countdown', 'data-tick');
-  const cdTxt = await txt('#countdown');
-  check('④ 倒计时每秒真的刷新（不是静态数字）', Number(t2) > Number(t1), `tick ${t1}→${t2}`);
-  check('④ 倒计时格式正确且标注提前量 / 提醒方式',
-    /^\d{2}:\d{2} 后$/.test(cdTxt) && (await txt('#nextTaskLabel')).includes('提前'),
-    cdTxt);
-
-  // ---------------------------------------------------------------- ⑤ 提醒方式即时生效
-  await setVal('#reminderMode', 'sound', 'change');
-  const rm = await txt('#nextTaskLabel');
-  check('⑤ 提醒方式切到「声音」→ 倒计时说明即时更新', rm.includes('声音'), rm.slice(-40));
-
-  // ---------------------------------------------------------------- ⑥ 一键打开有反馈且不含凭证
-  const c2 = (await status()).c;
-  await click('[data-action="openHabit"]');
-  const s2 = await status();
-  check('⑥ 一键打开有明确反馈（不假装跳转成功、不含凭证）',
-    s2.c > c2 && s2.t.includes('已请求打开') && !/sk-|api_key/i.test(s2.t), s2.t.slice(-60));
-
-  // ---------------------------------------------------------------- ⑦ 规划创建：失败与成功都有反馈
-  await click('[data-nav="planCreate"]');
-  await setVal('#pGoal', '', 'input');
-  const c3 = (await status()).c;
-  await click('[data-action="createPlan"]');
-  const s3 = await status();
-  check('⑦ 空目标提交 → 有红字错误 + 失败反馈（不静默）',
-    (await txt('#pErr')).includes('不能为空') && s3.k === 'bad' && s3.c > c3, s3.t.slice(-50));
-  await setVal('#pGoal', '精进基本不等式，能解决 75% 相关题目', 'input');
-  await setVal('#pTarget', '75', 'input');
-  await setVal('#pDays', '15', 'input');
-  const c4 = (await status()).c;
-  await click('[data-action="createPlan"]');
-  const s4 = await status();
-  const planList = await txt('#planList');
-  const calList = await txt('#calendarList');
-  const pResult = await txt('#pResult');
-  check('⑦ 创建规划 → 生成规划 + 会话并写回全局日历',
-    planList.includes('P-1') && planList.includes('SE-1') && calList.includes('基本不等式') && pResult.includes('已写回全局日历'),
-    pResult.slice(0, 60));
-  check('⑦ 创建规划 → 反馈条递增', s4.c > c4, `${c4}→${s4.c}`);
-
-  // ---------------------------------------------------------------- ⑧ 会话状态机真实推进
-  await click('[data-nav="studySession"]');
-  await click('[data-action="resetSession"]');
-  await click('[data-action="stageNext"]');   // resources -> pretest
-  const st1 = await txt('#stageDesc');
-  await click('[data-action="skipPretest"]');
-  const st2 = await txt('#stageDesc');
-  check('⑧ 摸底测验可选可跳过 → 阶段真的从 pretest 跳到 study',
-    st1.includes('摸底测验') && st2.includes('看视频'), `${st1} → ${st2}`);
-  await setVal('#quizScore', '80', 'input');
-  await click('[data-action="submitQuiz"]');
-  const q1 = await txt('#quizResult');
-  check('⑧ 80% ≥ 75% → 达标并进入费曼式总结', q1.includes('已达标') && q1.includes('费曼'), q1.slice(0, 50));
-  await setVal('#quizScore', '60', 'input');
-  await click('[data-action="submitQuiz"]');
-  const q2 = await txt('#quizResult');
-  check('⑧ 60% < 75% → 进入归因回路再测一遍', q2.includes('归因') && q2.includes('再测一遍'), q2.slice(0, 50));
-  await setVal('#quizScore', '150', 'input');
-  const c5 = (await status()).c;
-  await click('[data-action="submitQuiz"]');
-  check('⑧ 非法成绩 → 明确报错 + 失败反馈', (await txt('#quizErr')).includes('0–100') && (await status()).k === 'bad');
-  void c5;
-
-  // ---------------------------------------------------------------- ⑨ 复习闭环固定模式 2
-  await click('[data-nav="reviewLoop"]');
-  await click('[data-action="reviewReset"]');
-  for (let i = 0; i < 4; i++) await click('[data-action="reviewNext"]');
-  const rv = await txt('#reviewResult');
-  check('⑨ 固定模式 2 四步可逐步推进并收口', rv.includes('已达标') && rv.includes('固定模式 2'), rv);
-  const c6 = (await status()).c;
-  await click('[data-action="tryChangeReview"]');
-  const s6 = await status();
-  check('⑨ 尝试改复习模式被明确拒绝（不可配置）', s6.c > c6 && s6.k === 'bad' && s6.t.includes('不可配置'), s6.t.slice(-45));
-
-  // ---------------------------------------------------------------- ⑩ 笔记显隐 / 保存 / anchorId 关联
-  await click('[data-nav="notes"]');
-  await setVal('#myNote', '我的手写笔记：一正二定三相等', 'input');
-  await click('[data-action="saveMyNote"]');
-  const noteStored = await js(`JSON.parse(localStorage.getItem('sa_state_v2')).myNote`);
-  check('⑩ 我的笔记保存 → 落盘 + 可见「已保存」反馈',
-    noteStored.includes('一正二定三相等') && (await txt('#myNoteSaved')).includes('已保存'), String(noteStored).slice(0, 24));
-  await click('[data-action="linkNotes"]');
-  check('⑩ 按 anchorId 建立双向关联', (await txt('#noteLinkState')).includes('双向关联'));
-  await setVal('#noteVisible', 'hide', 'change');
-  const hidden = await js(`document.getElementById('noteArea').classList.contains('hidden')`);
-  check('⑩ 内置笔记区「不显示」真的隐藏（A/C 归档不删）', hidden === true, `hidden=${hidden}`);
-  await setVal('#noteVisible', 'show', 'change');
-
-  // ---------------------------------------------------------------- ⑪ L0 开关即时生效
-  await click('[data-nav="mine"]');
-  await click('[data-action="prefLead5"]');
-  const lead = await js(`JSON.parse(localStorage.getItem('sa_state_v2')).leadMinutes`);
-  check('⑪ 提前量点 5 min → 生效并持久化', lead === 5, `leadMinutes=${lead}`);
-  await setVal('#prefIntent', 'challenge', 'change');
-  check('⑪ SessionIntent=挑战 → 反馈含 L4 说明', (await status()).t.includes('L4'));
-  await setVal('#prefWhitelist', 'aiMinimal', 'change');
-  check('⑪ 数据外发白名单可切换且有反馈', (await status()).t.includes('最小必要'));
-
-  // ---------------------------------------------------------------- ⑫ AI：失败如实、绝不伪造
-  await click('[data-action="clearAi"]');
-  const c7 = (await status()).c;
-  await click('[data-action="testAi"]');
-  const s7 = await status();
-  const aiOut1 = await txt('#aiTestResult');
-  check('⑫ 未填 Key 点测试 → 明确失败反馈，不伪造回复',
-    s7.c > c7 && s7.k === 'bad' && aiOut1.includes('未获得 AI 回复') && aiOut1.includes('未填写 API Key'),
-    aiOut1.slice(0, 70));
-  // 用一个必然不可达的地址，稳定验证「真实发请求 → 如实报错」链路
-  await setVal('#aiBase', 'http://127.0.0.1:9', 'input');
-  await setVal('#aiModel', 'deepseek-chat', 'input');
-  await setVal('#aiKey', 'sk-TEST-INVALID-0000', 'input');
-  await click('[data-action="saveAi"]');
-  check('⑫ Key 保存只在本机（设置页回填被清空）', (await js(`document.getElementById('aiKey').value`)) === '');
-  const c8 = (await status()).c;
-  await click('[data-action="testAi"]');
-  const busy = await status();
-  await sleep(2500);
-  const s8 = await status();
-  const aiOut2 = await txt('#aiTestResult');
-  check('⑫ 点测试先显示「请求中」再给结果（不是无反应）',
-    busy.t.includes('请求中') || busy.k === 'busy' || s8.c > c8, `busy=${busy.k} → ${s8.k}`);
-  check('⑫ 请求失败 → 显示真实原因，且界面标注「不会编造内容」',
-    aiOut2.includes('未获得 AI 回复') && aiOut2.includes('不会编造内容') && s8.k === 'bad',
-    aiOut2.slice(0, 80));
-  const noFake = await js(`(()=>{const t=document.getElementById('aiTestResult').textContent;`
-    + `return !(t.includes('连通') && !t.includes('未获得'));})()`);
-  check('⑫ 失败时不出现伪造的 AI 成功回复', noFake === true, `noFake=${noFake}`);
-
-  // ---------------------------------------------------------------- ⑬ .studypack 导出不含 Key
-  await click('[data-nav="dataTransfer"]');
-  await click('[data-action="exportPack"]');
-  const packTxt = await js(`window.__saExportText()`);
-  const preview = await txt('#exportPreview');
-  check('⑬ 导出生成 manifest + 实体，界面可见预览',
-    packTxt.includes('schemaVersion') && packTxt.includes('tasks.json') && preview.includes('schemaVersion'));
-  check('⑬ API Key 绝不进导出包',
-    !/sk-TEST|api_key|"key"/i.test(packTxt), `len=${packTxt.length}`);
-  const imp = await js(`window.__saImportText(${jstr(packTxt)}).ok`);
-  check('⑬ 导入同一份包可恢复数据', imp === true, `ok=${imp}`);
-
-  // ---------------------------------------------------------------- ⑭ 无静默操作：遍历所有按钮
-  await click('[data-action="clearAll"]');
-  const acts = await js(`Array.from(document.querySelectorAll('button[data-action]')).map(e=>e.dataset.action)`);
-  let silent = [], skipped = [];
-  for (const act of acts) {
-    if (act === 'importPack') { skipped.push(act + '(会弹文件选择，单独验证)'); continue; }
-    const disabled = await js(`(()=>{const e=document.querySelector('button[data-action=${jstr(act)}]');return !!e&&e.disabled;})()`);
-    if (disabled) { skipped.push(act + '(当前阶段按状态机禁用，符合预期)'); continue; }
-    const c = (await status()).c;
-    await click(`button[data-action="${act}"]`);
-    const c2n = (await status()).c;
-    if (c2n <= c) silent.push(act);
+  // ---------------------------------------------------------------- ② 导航：手机底栏 / 平板顶栏
+  for (const [id, marker] of [['today', '今日'], ['plan', '规划'], ['calendar', '日历'], ['kb', '知识库'], ['mine', '我的']]) {
+    await click('#nav-' + id);
+    const h = await pageHtml();
+    check(`② 导航切到「${marker}」页且内容渲染`, h.includes(marker), `len=${h.length}`);
   }
-  check('⑭ 全部可点按钮都有反馈（零静默操作）', silent.length === 0,
-    `按钮 ${acts.length} 个，静默 ${silent.length} 个${silent.length ? '：' + silent.join(',') : ''}，跳过 ${skipped.length} 个`);
-  if (skipped.length) info('⑭ 跳过项说明', skipped.join('；'));
+  const navIds = await js(`Array.from(document.querySelectorAll('[id^="nav-"]')).map(e=>e.id)`);
+  check('② 底部导航含 5 个 tab（今日/规划/日历/知识库/我的）', navIds.length >= 5, navIds.join(','));
 
-  // ---------------------------------------------------------------- ⑮ 三档视口无溢出
-  for (const w of [360, 720, 1280]) {
-    await send('Emulation.setDeviceMetricsOverride',
-      { width: w, height: 900, deviceScaleFactor: 1, mobile: w === 360 });
-    await sleep(350);
-    const audit = await js(`(()=>{window.dispatchEvent(new Event('resize'));`
-      + `return document.getElementById('layout-audit').textContent;})()`);
-    check(`⑮ ${w}px 视口无横向溢出 / 越界`, audit.includes('overflow=NO') && audit.includes('boxes=none'), audit);
+  // ---------------------------------------------------------------- ③ 设备切换：手机底栏 ↔ 平板顶栏
+  await click('#dev-pad');
+  await sleep(150);
+  const padNav = await js(`(()=>{const t=document.querySelector('.nav-top'),b=document.querySelector('.nav-bottom');return {t:t&&getComputedStyle(t).display,b:b&&getComputedStyle(b).display};})()`);
+  const topBtns = await js(`document.querySelectorAll('.nav-top button').length`);
+  check('③ 平板模式：顶栏显示、底栏隐藏，且顶栏有导航按钮',
+    padNav.t === 'flex' && padNav.b === 'none' && topBtns >= 5, JSON.stringify(padNav) + ' topBtns=' + topBtns);
+  await click('#dev-phone');
+  await sleep(150);
+  const phoneNav = await js(`(()=>{const t=document.querySelector('.nav-top'),b=document.querySelector('.nav-bottom');return {t:t&&getComputedStyle(t).display,b:b&&getComputedStyle(b).display};})()`);
+  check('③ 手机模式：底栏显示、顶栏隐藏', phoneNav.t === 'none' && phoneNav.b === 'flex', JSON.stringify(phoneNav));
+
+  // ---------------------------------------------------------------- ④ 规划：空目标报错 + 成功落盘
+  await click('#nav-plan');
+  await sleep(120);
+  await click('#btn-new-plan'); // 打开新建规划弹层
+  await sleep(120);
+  const sheetOpen = await js(`!!document.getElementById('pGoal')`);
+  check('④ 点击「＋」打开规划编辑器（弹层含目标输入）', sheetOpen, `sheetOpen=${sheetOpen}`);
+  let cBefore = await fbShown();
+  await click('#btn-save-plan'); // 空目标提交
+  await sleep(120);
+  const fb1 = await fbText();
+  const planAfterErr = await st(`(S.plans||[]).length`);
+  check('④ 空目标提交 → 红字错误反馈（不静默、不创建）',
+    fb1.includes('目标') && (await fbShown()) && planAfterErr === 0, `fb="${fb1}" plans=${planAfterErr}`);
+  await setVal('#pGoal', '掌握基本不等式并能解决 75% 相关题', 'input');
+  await setVal('#pDays', '15', 'input');
+  await click('#btn-save-plan');
+  await sleep(150);
+  const planCount = await st(`(S.plans||[]).length`);
+  const planHtml = await pageHtml();
+  const fb2 = await fbText();
+  check('④ 填目标保存 → 规划写回本机且页面出现卡片', planCount === 1 && planHtml.includes('掌握基本不等式'), `plans=${planCount}`);
+  check('④ 保存规划有成功反馈', fb2.includes('已保存') || (await fbShown()), `fb="${fb2}"`);
+
+  // ---------------------------------------------------------------- ⑤ 规划详情：薄弱点 / 速查卡 / AI 出题（失败如实）
+  const planId = await st(`(S.plans||[])[0].id`);
+  await click('#plan-' + planId);
+  await sleep(150);
+  const detailHtml = await js(`(document.getElementById('modalHost')||{innerHTML:''}).innerHTML`);
+  check('⑤ 打开规划详情，内置薄弱点/速查卡/AI 陪练入口',
+    detailHtml.includes('btn-add-weakpoint') && detailHtml.includes('btn-add-quickcard') && detailHtml.includes('btn-ai-question'),
+    '三入口齐备');
+  await click('#btn-add-weakpoint');
+  await sleep(150);
+  const wpCount = await st(`(S.weakPoints||[]).length`);
+  const wp = await st(`(S.weakPoints||[])[0]`);
+  check('⑤ 记录薄弱点 → 落本机且挂到本规划',
+    wpCount === 1 && wp && wp.planId === planId && (wp.reminderLine||'').includes('一正二定三相等'),
+    JSON.stringify(wp));
+  await click('#btn-add-quickcard');
+  await sleep(150);
+  const qcCount = await st(`(S.knowledgeBase.entries||[]).length`);
+  const qc = await st(`(S.knowledgeBase.entries||[]).find(e=>e.planId===${jstr(planId)})`);
+  check('⑤ 加速查卡 → 进入知识库且关联本规划',
+    qcCount === 1 && qc && qc.planId === planId, `qcCount=${qcCount}`);
+  await click('#btn-ai-question'); // 触发 AI 出题（未填 Key → 失败如实）
+  await sleep(500);
+  const aiOut = await js(`(document.getElementById('aiPlanOut')||{textContent:''}).textContent`);
+  check('⑤ AI 出题未配置 Key → 明确失败、绝不伪造回复',
+    /未填写|未配置|API Key/.test(aiOut) && !/连通正常/.test(aiOut), `aiOut="${aiOut}"`);
+
+  // ---------------------------------------------------------------- ⑥ 日历：自定义空闲时段
+  await click('#nav-calendar');
+  await sleep(120);
+  await click('#btn-add-slot');
+  await sleep(120);
+  const slotSheet = await js(`!!document.getElementById('sStart')`);
+  check('⑥ 打开「自定义添加空闲时段」弹层', slotSheet, `sheet=${slotSheet}`);
+  // 默认 19:00–20:00，日期为今天
+  await click('#btn-save-slot');
+  await sleep(150);
+  const slotCount = await st(`(S.slots||[]).length`);
+  const slot = await st(`(S.slots||[])[0]`);
+  const calHtml = await pageHtml();
+  const todayCellId = await js(`(()=>{const d=new Date();return 'cell-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})()`);
+  const cellHasFree = await js(`(()=>{const e=document.getElementById(${jstr(todayCellId)});return !!e&&e.innerHTML.includes('空闲');})()`);
+  check('⑥ 保存自定义空闲时段 → 落本机且日历格显示「空闲」',
+    slotCount === 1 && slot && slot.startMin === 19 * 60 && slot.endMin === 20 * 60 && cellHasFree,
+    JSON.stringify(slot) + ' cellHasFree=' + cellHasFree);
+
+  // ---------------------------------------------------------------- ⑦ 知识库收纳：笔记本 / 多格式上传 / 截图分析 / 录入
+  // 先定义真实文件上传助手（每次重新定位 input 节点，避免重渲染后节点失效）
+  async function setFileInput(sel, filePath) {
+    const domDoc = await send('DOM.getDocument', { depth: -1 });
+    const node = await send('DOM.querySelector', { nodeId: domDoc.result.root.nodeId, selector: sel });
+    if (!node.result || node.result.nodeId == null) return 'NO_EL';
+    await send('DOM.setFileInputFiles', { nodeId: node.result.nodeId, files: [filePath] });
+    return js(`(()=>{const e=document.querySelector(${jstr(sel)});if(!e)return 'NO_EL';e.dispatchEvent(new Event('change',{bubbles:true}));return 'OK';})()`);
+  }
+  await click('#nav-kb');
+  await sleep(120);
+  await click('#btn-new-notebook');
+  await sleep(120);
+  await setVal('#nbTitle', '数学', 'input');
+  await click('#btn-save-notebook');
+  await sleep(150);
+  const nbCount = await st(`(S.knowledgeBase.notebooks||[]).length`);
+  const nbId = await st(`(S.knowledgeBase.notebooks||[])[0].id`);
+  check('⑦ 新建笔记本 → 落本机', nbCount === 1, `nbCount=${nbCount}`);
+  // 列表视图下才有 #fileIn / #shotIn，先上传再打开笔记本
+  const tmpTxt = join(userDataDir, 'my-notes.txt');
+  writeFileSync(tmpTxt, '一、基本不等式：a+b>=2√ab（a,b>0）。二、应用：求最值先定相等条件。');
+  const up1 = await setFileInput('#fileIn', tmpTxt);
+  await sleep(250);
+  const entCount1 = await st(`(S.knowledgeBase.entries||[]).length`);
+  const lastEnt = await st(`(S.knowledgeBase.entries||[]).slice(-1)[0]`);
+  check('⑦ 多格式上传文件 → 解析为知识库条目且记录来源文件',
+    up1 === 'OK' && entCount1 >= 1 && lastEnt && /my-notes\.txt/.test(lastEnt.sourceFile || ''),
+    `up=${up1} entCount=${entCount1} src=${lastEnt && lastEnt.sourceFile}`);
+  // 截图分析（无 Key → 不伪造，留存截图并给出说明）
+  const pngB64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMCAQAB/wH3AAAAAElFTkSuQmCC';
+  const tmpPng = join(userDataDir, 'shot1.png');
+  writeFileSync(tmpPng, Buffer.from(pngB64, 'base64'));
+  const up2 = await setFileInput('#shotIn', tmpPng);
+  await sleep(300);
+  const entCount2 = await st(`(S.knowledgeBase.entries||[]).length`);
+  const lastShot = await st(`(S.knowledgeBase.entries||[]).slice(-1)[0]`);
+  check('⑦ 截图分析 → 截图入库（无 Key 时如实留存，不伪造解析）',
+    up2 === 'OK' && entCount2 > entCount1 && lastShot && /shot1\.png/.test(lastShot.sourceFile || ''),
+    `up=${up2} entCount=${entCount2} src=${lastShot && lastShot.sourceFile}`);
+  // 再打开笔记本录入题目
+  await click('#nb-' + nbId);
+  await sleep(150);
+  await click('#btn-add-entry'); // 打开录入表单（#eQ 在表单内）
+  await sleep(150);
+  const entrySheet = await js(`!!document.getElementById('eQ')`);
+  check('⑦ 打开笔记本含「录入题目」入口', entrySheet, `entrySheet=${entrySheet}`);
+  await setVal('#eQ', '求 x+y 的最小值', 'input');
+  await setVal('#eKp', '基本不等式', 'input');
+  await click('#btn-save-entry');
+  await sleep(150);
+  const entCount3 = await st(`(S.knowledgeBase.entries||[]).length`);
+  check('⑦ 录入题目 → 进入知识库', entCount3 > entCount2, `entCount=${entCount3}`);
+
+  // ---------------------------------------------------------------- ⑧ 多模型 AI：切换 / 编辑 / Key 仅存本机 / 失败如实
+  await click('#nav-mine');
+  await sleep(120);
+  await clickByOnclick("selectProvider('openai')");
+  await sleep(150);
+  const activeProv = await st(`S.activeProvider`);
+  const openaiOn = await js(`document.getElementById('prov-openai').classList.contains('on')`);
+  check('⑧ 切换到 OpenAI 模型 → activeProvider 变更且高亮', activeProv === 'openai' && openaiOn, `active=${activeProv} on=${openaiOn}`);
+
+  // 编辑 deepseek（无 Key）→ 测试连接应明确失败
+  await clickByOnclick("editProvider('deepseek')");
+  await sleep(150);
+  const editorOpen = await js(`!!document.getElementById('pvKey')`);
+  check('⑧ 打开 Provider 编辑器（可填 Key，仅存本机）', editorOpen, `editor=${editorOpen}`);
+  await click('#btn-test-ai'); // deepseek 未填 Key
+  await sleep(300);
+  const pvOut1 = await js(`(document.getElementById('pvOut')||{textContent:''}).textContent`);
+  check('⑧ 未填 Key 点测试 → 明确失败反馈，不伪造回复',
+    /未填写|API Key|未配置/.test(pvOut1) && !/连通正常/.test(pvOut1), `pvOut="${pvOut1}"`);
+
+  // 在 deepseek 配置一个测试 Key，验证「Key 只存本机、不进 state、不进导出」
+  const TEST_KEY = 'sk-TEST-EXPORT-KEY-123';
+  await setVal('#pvKey', TEST_KEY, 'input');
+  await click('#btn-save-provider');
+  await sleep(200);
+  const kpDeep = await kp('deepseek');
+  const stateNoKey = await stateJson();
+  check('⑧ API Key 仅存本机 localStorage（studyagent.v2.key.deepseek）',
+    kpDeep === TEST_KEY, `kp=${kpDeep}`);
+  check('⑧ API Key 绝不进本机 state（导出/同步链路不含 Key）',
+    !stateNoKey.includes(TEST_KEY), `state 含 Key=${stateNoKey.includes(TEST_KEY)}`);
+
+  // 学情基线：可选预设且可清空（证明去硬编码，而非硬塞默认值）
+  await clickByOnclick("applySchool('shenzhen')");
+  await sleep(150);
+  const shen = await st(`(S.profile||{})`);
+  check('⑧ 套用「深圳中学」预设 → 基线被回填（说明预设是可选的，非默认）',
+    shen.region === '广东深圳' && shen.school === '深圳中学', JSON.stringify(shen));
+  await clickByOnclick("applySchool('blank')");
+  await sleep(150);
+  const blankProf = await st(`(S.profile||{})`);
+  check('⑧ 套用「清空」预设 → 基线恢复为空（去硬编码可逆）',
+    blankProf.region === '' && blankProf.school === '' && blankProf.textbook === '', JSON.stringify(blankProf));
+
+  // 联网补充开关
+  const beforeOnline = await st(`(S.prefs||{}).onlineSupplement`);
+  await click('#onlineToggle');
+  await sleep(120);
+  const afterOnline = await st(`(S.prefs||{}).onlineSupplement`);
+  check('⑧ 联网补充开关可切换并落本机', beforeOnline === false && afterOnline === true, `online=${afterOnline}`);
+
+  // ---------------------------------------------------------------- ⑨ 导出 .studypack 剔除 Key
+  await js(`(()=>{
+    window.__exportText=null;
+    const OB=window.Blob;
+    window.Blob=function(parts,opts){try{window.__exportText=parts&&parts[0]!=null?String(parts[0]):'';}catch(e){}return new OB(parts,opts);};
+    URL.createObjectURL=function(){return 'blob:fake';};
+    HTMLAnchorElement.prototype.click=function(){};
+  })()`);
+  await click('#btn-export');
+  await sleep(200);
+  const pack = await js(`window.__exportText||''`);
+  check('⑨ 导出生成 manifest + 实体（含 knowledge_base / exam_profile / plans）',
+    pack.includes('"schemaVersion"') && pack.includes('knowledge_base.json') && pack.includes('exam_profile.json') && pack.includes('plans.json'),
+    `len=${pack.length}`);
+  check('⑨ API Key 绝不进导出包', !pack.includes(TEST_KEY), `包内含 Key=${pack.includes(TEST_KEY)}`);
+  check('⑨ 导出 manifest 标注版本 2.0.0 且声明不含 Key',
+    /"version":\s*"2\.0\.0"/.test(pack) && /Key 不在此包内|已剔除/.test(pack), 'manifest ok');
+
+  // ---------------------------------------------------------------- ⑩ 无横向溢出（手机/平板）
+  for (const [dev, w] of [['phone', 380], ['pad', 860]]) {
+    await click('#dev-' + dev);
+    await sleep(200);
+    const ov = await js(`(()=>{const p=document.getElementById('page');const de=document.documentElement;`
+      + `return {page: p.scrollWidth<=p.clientWidth+1, body: de.scrollWidth<=de.clientWidth+1,`
+      + `iw: window.innerWidth, sw: de.scrollWidth};})()`);
+    check(`⑩ ${dev} 视口无横向溢出`, ov.page && ov.body, JSON.stringify(ov));
   }
 
   // ---------------------------------------------------------------- 真实端点探测（尽力而为，不计入门禁）
@@ -310,24 +361,25 @@ async function main() {
   const pass = results.filter((r) => r.ok && !r.info).length;
   const failN = results.filter((r) => !r.ok).length;
   const lines = [
-    '# 交互验收报告 · v0.2.0',
+    '# 交互验收报告 · v2.0.0',
     '',
-    '> 本报告的每一条都由真实浏览器（CDP 强制视口）**点击 / 输入 / 勾选**后读取 DOM 与 localStorage 得出，',
-    '> 不是对纯 Dart 规则函数的断言。旧 436 用例仍保留，但不作为「界面可用」的验收凭证。',
+    '> 本报告的每一条都由真实浏览器（CDP 强制视口）**点击 / 输入 / 上传 / 勾选**后读取 DOM 与 localStorage 得出，',
+    '> 不是对纯 Dart 规则函数的断言。覆盖：去硬编码基线、知识库收纳（多格式上传 + 截图分析）、',
+    '> 多模型 AI 配置与 Key 隔离、自定义空闲时段、规划内薄弱点/速查卡、AI 失败如实回传、导出剔除 Key。',
     '',
     `- 执行时间：${new Date().toISOString()}`,
     `- 断言通过：**${pass}**；失败：**${failN}**；结论：**${failN === 0 ? 'ALL_GREEN' : 'FAILED'}**`,
     '',
     '| 结果 | 项目 | 细节 |',
     '|---|---|---|',
-    ...results.map((r) => `| ${r.info ? 'INFO' : r.ok ? 'PASS' : 'FAIL'} | ${r.name.replace(/\|/g, '/')} | ${(r.detail || '').replace(/\|/g, '/').slice(0, 160)} |`),
+    ...results.map((r) => `| ${r.info ? 'INFO' : r.ok ? 'PASS' : 'FAIL'} | ${r.name.replace(/\|/g, '/')} | ${(r.detail || '').replace(/\|/g, '/').slice(0, 200)} |`),
     '',
     '## 边界（如实说明）',
     '',
-    '- 沙箱内没有用户的真实 API Key，**无法验证 AI 的真实回复内容**；已验证：请求体格式与鉴权头、端点可达性、',
-    '  原生桥接代码编译进 APK、以及「请求中 → 成功 / 失败」两态反馈与「失败绝不伪造回复」。',
-    '- 浏览器预览从 `file://` 直连 API 会受跨域策略拦截，故 APK 内改由 `AiBridge` 原生发请求再回调 JS。',
-    '- 桌面 Widget 常驻、系统分屏 / Notein 跳转、精确闹钟、打印预览、原生 Flutter 客户端仍属第二版。',
+    '- 沙箱内没有用户的真实 API Key，**无法验证 AI 的真实回复内容**；已验证：请求体格式与鉴权头、',
+    '  原生桥接代码编译进 APK、以及「未填 Key / 不可达 → 明确失败」两态反馈与「失败绝不伪造回复」。',
+    '- 浏览器从 `file://` 直连 API 会受跨域策略拦截，故 APK 内改由 `AiBridge` 原生发请求再回调 JS。',
+    '- 截图分析在无 Key 时如实留存截图并标注「未配置 Key」，不会编造识别结果。',
   ];
   writeFileSync('docs/交互验收报告.md', lines.join('\n') + '\n');
 

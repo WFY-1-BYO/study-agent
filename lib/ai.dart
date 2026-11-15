@@ -391,15 +391,43 @@ class AiService implements Entity {
   final PreferencesLayer prefs;
   AiProvider _provider;
 
+  /// 2.x 多模型注册表（运行时可插拔；不进序列化，避免改变 toJson 契约）。
+  final Map<String, AiProvider> _providers = <String, AiProvider>{};
+
   final List<AiCallLog> _log = <AiCallLog>[];
   final List<String> pendingNodes = <String>[];
 
-  AiService({AiProvider? provider, PreferencesLayer? prefs})
+  AiService({AiProvider? provider, List<AiProvider>? providers, PreferencesLayer? prefs})
       : _provider = provider ?? MockProvider(),
-        prefs = prefs ?? PreferencesLayer();
+        prefs = prefs ?? PreferencesLayer() {
+    if (provider != null) _providers[provider.id] = provider;
+    if (providers != null) {
+      for (final p in providers) _providers[p.id] = p;
+      if (provider == null && providers.isNotEmpty) _provider = providers.first;
+    }
+  }
 
   AiProvider get provider => _provider;
   List<AiCallLog> get log => List<AiCallLog>.unmodifiable(_log);
+
+  /// 已注册 Provider id 列表（多模型切换用）。
+  List<String> get providerIds =>
+      List<String>.unmodifiable(_providers.keys);
+
+  /// 当前激活 Provider id。
+  String get activeProviderId => _provider.id;
+
+  /// 注册一个可插拔 Provider（不覆盖序列化契约）。
+  void registerProvider(AiProvider p) => _providers[p.id] = p;
+
+  /// 在已注册 Provider 间切换（换模型只改这一处）。
+  void selectProvider(String id) {
+    final p = _providers[id];
+    if (p == null) {
+      throw ValidationError('未知 Provider: "$id"（请先 registerProvider）');
+    }
+    _provider = p;
+  }
 
   int get sentCount => _log.where((l) => l.status == 'ok').length;
   int get pendingCount => _log.where((l) => l.status == 'pending').length;
@@ -408,7 +436,10 @@ class AiService implements Entity {
   bool get aiPending => pendingCount > 0;
 
   /// 换 Provider / 换模型：只改这一处，主流程 invoke 零改动。
-  void switchProvider(AiProvider p) => _provider = p;
+  void switchProvider(AiProvider p) {
+    _providers[p.id] = p;
+    _provider = p;
+  }
 
   /// 优雅降级下始终可用的非 AI 环节。
   List<String> nonAiFeatures() =>

@@ -197,7 +197,7 @@ void runF13(Harness h) {
       );
       h.isFalse(files.values.any((v) => v.contains('sk-test')));
       h.isFalse(files.values.any((v) => v.toLowerCase().contains('api_key')));
-      h.eq(StudyPack.importPack(files).entities.length, 13);
+      h.eq(StudyPack.importPack(files).entities.length, 14);
     });
 
     h.test('把 api_key 直接塞进实体被 F2 拒绝（集成 F2 校验）', () {

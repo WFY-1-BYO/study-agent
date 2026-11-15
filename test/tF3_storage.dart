@@ -41,7 +41,7 @@ void runF3(Harness h) {
       final restored = repo2.load();
       h.notNull(restored);
       h.jsonEq(_nonEmpty(restored!.entities), _nonEmpty(_pack().entities));
-      h.eq(restored.entities.length, 13, '恢复后仍须为完整固定格式');
+      h.eq(restored.entities.length, 14, '恢复后仍须为完整固定格式');
     });
     h.test('空仓储 load 返回 null 而不是造空数据', () {
       final repo = LocalRepository(MemoryStorage());
@@ -62,7 +62,7 @@ void runF3(Harness h) {
       repo.saveNow(p2);
       final restored = repo.load()!;
       h.jsonEq(_nonEmpty(restored.entities), _nonEmpty(p2.entities));
-      h.eq(restored.entities.length, 13);
+      h.eq(restored.entities.length, 14);
     });
   });
 
@@ -140,7 +140,7 @@ void runF3(Harness h) {
       h.isTrue(backend.raw.containsKey(LocalRepository.stateKey));
       final files = LocalRepository(backend).readRawFiles()!;
       h.isTrue(files.containsKey('manifest.json'));
-      h.eq(files.length, 14, '13 类实体 + manifest');
+      h.eq(files.length, 15, '14 类实体 + manifest');
       h.contains(files['manifest.json']!, 'studypack-open-v1');
     });
     h.test('本地文件映射可直接交给外部读取（不锁死在 App 里）', () {

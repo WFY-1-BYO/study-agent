@@ -351,9 +351,9 @@ void runF14(Harness h) {
 
   // ------------------------------------------------------------------ 验收⑤
   h.group('F14 验收⑤ 界面数据可导出 .studypack 并被 F2 导入', () {
-    h.test('UiState.toPackage 输出 13 类实体文件', () {
+    h.test('UiState.toPackage 输出 14 类实体文件（含 knowledge_base.json）', () {
       final p = _state().toPackage();
-      h.eq(p.entities.length, 13);
+      h.eq(p.entities.length, 14);
       for (final f in DataPackage.entityFiles) {
         h.isTrue(p.entities.containsKey(f), '缺 $f');
       }
@@ -378,7 +378,7 @@ void runF14(Harness h) {
       h.eq(pack.manifest['schemaVersion'], 1);
     });
 
-    h.test('导出包含 manifest + 13 类实体，且不含凭证字段', () {
+    h.test('导出包含 manifest + 14 类实体，且不含凭证字段', () {
       final files = _state().exportStudypack();
       h.ok(files.containsKey(StudyPack.manifestFile));
       for (final f in DataPackage.entityFiles) {

@@ -11,6 +11,7 @@ import 'core.dart';
 import 'models.dart';
 import 'preferences.dart';
 import 'studypack.dart';
+import 'knowledge_base.dart';
 
 // ------------------------------------------------------------------ 断点
 class Breakpoint {
@@ -503,6 +504,7 @@ class UiState implements Entity {
   final List<Map<String, dynamic>> myNotes;
   final List<Map<String, dynamic>> anchorLinks;
   final List<Map<String, dynamic>> resources;
+  final KnowledgeBase knowledgeBase;
 
   UiState({
     PreferencesLayer? prefs,
@@ -516,6 +518,7 @@ class UiState implements Entity {
     List<Map<String, dynamic>>? myNotes,
     List<Map<String, dynamic>>? anchorLinks,
     List<Map<String, dynamic>>? resources,
+    KnowledgeBase? knowledgeBase,
   })  : prefs = prefs ?? PreferencesLayer(),
         profile = profile ?? ExamProfile.shenzhen(),
         tasks = tasks ?? <Map<String, dynamic>>[],
@@ -526,7 +529,8 @@ class UiState implements Entity {
         aiNotes = aiNotes ?? <Map<String, dynamic>>[],
         myNotes = myNotes ?? <Map<String, dynamic>>[],
         anchorLinks = anchorLinks ?? <Map<String, dynamic>>[],
-        resources = resources ?? <Map<String, dynamic>>[];
+        resources = resources ?? <Map<String, dynamic>>[],
+        knowledgeBase = knowledgeBase ?? KnowledgeBase();
 
   /// 转成 `.studypack` 的 13 类实体（缺的由 exportPack 补空数组）。
   DataPackage toPackage() => DataPackage(
@@ -544,6 +548,7 @@ class UiState implements Entity {
           'my_notes.json': myNotes,
           'anchor_links.json': anchorLinks,
           'resources.json': resources,
+          'knowledge_base.json': <Map<String, dynamic>>[knowledgeBase.toJson()],
         },
       );
 
@@ -569,6 +574,9 @@ class UiState implements Entity {
       myNotes: _list(e, 'my_notes.json'),
       anchorLinks: _list(e, 'anchor_links.json'),
       resources: _list(e, 'resources.json'),
+      knowledgeBase: (e['knowledge_base.json'] ?? const <Map<String, dynamic>>[]).isEmpty
+          ? KnowledgeBase()
+          : KnowledgeBase.fromJson(e['knowledge_base.json']!.first),
     );
   }
 

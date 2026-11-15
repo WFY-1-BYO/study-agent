@@ -1,8 +1,13 @@
 # 学习助手 App · 产品需求文档（PRD / 建设蓝图）
 
-> **版本 v1.0 终版 · 2026-11-14**
+> **版本 v2.0 · 2.x 建设蓝图 · 2026-11-15**（在 v1.0 第一版地基上增量演进）
 > **效力**：本文是后续**产品开发与修改的唯一建设蓝图**。框架文档 v1.0 是「需求真源」，千问《页面结构与画风设计方案》是「视觉真源」，双端样式设计是「设备适配真源」，本文把三者收敛成**可执行、可验收、可追溯**的功能规格与工程流程。
-> **输入基准**：全部对话（28 轮用户消息 / 九轮澄清 / 七轮拍板）、25 条决策台账、千问设计定稿 PDF、双端样式设计 v1.0。
+> **输入基准**：全部对话（28 轮用户消息 / 九轮澄清 / 七轮拍板）、25 条决策台账、千问设计定稿 PDF、双端样式设计 v1.0，以及 2.x 阶段用户新要求（去硬编码 / 收纳式知识库 / 多模型 / 双形态布局，见 **§14**）。
+>
+> **版本读法（重要）**：
+> - **§1–§13 = 第一版 v0.1.0 / v0.2.0 地基**，F1–F14 的功能规格与逐条验收标准**全部保留、一条不删**（遵守 §9「不删断言、不放宽、不跳过」）。其中「学情基线预置深中 / 页面 11 类」等描述属于第一版事实，2.x 的变更以 §14 为准。
+> - **§14 = 2.x 增量建设蓝图**，是当前版本 (`v2.0.0`) 的实现与验收依据；与 §1–§13 冲突处，以 §14 为准，但不回头削弱 §4 的历史断言。
+> - 两个版本共用同一质量门禁（§9）与修改流程（§12）。
 
 ---
 
@@ -417,4 +422,167 @@ study-agent/
 
 ---
 
-> 本文为 **v1.0 终版建设蓝图**。需求真源：框架文档 v1.0；视觉真源：千问设计定稿；设备适配真源：双端样式设计 v1.0。三者冲突时，以本文 §2 需求基线与 §5 硬约束为准，并回到对应真源修正。
+> 本文为 **v1.0 终版建设蓝图**（§1–§13）。需求真源：框架文档 v1.0；视觉真源：千问设计定稿；设备适配真源：双端样式设计 v1.0。三者冲突时，以本文 §2 需求基线与 §5 硬约束为准，并回到对应真源修正。2.x 增量见下方 §14。
+
+---
+
+## 14. 2.x 增量建设蓝图（v2.0.0 · 2026-11-15）
+
+> 本章是 **2.x 版本的需求、实现与验收依据**。定稿依据：用户在 2.x 阶段提出的新要求（去硬编码 / 收纳式知识库 / 多模型 / 双形态布局 / 日历自定义空闲时段 / 规划内薄弱点·速查卡 / 每规划会话配置），以及「每做一个功能都要检测、检测不能跳过不能降级、全部做完再全量测一遍、同步 GitHub、发 Release、APK 放对话」的交付要求。
+> **不变量**：§9 质量门禁、§12 修改流程、§2.4 达标语义、§5.4 绿色语义、§7 数据主权与隐私约束**全部继续生效**；F1–F14 的断言一条未删。
+
+### 14.1 设计目标（用户原话归纳）
+
+| # | 目标 | 落地 |
+|---|---|---|
+| G1 | **去掉硬编码场景**：不再预置「深圳中学 / 人教 A 版 / 基本不等式 / 背单词」 | 学情基线默认空、可选预设；教材对齐校验改为基线驱动 |
+| G2 | **可配置学情基线**：地区 / 学校 / 卷别 / 考试模式 / 教材 / 知识点树由用户填 | `ExamProfile.blank()` + 「我的 → 学情基线」表单 + 3 个可选预设 |
+| G3 | **收纳式知识库（文库）**：本地结构化库 + 检索 + 多格式上传 + 截图分析 | `lib/knowledge_base.dart` + 笔记本 / 条目 / 上传 / 视觉识别 |
+| G4 | **多模型 AI**：DeepSeek / GPT / Claude / Qwen / Kimi / 豆包 / GLM / Gemini / Ollama 可插拔，Key 只存本机 | `lib/providers.dart` 9 预设 + 注册表 + 按 Provider 隔离的 Key |
+| G5 | **布局重设计**：手机底部 Tab、平板顶部导航，去掉平板左侧竖 dock | 5 个导航 tab + `setDevice` 双形态 |
+| G6 | **日历可自定义加空闲时段**（Coze 式），不再是只读三层叠加 | 「＋自定义添加空闲时段」弹层 + 落 `slots` + 日历格显示「空闲」 |
+| G7 | **薄弱点 / 速查卡收进「规划」详情**，不单列页 | 规划详情弹层内 `addWeakPoint` / `addQuickCard` |
+| G8 | **摸底测试 / 难度 / 挑战自信移到「每规划会话配置」**，不全局 | 规划详情内「会话配置」区 |
+| G9 | **纯本地、无后端、零服务器成本**；`.studypack` 可全量导出导入 | 全部数据 `localStorage`；14 实体开放格式导出 |
+| G10 | **生产可用**：不崩溃、每操作有反馈、AI 失败如实、数据可备份恢复、可安装 APK | 反馈条 toast + 优雅降级 + `.studypack` + Android WebView APK |
+
+### 14.2 变更对照（v0.2.0 → v2.0.0）
+
+| 维度 | v0.2.0 | v2.0.0 | 关联测试 |
+|---|---|---|---|
+| 学情基线 | 预置深中 / 新高考 I 卷 / 人教 A 版 / 基本不等式 | **默认空**，3 个可选预设（深中 / 北京四中 / 空白）+ 手动填 | tF1 / tF15① |
+| 教材对齐 | 硬编码 `人教 A 版` 字符串 | **基线驱动**：未设置基线报错、未对齐报错 | tF12（49 用例仍全绿） |
+| AI Provider | 单一 `DeepSeek` | **9 个预设可插拔注册表** + 活动模型切换 | tF17 / tF15② |
+| 知识库 | 无 | **收纳式文库**：笔记本 / 条目 / 检索 / 上传 / 截图 | tF16 / tF15⑦ |
+| 页面结构 | 11 类页面 + 11 `section[data-page]` | **5 导航 tab**（今日 / 规划 / 日历 / 知识库 / 我的） | tF15② |
+| 导航形态 | 11 页侧栏跳转 | **手机底栏 ↔ 平板顶栏**，去掉左竖 dock | tF15③ |
+| 日历 | 三层叠加只读 | **＋自定义空闲时段**，可落盘、日历格显示 | tF15⑥ |
+| 薄弱点 / 速查卡 | 独立页 | **收进规划详情弹层** | tF15⑤ |
+| 会话配置 | 全局 L0 | **每规划独立配置** | tF15⑤ |
+| `.studypack` 实体 | 13 类 | **14 类**（+ `knowledge_base.json`） | tF2 / tF3 / tF14 / tF15⑨ |
+| 全量回归 | 16 文件 / 458 用例 | **18 文件 / 494 用例** + CDP 交互 42 断言 | run_all / interaction_check |
+
+### 14.3 新增功能规格（F15–F18 · 每个功能都必须带测试）
+
+> 编号延续 §4 的 WBS 惯例；**每功能的验收标准逐条转成断言，测试不通过不进入下一功能**。
+
+#### F15 · 去硬编码学情基线（对 F1 的增量）
+- **实现**：`ExamProfile.blank()`（region / school / paper / examMode / textbook 全空、knowledgeTree 空）；保留 `ExamProfile.shenzhen()` 为**可选预设**（不默认套用）；资源对齐校验由「写死人教 A 版」改为「基线驱动」。
+- **规则**：App 首启 `fresh()` 基线为空；教材标签未设置时明确报「请先在学情基线中指定教材版本」；标签与基线不一致时报「未对齐」；空基线不视为错误，直到用户实际录入对齐资源。
+- **验收**：① `fresh()` 各字段为空串；② 空基线可用、不崩溃；③ 未设教材的对齐校验抛 `ValidationError`；④ 未对齐教材抛 `ValidationError`；⑤ 对齐基线时通过；⑥ 深中预设仍可用（不删旧能力）。
+- **测试**：`tF1_models.dart`（40 用例）+ `tF12_resources.dart`（49 用例）+ `tF15_interaction.dart` / `interaction_check.mjs` ①⑧。
+
+#### F16 · 收纳式知识库 `KnowledgeBase`（新模块 `lib/knowledge_base.dart`）
+- **实现**：`Notebook`（笔记本）、`KbEntry`（题目 / 知识点 / 难度 / 答案 / `sourceFile` / `planId`）、`KnowledgeBase`（`notebooks` / `entries` / `onlineSupplement`）；`addNotebook` / `addEntry` / `removeEntry` / `search` / `byKnowledgePoint` / `retrievalForAi`。
+- **规则**：id / title / question 非空校验、enum 校验；`retrievalForAi` **只返回最小上下文、不含 sourceFile 等来源字段**（最小必要外发）；`onlineSupplement`（联网补充）为**可选开关**，默认关，不引入后端。
+- **验收**：① 笔记本 / 条目 CRUD 往返无损；② 空字段 / 非法枚举抛校验错；③ `search` / `byKnowledgePoint` 命中正确；④ `retrievalForAi` 不泄漏来源；⑤ 联网补充开关往返；⑥ `.studypack` 契约（`knowledge_base.json`）往返。
+- **测试**：`tF16_kb.dart`（26 用例）+ `interaction_check.mjs` ⑦。
+
+#### F17 · 多模型 Provider 注册表（新模块 `lib/providers.dart`）
+- **实现**：`OpenAiCompatibleProvider`（OpenAI 兼容协议；校验 `baseUrl` 必须 http(s)，除 localhost 外强制 https —— 保障 Ollama 本地可直连）、`ProviderPreset`、`ProviderRegistry`（9 预设：deepseek / openai / claude / qwen / kimi / doubao / glm / gemini / ollama）；`AiService` 增加 `providerIds` / `activeProviderId` / `registerProvider` / `selectProvider`。
+- **规则**：**凭证隔离** —— Key 作为传输层第三参数传入，绝不进 body / config / 导出；`toJson/fromJson` 与 v0.2.0 保持**逐字节一致**（tF13 往返契约不破坏）；多 Provider 注册与切换不影响单 Provider 序列化。
+- **验收**：① 9 预设齐全；② `baseUrl` 协议校验（非 http(s) 报错、非 localhost 的 http 报错、localhost 允许）；③ 无 Key 时优雅返回「待处理」而非伪造；④ 凭证不进任何序列化结构；⑤ `AiService` 切换 Provider 生效；⑥ 单 Provider 序列化契约保持不变。
+- **测试**：`tF17_providers.dart`（13 用例）+ `interaction_check.mjs` ⑧。
+
+#### F18 · 交付界面 2.x 重写（`web/index.html` 单文件）
+- **实现**：5 导航 tab；手机底栏 / 平板顶栏双形态（`setDevice`）；`aiRequest` 保持 `window.StudyAgentNative.callAi(payloadJson, cbId)` / `window.__saAiResult(cbId, json)` 原生桥契约，浏览器回退 `fetch`；`.studypack` 导出 14 实体、Key 剔除。
+- **规则**：每个操作都有反馈（feedback toast）；AI 失败明确标注「未填写 API Key / 不会编造内容」；Key 按 Provider 存 `studyagent.v2.key.<id>`，不进 `S` / 导出包；`web/index.html` 与 `android/app/src/main/assets/index.html` **逐字节一致**。
+- **验收**：见 §14.6 交互验收 10 组（CDP 真实点击 42 断言）。
+- **测试**：`tF15_interaction.dart`（19 用例，含调用 `interaction_check.mjs` 作为门禁）+ `tools/interaction_check.mjs`（42 断言）。
+
+### 14.4 数据契约 `.studypack`（14 实体 · 开放格式）
+
+在 §6.1 的 13 类实体基础上新增 **`knowledge_base.json`**（笔记本 / 条目 / 联网补充开关），共 **14 类实体 + `manifest.json`**：
+
+```
+preferences / exam_profile / school_calendar / slot_pool / tasks / plans /
+sessions / weak_points / review / ai_notes / my_notes / anchor_links /
+resources / knowledge_base          ← 2.x 新增
+```
+
+- `manifest.json`：`schemaVersion:1` / `format:"studypack-open-v1"` / `app:"studyagent"` / `version:"2.0.0"` / `exportedAt` / `note:"Key 不在此包内"`。
+- **凭证铁律**：`api_key` 与所有 `studyagent.v2.key.*` **不进包**（§7 隐私约束延续）；导出反馈明确「已导出（已剔除 API Key）」。
+- **验收**：导出含 `knowledge_base.json` 等 14 实体；导入同一份包可恢复；包内不含任何 Key（tF2 / tF3 / tF14 / tF15⑨ + interaction_check ⑨）。
+
+### 14.5 多模型清单（9 个可插拔 Provider）
+
+| id | 定位 | baseUrl | 默认 model | 视觉 |
+|---|---|---|---|---|
+| `deepseek` | 推理 / 数学 | `api.deepseek.com/v1` | deepseek-chat | ✅ |
+| `openai` | GPT（通用 / 写作） | `api.openai.com/v1` | gpt-4o | ✅ |
+| `claude` | 长文 / 讲解 | `api.anthropic.com/v1` | claude-3-5-sonnet | ✅ |
+| `qwen` | 通义千问（中文） | `dashscope.aliyuncs.com/compatible-mode/v1` | qwen-max | ✅ |
+| `kimi` | 长上下文 / 中文 K12 | `api.moonshot.cn/v1` | moonshot-v1-32k | — |
+| `doubao` | 豆包（中文 / 字节） | `ark.cn-beijing.volces.com/api/v3` | doubao-pro-32k | — |
+| `glm` | 智谱 GLM（学术） | `open.bigmodel.cn/api/paas/v4` | glm-4-plus | — |
+| `gemini` | 多模态 / 视觉 | `generativelanguage.googleapis.com/v1beta/openai` | gemini-1.5-pro | ✅ |
+| `ollama` | 本地 / 离线隐私 | `localhost:11434/v1` | llama3 | — |
+
+> 全部走 **OpenAI 兼容 `/chat/completions`**；`Ollama` 是唯一允许 `http://localhost` 的例外（本地回环、无需外发、零成本）。截图分析仅对标记 `vision` 的模型开放，无视觉模型时如实标注「当前模型不支持视觉，请切换」，不编造识别结果。
+
+### 14.6 交互验收（CDP 真实点击 · 10 组 42 断言全绿）
+
+| 组 | 覆盖 | 结果 |
+|---|---|---|
+| ① | 去硬编码：默认基线空 / 9 Provider / 知识库空 / 无预置场景 / 今日页干净 | 6 断言 PASS |
+| ② | 5 导航 tab 真实切页 + 内容渲染 | 6 断言 PASS |
+| ③ | 手机底栏 ↔ 平板顶栏双形态（顶栏 5 按钮、互斥显隐） | 2 断言 PASS |
+| ④ | 规划：空目标红字报错 / 成功落盘 / 成功反馈 | 4 断言 PASS |
+| ⑤ | 规划详情：薄弱点 / 速查卡 / AI 出题（未配 Key 如实失败、不伪造） | 4 断言 PASS |
+| ⑥ | 日历：＋自定义空闲时段弹层 → 落盘 → 日历格显示「空闲」 | 2 断言 PASS |
+| ⑦ | 知识库：新建笔记本 / 多格式上传 / 截图分析 / 录入题目 | 5 断言 PASS |
+| ⑧ | 多模型：切换 OpenAI / 编辑器 / 未填 Key 测试失败 / **Key 仅存本机且不进 state** / 学情预设可回填可清空 / 联网开关 | 8 断言 PASS |
+| ⑨ | 导出：14 实体 manifest / **Key 不进包** / version 2.0.0 | 3 断言 PASS |
+| ⑩ | 手机 / 平板两视口无横向溢出 | 2 断言 PASS |
+
+> 全量结果：**42 断言通过 / 0 失败 / ALL_GREEN**，报告见 `docs/交互验收报告.md`。AI 真实回复内容因沙箱无用户真 Key 无法验证，已如实标注边界（端点可达性 / 请求格式 / 鉴权头 / 失败不伪造已验证）。
+
+### 14.7 质量门禁结果（v2.0.0 交付实测）
+
+| 门禁 | 命令 | 结果 |
+|---|---|---|
+| 每功能测试 | `dart test/tFxx_*.dart` 逐文件 | 全绿 |
+| 全量回归 | `dart test/run_all.dart` | **18 文件 / 494 用例 / 494 通过 / 0 失败 / ALL_GREEN** |
+| 真实交互验收 | `node tools/interaction_check.mjs` | **42 断言 / 0 失败 / ALL_GREEN** |
+| 逐字节一致 | tF15 断言 `web/index.html` ≡ `assets/index.html` | PASS |
+| 交付前全量复测 | 文档 / 版本 / 构建完成后**再跑一次全部门禁** | 见交付提交记录 |
+
+> 遵守用户铁律：「每做一个功能都要检测，检测不能被跳过，不能被降级，要严格；所有功能做完后，在全部检测一遍，后叫我」。F1–F14 的 458 用例断言**一条未删、一条未放宽**，实体数变更（13→14）引起的计数断言是**按契约更新**而非降级。
+
+### 14.8 版本与交付
+
+| 项 | 内容 |
+|---|---|
+| App 版本 | `v2.0.0`（`AndroidManifest` / `build.gradle` `versionName 2.0.0`、`versionCode 2`） |
+| 交付物 | 可安装 Android **debug APK**（WebView 承载 `web/index.html` + 原生 `AiBridge` AI 通道） |
+| 同步 | `git add → commit → push origin main`（**PAT 只用于 clone，绝不写入 `.git/config` / 文件 / 推送**） |
+| 发布 | GitHub **Release `v2.0.0`**，APK 作为 Release 附件，并放进对话交付 |
+| 数据 | 全部本地，无后端、无服务器成本；`.studypack` 可备份 / 恢复 |
+
+### 14.9 2.x 追溯矩阵增量（需求 → 功能 → 测试）
+
+| 需求 | 功能 | 测试 |
+|---|---|---|
+| G1 / G2 去硬编码 + 可配置基线 | F15 / F18 | tF1 tF12 tF15①⑧ |
+| G3 收纳式知识库 | F16 / F18 | tF16 tF15⑦ interaction⑦ |
+| G4 多模型 AI + Key 隔离 | F17 / F18 | tF17 tF13 tF15②⑧⑨ |
+| G5 双形态布局 | F18 | tF15③ interaction③⑩ |
+| G6 日历自定义空闲时段 | F18 | interaction⑥ |
+| G7 薄弱点 / 速查卡收进规划 | F18 | interaction⑤ |
+| G8 每规划会话配置 | F18 | interaction④⑤ |
+| G9 纯本地 + 14 实体导出 | F18 | tF2 tF3 tF14 tF15⑨ interaction⑨ |
+| G10 生产可用 / 反馈 / 优雅降级 / APK | F18 | tF15（全组）+ interaction（全组） |
+
+### 14.10 边界与后续（如实说明）
+
+| 项 | 状态 |
+|---|---|
+| AI 真实回复内容 | 沙箱无用户真 Key，已验证请求格式 / 鉴权头 / 端点可达 / **失败绝不伪造**；真 Key 由用户在本机「我的 → AI 设置」填写 |
+| 截图分析 | 需 `vision` 模型 + Key；无能力时如实标注，不编造 |
+| 联网补充 | 可选开关，仅作为检索增强入口，**不引入后端、不产生服务器成本** |
+| Flutter 原生客户端 / 桌面 Widget / 系统分屏 / 精确闹钟 | 仍属后续版本；接口契约 §4 / §5 已冻结，具备环境时按同一规格实现 |
+| 打印预览 / Notein 桥接 | 后续版本；`.studypack` 与速查卡黑白打印态已保留 |
+
+---
+
+> **§14 为 2.x 建设蓝图 v2.0 增量终版**。§1–§13 的第一版地基与 F1–F14 断言全部保留；改动需求 → 改对应章节并升版本；改动功能 → 改 §14.3 与 §14.9；测试一律「不删断言、不放宽、不跳过」，全部完成后全量复测再交付。

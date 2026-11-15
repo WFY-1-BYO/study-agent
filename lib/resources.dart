@@ -267,9 +267,15 @@ class ResourceAdapter implements Entity {
 
     // 验收⑥：考纲标签 / 教材版本 / 题型对齐。
     assertExamTagMapped(examTag);
+    // 2.x 去硬编码：教材对齐以用户配置的 profile.textbook 为准，
+    // 不再硬绑「人教 A 版」——换教材（北师大版 / 苏教版 / 浙教版…）同样可用。
     final tag = textbookTag ?? profile.textbook;
-    if (!tag.contains('人教 A 版')) {
-      throw ValidationError('教材版本未对齐人教 A 版: "$tag"');
+    if (tag.trim().isEmpty) {
+      throw ValidationError('教材版本未设置：请先在学情基线中指定教材版本');
+    }
+    if (!tag.contains(profile.textbook) && !profile.textbook.contains(tag)) {
+      throw ValidationError(
+          '教材版本未对齐「${profile.textbook}」: "$tag"');
     }
     if (questionType.isNotEmpty &&
         !profile.questionTypes.any((q) => q['name'] == questionType)) {

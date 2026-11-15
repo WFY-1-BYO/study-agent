@@ -268,10 +268,11 @@ void runF1(Harness h) {
         ...base.toJson(), 'confirmed': false,
       }).isAvailable(20), '当天未确认');
     });
-    h.test('DataPackage 实体文件清单为 13 类 + manifest', () {
-      h.eq(DataPackage.entityFiles.length, 13);
+    h.test('DataPackage 实体文件清单为 14 类 + manifest（含 knowledge_base.json）', () {
+      h.eq(DataPackage.entityFiles.length, 14);
       h.contains(DataPackage.entityFiles.join('|'), 'exam_profile.json');
       h.contains(DataPackage.entityFiles.join('|'), 'anchor_links.json');
+      h.contains(DataPackage.entityFiles.join('|'), 'knowledge_base.json');
     });
   });
 }

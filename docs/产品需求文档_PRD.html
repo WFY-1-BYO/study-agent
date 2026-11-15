@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>学习助手 App · 产品需求文档（建设蓝图）v1.0</title><style>
+<title>学习助手 App · 产品需求文档（建设蓝图）v2.0</title><style>
 :root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4;--accent:#0969da;--accent-soft:#ddf4ff;--panel:#f6f8fa;--code:#f6f8fa}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d;--accent:#58a6ff;--accent-soft:#122b45;--panel:#161b22;--code:#161b22}}
 *{box-sizing:border-box}
@@ -78,14 +78,31 @@ hr{border:0;border-top:1px solid var(--line);margin:36px 0}a{color:var(--accent)
 <li><a href="#11">11. 追溯矩阵（需求 → 功能 → 测试）</a></li>
 <li><a href="#12">12. 修改流程（后续维护遵循）</a></li>
 <li><a href="#13">13. 待办与风险（不阻塞第一版）</a></li>
+<li><a href="#14-2x-v200-2026-11-15">14. 2.x 增量建设蓝图（v2.0.0 · 2026-11-15）</a><ul>
+<li><a href="#141">14.1 设计目标（用户原话归纳）</a></li>
+<li><a href="#142-v020-v200">14.2 变更对照（v0.2.0 → v2.0.0）</a></li>
+<li><a href="#143-f15f18">14.3 新增功能规格（F15–F18 · 每个功能都必须带测试）</a></li>
+<li><a href="#144-studypack14">14.4 数据契约 .studypack（14 实体 · 开放格式）</a></li>
+<li><a href="#145-9-provider">14.5 多模型清单（9 个可插拔 Provider）</a></li>
+<li><a href="#146-cdp-10-42">14.6 交互验收（CDP 真实点击 · 10 组 42 断言全绿）</a></li>
+<li><a href="#147-v200">14.7 质量门禁结果（v2.0.0 交付实测）</a></li>
+<li><a href="#148">14.8 版本与交付</a></li>
+<li><a href="#149-2x">14.9 2.x 追溯矩阵增量（需求 → 功能 → 测试）</a></li>
+<li><a href="#1410">14.10 边界与后续（如实说明）</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</nav><main><span class="meta">v1.0 终版 · 建设蓝图 · 2026-11-14</span>
+</nav><main><span class="meta">v2.0 · 含 2.x 增量建设蓝图 · 2026-11-15</span>
 <h1 id="app-prd">学习助手 App · 产品需求文档（PRD / 建设蓝图）</h1>
 <blockquote>
-<p><strong>版本 v1.0 终版 · 2026-11-14</strong>
+<p><strong>版本 v2.0 · 2.x 建设蓝图 · 2026-11-15</strong>（在 v1.0 第一版地基上增量演进）
 <strong>效力</strong>：本文是后续<strong>产品开发与修改的唯一建设蓝图</strong>。框架文档 v1.0 是「需求真源」，千问《页面结构与画风设计方案》是「视觉真源」，双端样式设计是「设备适配真源」，本文把三者收敛成<strong>可执行、可验收、可追溯</strong>的功能规格与工程流程。
-<strong>输入基准</strong>：全部对话（28 轮用户消息 / 九轮澄清 / 七轮拍板）、25 条决策台账、千问设计定稿 PDF、双端样式设计 v1.0。</p>
+<strong>输入基准</strong>：全部对话（28 轮用户消息 / 九轮澄清 / 七轮拍板）、25 条决策台账、千问设计定稿 PDF、双端样式设计 v1.0，以及 2.x 阶段用户新要求（去硬编码 / 收纳式知识库 / 多模型 / 双形态布局，见 <strong>§14</strong>）。</p>
+<p><strong>版本读法（重要）</strong>：
+- <strong>§1–§13 = 第一版 v0.1.0 / v0.2.0 地基</strong>，F1–F14 的功能规格与逐条验收标准<strong>全部保留、一条不删</strong>（遵守 §9「不删断言、不放宽、不跳过」）。其中「学情基线预置深中 / 页面 11 类」等描述属于第一版事实，2.x 的变更以 §14 为准。
+- <strong>§14 = 2.x 增量建设蓝图</strong>，是当前版本 (<code>v2.0.0</code>) 的实现与验收依据；与 §1–§13 冲突处，以 §14 为准，但不回头削弱 §4 的历史断言。
+- 两个版本共用同一质量门禁（§9）与修改流程（§12）。</p>
 </blockquote>
 <hr />
 <h2 id="0">0. 文档怎么被使用</h2>
@@ -1022,5 +1039,503 @@ hr{border:0;border-top:1px solid var(--line);margin:36px 0}a{color:var(--accent)
 </table>
 <hr />
 <blockquote>
-<p>本文为 <strong>v1.0 终版建设蓝图</strong>。需求真源：框架文档 v1.0；视觉真源：千问设计定稿；设备适配真源：双端样式设计 v1.0。三者冲突时，以本文 §2 需求基线与 §5 硬约束为准，并回到对应真源修正。</p>
+<p>本文为 <strong>v1.0 终版建设蓝图</strong>（§1–§13）。需求真源：框架文档 v1.0；视觉真源：千问设计定稿；设备适配真源：双端样式设计 v1.0。三者冲突时，以本文 §2 需求基线与 §5 硬约束为准，并回到对应真源修正。2.x 增量见下方 §14。</p>
+</blockquote>
+<hr />
+<h2 id="14-2x-v200-2026-11-15">14. 2.x 增量建设蓝图（v2.0.0 · 2026-11-15）</h2>
+<blockquote>
+<p>本章是 <strong>2.x 版本的需求、实现与验收依据</strong>。定稿依据：用户在 2.x 阶段提出的新要求（去硬编码 / 收纳式知识库 / 多模型 / 双形态布局 / 日历自定义空闲时段 / 规划内薄弱点·速查卡 / 每规划会话配置），以及「每做一个功能都要检测、检测不能跳过不能降级、全部做完再全量测一遍、同步 GitHub、发 Release、APK 放对话」的交付要求。
+<strong>不变量</strong>：§9 质量门禁、§12 修改流程、§2.4 达标语义、§5.4 绿色语义、§7 数据主权与隐私约束<strong>全部继续生效</strong>；F1–F14 的断言一条未删。</p>
+</blockquote>
+<h3 id="141">14.1 设计目标（用户原话归纳）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>目标</th>
+<th>落地</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1</td>
+<td><strong>去掉硬编码场景</strong>：不再预置「深圳中学 / 人教 A 版 / 基本不等式 / 背单词」</td>
+<td>学情基线默认空、可选预设；教材对齐校验改为基线驱动</td>
+</tr>
+<tr>
+<td>G2</td>
+<td><strong>可配置学情基线</strong>：地区 / 学校 / 卷别 / 考试模式 / 教材 / 知识点树由用户填</td>
+<td><code>ExamProfile.blank()</code> + 「我的 → 学情基线」表单 + 3 个可选预设</td>
+</tr>
+<tr>
+<td>G3</td>
+<td><strong>收纳式知识库（文库）</strong>：本地结构化库 + 检索 + 多格式上传 + 截图分析</td>
+<td><code>lib/knowledge_base.dart</code> + 笔记本 / 条目 / 上传 / 视觉识别</td>
+</tr>
+<tr>
+<td>G4</td>
+<td><strong>多模型 AI</strong>：DeepSeek / GPT / Claude / Qwen / Kimi / 豆包 / GLM / Gemini / Ollama 可插拔，Key 只存本机</td>
+<td><code>lib/providers.dart</code> 9 预设 + 注册表 + 按 Provider 隔离的 Key</td>
+</tr>
+<tr>
+<td>G5</td>
+<td><strong>布局重设计</strong>：手机底部 Tab、平板顶部导航，去掉平板左侧竖 dock</td>
+<td>5 个导航 tab + <code>setDevice</code> 双形态</td>
+</tr>
+<tr>
+<td>G6</td>
+<td><strong>日历可自定义加空闲时段</strong>（Coze 式），不再是只读三层叠加</td>
+<td>「＋自定义添加空闲时段」弹层 + 落 <code>slots</code> + 日历格显示「空闲」</td>
+</tr>
+<tr>
+<td>G7</td>
+<td><strong>薄弱点 / 速查卡收进「规划」详情</strong>，不单列页</td>
+<td>规划详情弹层内 <code>addWeakPoint</code> / <code>addQuickCard</code></td>
+</tr>
+<tr>
+<td>G8</td>
+<td><strong>摸底测试 / 难度 / 挑战自信移到「每规划会话配置」</strong>，不全局</td>
+<td>规划详情内「会话配置」区</td>
+</tr>
+<tr>
+<td>G9</td>
+<td><strong>纯本地、无后端、零服务器成本</strong>；<code>.studypack</code> 可全量导出导入</td>
+<td>全部数据 <code>localStorage</code>；14 实体开放格式导出</td>
+</tr>
+<tr>
+<td>G10</td>
+<td><strong>生产可用</strong>：不崩溃、每操作有反馈、AI 失败如实、数据可备份恢复、可安装 APK</td>
+<td>反馈条 toast + 优雅降级 + <code>.studypack</code> + Android WebView APK</td>
+</tr>
+</tbody>
+</table>
+<h3 id="142-v020-v200">14.2 变更对照（v0.2.0 → v2.0.0）</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>v0.2.0</th>
+<th>v2.0.0</th>
+<th>关联测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学情基线</td>
+<td>预置深中 / 新高考 I 卷 / 人教 A 版 / 基本不等式</td>
+<td><strong>默认空</strong>，3 个可选预设（深中 / 北京四中 / 空白）+ 手动填</td>
+<td>tF1 / tF15①</td>
+</tr>
+<tr>
+<td>教材对齐</td>
+<td>硬编码 <code>人教 A 版</code> 字符串</td>
+<td><strong>基线驱动</strong>：未设置基线报错、未对齐报错</td>
+<td>tF12（49 用例仍全绿）</td>
+</tr>
+<tr>
+<td>AI Provider</td>
+<td>单一 <code>DeepSeek</code></td>
+<td><strong>9 个预设可插拔注册表</strong> + 活动模型切换</td>
+<td>tF17 / tF15②</td>
+</tr>
+<tr>
+<td>知识库</td>
+<td>无</td>
+<td><strong>收纳式文库</strong>：笔记本 / 条目 / 检索 / 上传 / 截图</td>
+<td>tF16 / tF15⑦</td>
+</tr>
+<tr>
+<td>页面结构</td>
+<td>11 类页面 + 11 <code>section[data-page]</code></td>
+<td><strong>5 导航 tab</strong>（今日 / 规划 / 日历 / 知识库 / 我的）</td>
+<td>tF15②</td>
+</tr>
+<tr>
+<td>导航形态</td>
+<td>11 页侧栏跳转</td>
+<td><strong>手机底栏 ↔ 平板顶栏</strong>，去掉左竖 dock</td>
+<td>tF15③</td>
+</tr>
+<tr>
+<td>日历</td>
+<td>三层叠加只读</td>
+<td><strong>＋自定义空闲时段</strong>，可落盘、日历格显示</td>
+<td>tF15⑥</td>
+</tr>
+<tr>
+<td>薄弱点 / 速查卡</td>
+<td>独立页</td>
+<td><strong>收进规划详情弹层</strong></td>
+<td>tF15⑤</td>
+</tr>
+<tr>
+<td>会话配置</td>
+<td>全局 L0</td>
+<td><strong>每规划独立配置</strong></td>
+<td>tF15⑤</td>
+</tr>
+<tr>
+<td><code>.studypack</code> 实体</td>
+<td>13 类</td>
+<td><strong>14 类</strong>（+ <code>knowledge_base.json</code>）</td>
+<td>tF2 / tF3 / tF14 / tF15⑨</td>
+</tr>
+<tr>
+<td>全量回归</td>
+<td>16 文件 / 458 用例</td>
+<td><strong>18 文件 / 494 用例</strong> + CDP 交互 42 断言</td>
+<td>run_all / interaction_check</td>
+</tr>
+</tbody>
+</table>
+<h3 id="143-f15f18">14.3 新增功能规格（F15–F18 · 每个功能都必须带测试）</h3>
+<blockquote>
+<p>编号延续 §4 的 WBS 惯例；<strong>每功能的验收标准逐条转成断言，测试不通过不进入下一功能</strong>。</p>
+</blockquote>
+<h4 id="f15-f1">F15 · 去硬编码学情基线（对 F1 的增量）</h4>
+<ul>
+<li><strong>实现</strong>：<code>ExamProfile.blank()</code>（region / school / paper / examMode / textbook 全空、knowledgeTree 空）；保留 <code>ExamProfile.shenzhen()</code> 为<strong>可选预设</strong>（不默认套用）；资源对齐校验由「写死人教 A 版」改为「基线驱动」。</li>
+<li><strong>规则</strong>：App 首启 <code>fresh()</code> 基线为空；教材标签未设置时明确报「请先在学情基线中指定教材版本」；标签与基线不一致时报「未对齐」；空基线不视为错误，直到用户实际录入对齐资源。</li>
+<li><strong>验收</strong>：① <code>fresh()</code> 各字段为空串；② 空基线可用、不崩溃；③ 未设教材的对齐校验抛 <code>ValidationError</code>；④ 未对齐教材抛 <code>ValidationError</code>；⑤ 对齐基线时通过；⑥ 深中预设仍可用（不删旧能力）。</li>
+<li><strong>测试</strong>：<code>tF1_models.dart</code>（40 用例）+ <code>tF12_resources.dart</code>（49 用例）+ <code>tF15_interaction.dart</code> / <code>interaction_check.mjs</code> ①⑧。</li>
+</ul>
+<h4 id="f16-knowledgebase-libknowledge_basedart">F16 · 收纳式知识库 <code>KnowledgeBase</code>（新模块 <code>lib/knowledge_base.dart</code>）</h4>
+<ul>
+<li><strong>实现</strong>：<code>Notebook</code>（笔记本）、<code>KbEntry</code>（题目 / 知识点 / 难度 / 答案 / <code>sourceFile</code> / <code>planId</code>）、<code>KnowledgeBase</code>（<code>notebooks</code> / <code>entries</code> / <code>onlineSupplement</code>）；<code>addNotebook</code> / <code>addEntry</code> / <code>removeEntry</code> / <code>search</code> / <code>byKnowledgePoint</code> / <code>retrievalForAi</code>。</li>
+<li><strong>规则</strong>：id / title / question 非空校验、enum 校验；<code>retrievalForAi</code> <strong>只返回最小上下文、不含 sourceFile 等来源字段</strong>（最小必要外发）；<code>onlineSupplement</code>（联网补充）为<strong>可选开关</strong>，默认关，不引入后端。</li>
+<li><strong>验收</strong>：① 笔记本 / 条目 CRUD 往返无损；② 空字段 / 非法枚举抛校验错；③ <code>search</code> / <code>byKnowledgePoint</code> 命中正确；④ <code>retrievalForAi</code> 不泄漏来源；⑤ 联网补充开关往返；⑥ <code>.studypack</code> 契约（<code>knowledge_base.json</code>）往返。</li>
+<li><strong>测试</strong>：<code>tF16_kb.dart</code>（26 用例）+ <code>interaction_check.mjs</code> ⑦。</li>
+</ul>
+<h4 id="f17-provider-libprovidersdart">F17 · 多模型 Provider 注册表（新模块 <code>lib/providers.dart</code>）</h4>
+<ul>
+<li><strong>实现</strong>：<code>OpenAiCompatibleProvider</code>（OpenAI 兼容协议；校验 <code>baseUrl</code> 必须 http(s)，除 localhost 外强制 https —— 保障 Ollama 本地可直连）、<code>ProviderPreset</code>、<code>ProviderRegistry</code>（9 预设：deepseek / openai / claude / qwen / kimi / doubao / glm / gemini / ollama）；<code>AiService</code> 增加 <code>providerIds</code> / <code>activeProviderId</code> / <code>registerProvider</code> / <code>selectProvider</code>。</li>
+<li><strong>规则</strong>：<strong>凭证隔离</strong> —— Key 作为传输层第三参数传入，绝不进 body / config / 导出；<code>toJson/fromJson</code> 与 v0.2.0 保持<strong>逐字节一致</strong>（tF13 往返契约不破坏）；多 Provider 注册与切换不影响单 Provider 序列化。</li>
+<li><strong>验收</strong>：① 9 预设齐全；② <code>baseUrl</code> 协议校验（非 http(s) 报错、非 localhost 的 http 报错、localhost 允许）；③ 无 Key 时优雅返回「待处理」而非伪造；④ 凭证不进任何序列化结构；⑤ <code>AiService</code> 切换 Provider 生效；⑥ 单 Provider 序列化契约保持不变。</li>
+<li><strong>测试</strong>：<code>tF17_providers.dart</code>（13 用例）+ <code>interaction_check.mjs</code> ⑧。</li>
+</ul>
+<h4 id="f18-2x-webindexhtml">F18 · 交付界面 2.x 重写（<code>web/index.html</code> 单文件）</h4>
+<ul>
+<li><strong>实现</strong>：5 导航 tab；手机底栏 / 平板顶栏双形态（<code>setDevice</code>）；<code>aiRequest</code> 保持 <code>window.StudyAgentNative.callAi(payloadJson, cbId)</code> / <code>window.__saAiResult(cbId, json)</code> 原生桥契约，浏览器回退 <code>fetch</code>；<code>.studypack</code> 导出 14 实体、Key 剔除。</li>
+<li><strong>规则</strong>：每个操作都有反馈（feedback toast）；AI 失败明确标注「未填写 API Key / 不会编造内容」；Key 按 Provider 存 <code>studyagent.v2.key.&lt;id&gt;</code>，不进 <code>S</code> / 导出包；<code>web/index.html</code> 与 <code>android/app/src/main/assets/index.html</code> <strong>逐字节一致</strong>。</li>
+<li><strong>验收</strong>：见 §14.6 交互验收 10 组（CDP 真实点击 42 断言）。</li>
+<li><strong>测试</strong>：<code>tF15_interaction.dart</code>（19 用例，含调用 <code>interaction_check.mjs</code> 作为门禁）+ <code>tools/interaction_check.mjs</code>（42 断言）。</li>
+</ul>
+<h3 id="144-studypack14">14.4 数据契约 <code>.studypack</code>（14 实体 · 开放格式）</h3>
+<p>在 §6.1 的 13 类实体基础上新增 <strong><code>knowledge_base.json</code></strong>（笔记本 / 条目 / 联网补充开关），共 <strong>14 类实体 + <code>manifest.json</code></strong>：</p>
+<pre><code>preferences / exam_profile / school_calendar / slot_pool / tasks / plans /
+sessions / weak_points / review / ai_notes / my_notes / anchor_links /
+resources / knowledge_base          ← 2.x 新增
+</code></pre>
+<ul>
+<li><code>manifest.json</code>：<code>schemaVersion:1</code> / <code>format:"studypack-open-v1"</code> / <code>app:"studyagent"</code> / <code>version:"2.0.0"</code> / <code>exportedAt</code> / <code>note:"Key 不在此包内"</code>。</li>
+<li><strong>凭证铁律</strong>：<code>api_key</code> 与所有 <code>studyagent.v2.key.*</code> <strong>不进包</strong>（§7 隐私约束延续）；导出反馈明确「已导出（已剔除 API Key）」。</li>
+<li><strong>验收</strong>：导出含 <code>knowledge_base.json</code> 等 14 实体；导入同一份包可恢复；包内不含任何 Key（tF2 / tF3 / tF14 / tF15⑨ + interaction_check ⑨）。</li>
+</ul>
+<h3 id="145-9-provider">14.5 多模型清单（9 个可插拔 Provider）</h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>定位</th>
+<th>baseUrl</th>
+<th>默认 model</th>
+<th>视觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deepseek</code></td>
+<td>推理 / 数学</td>
+<td><code>api.deepseek.com/v1</code></td>
+<td>deepseek-chat</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>openai</code></td>
+<td>GPT（通用 / 写作）</td>
+<td><code>api.openai.com/v1</code></td>
+<td>gpt-4o</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>claude</code></td>
+<td>长文 / 讲解</td>
+<td><code>api.anthropic.com/v1</code></td>
+<td>claude-3-5-sonnet</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>qwen</code></td>
+<td>通义千问（中文）</td>
+<td><code>dashscope.aliyuncs.com/compatible-mode/v1</code></td>
+<td>qwen-max</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>kimi</code></td>
+<td>长上下文 / 中文 K12</td>
+<td><code>api.moonshot.cn/v1</code></td>
+<td>moonshot-v1-32k</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>doubao</code></td>
+<td>豆包（中文 / 字节）</td>
+<td><code>ark.cn-beijing.volces.com/api/v3</code></td>
+<td>doubao-pro-32k</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>glm</code></td>
+<td>智谱 GLM（学术）</td>
+<td><code>open.bigmodel.cn/api/paas/v4</code></td>
+<td>glm-4-plus</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>gemini</code></td>
+<td>多模态 / 视觉</td>
+<td><code>generativelanguage.googleapis.com/v1beta/openai</code></td>
+<td>gemini-1.5-pro</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>ollama</code></td>
+<td>本地 / 离线隐私</td>
+<td><code>localhost:11434/v1</code></td>
+<td>llama3</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>全部走 <strong>OpenAI 兼容 <code>/chat/completions</code></strong>；<code>Ollama</code> 是唯一允许 <code>http://localhost</code> 的例外（本地回环、无需外发、零成本）。截图分析仅对标记 <code>vision</code> 的模型开放，无视觉模型时如实标注「当前模型不支持视觉，请切换」，不编造识别结果。</p>
+</blockquote>
+<h3 id="146-cdp-10-42">14.6 交互验收（CDP 真实点击 · 10 组 42 断言全绿）</h3>
+<table>
+<thead>
+<tr>
+<th>组</th>
+<th>覆盖</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td>去硬编码：默认基线空 / 9 Provider / 知识库空 / 无预置场景 / 今日页干净</td>
+<td>6 断言 PASS</td>
+</tr>
+<tr>
+<td>②</td>
+<td>5 导航 tab 真实切页 + 内容渲染</td>
+<td>6 断言 PASS</td>
+</tr>
+<tr>
+<td>③</td>
+<td>手机底栏 ↔ 平板顶栏双形态（顶栏 5 按钮、互斥显隐）</td>
+<td>2 断言 PASS</td>
+</tr>
+<tr>
+<td>④</td>
+<td>规划：空目标红字报错 / 成功落盘 / 成功反馈</td>
+<td>4 断言 PASS</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td>规划详情：薄弱点 / 速查卡 / AI 出题（未配 Key 如实失败、不伪造）</td>
+<td>4 断言 PASS</td>
+</tr>
+<tr>
+<td>⑥</td>
+<td>日历：＋自定义空闲时段弹层 → 落盘 → 日历格显示「空闲」</td>
+<td>2 断言 PASS</td>
+</tr>
+<tr>
+<td>⑦</td>
+<td>知识库：新建笔记本 / 多格式上传 / 截图分析 / 录入题目</td>
+<td>5 断言 PASS</td>
+</tr>
+<tr>
+<td>⑧</td>
+<td>多模型：切换 OpenAI / 编辑器 / 未填 Key 测试失败 / <strong>Key 仅存本机且不进 state</strong> / 学情预设可回填可清空 / 联网开关</td>
+<td>8 断言 PASS</td>
+</tr>
+<tr>
+<td>⑨</td>
+<td>导出：14 实体 manifest / <strong>Key 不进包</strong> / version 2.0.0</td>
+<td>3 断言 PASS</td>
+</tr>
+<tr>
+<td>⑩</td>
+<td>手机 / 平板两视口无横向溢出</td>
+<td>2 断言 PASS</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>全量结果：<strong>42 断言通过 / 0 失败 / ALL_GREEN</strong>，报告见 <code>docs/交互验收报告.md</code>。AI 真实回复内容因沙箱无用户真 Key 无法验证，已如实标注边界（端点可达性 / 请求格式 / 鉴权头 / 失败不伪造已验证）。</p>
+</blockquote>
+<h3 id="147-v200">14.7 质量门禁结果（v2.0.0 交付实测）</h3>
+<table>
+<thead>
+<tr>
+<th>门禁</th>
+<th>命令</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每功能测试</td>
+<td><code>dart test/tFxx_*.dart</code> 逐文件</td>
+<td>全绿</td>
+</tr>
+<tr>
+<td>全量回归</td>
+<td><code>dart test/run_all.dart</code></td>
+<td><strong>18 文件 / 494 用例 / 494 通过 / 0 失败 / ALL_GREEN</strong></td>
+</tr>
+<tr>
+<td>真实交互验收</td>
+<td><code>node tools/interaction_check.mjs</code></td>
+<td><strong>42 断言 / 0 失败 / ALL_GREEN</strong></td>
+</tr>
+<tr>
+<td>逐字节一致</td>
+<td>tF15 断言 <code>web/index.html</code> ≡ <code>assets/index.html</code></td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>交付前全量复测</td>
+<td>文档 / 版本 / 构建完成后<strong>再跑一次全部门禁</strong></td>
+<td>见交付提交记录</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>遵守用户铁律：「每做一个功能都要检测，检测不能被跳过，不能被降级，要严格；所有功能做完后，在全部检测一遍，后叫我」。F1–F14 的 458 用例断言<strong>一条未删、一条未放宽</strong>，实体数变更（13→14）引起的计数断言是<strong>按契约更新</strong>而非降级。</p>
+</blockquote>
+<h3 id="148">14.8 版本与交付</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App 版本</td>
+<td><code>v2.0.0</code>（<code>AndroidManifest</code> / <code>build.gradle</code> <code>versionName 2.0.0</code>、<code>versionCode 2</code>）</td>
+</tr>
+<tr>
+<td>交付物</td>
+<td>可安装 Android <strong>debug APK</strong>（WebView 承载 <code>web/index.html</code> + 原生 <code>AiBridge</code> AI 通道）</td>
+</tr>
+<tr>
+<td>同步</td>
+<td><code>git add → commit → push origin main</code>（<strong>PAT 只用于 clone，绝不写入 <code>.git/config</code> / 文件 / 推送</strong>）</td>
+</tr>
+<tr>
+<td>发布</td>
+<td>GitHub <strong>Release <code>v2.0.0</code></strong>，APK 作为 Release 附件，并放进对话交付</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>全部本地，无后端、无服务器成本；<code>.studypack</code> 可备份 / 恢复</td>
+</tr>
+</tbody>
+</table>
+<h3 id="149-2x">14.9 2.x 追溯矩阵增量（需求 → 功能 → 测试）</h3>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>功能</th>
+<th>测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1 / G2 去硬编码 + 可配置基线</td>
+<td>F15 / F18</td>
+<td>tF1 tF12 tF15①⑧</td>
+</tr>
+<tr>
+<td>G3 收纳式知识库</td>
+<td>F16 / F18</td>
+<td>tF16 tF15⑦ interaction⑦</td>
+</tr>
+<tr>
+<td>G4 多模型 AI + Key 隔离</td>
+<td>F17 / F18</td>
+<td>tF17 tF13 tF15②⑧⑨</td>
+</tr>
+<tr>
+<td>G5 双形态布局</td>
+<td>F18</td>
+<td>tF15③ interaction③⑩</td>
+</tr>
+<tr>
+<td>G6 日历自定义空闲时段</td>
+<td>F18</td>
+<td>interaction⑥</td>
+</tr>
+<tr>
+<td>G7 薄弱点 / 速查卡收进规划</td>
+<td>F18</td>
+<td>interaction⑤</td>
+</tr>
+<tr>
+<td>G8 每规划会话配置</td>
+<td>F18</td>
+<td>interaction④⑤</td>
+</tr>
+<tr>
+<td>G9 纯本地 + 14 实体导出</td>
+<td>F18</td>
+<td>tF2 tF3 tF14 tF15⑨ interaction⑨</td>
+</tr>
+<tr>
+<td>G10 生产可用 / 反馈 / 优雅降级 / APK</td>
+<td>F18</td>
+<td>tF15（全组）+ interaction（全组）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1410">14.10 边界与后续（如实说明）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI 真实回复内容</td>
+<td>沙箱无用户真 Key，已验证请求格式 / 鉴权头 / 端点可达 / <strong>失败绝不伪造</strong>；真 Key 由用户在本机「我的 → AI 设置」填写</td>
+</tr>
+<tr>
+<td>截图分析</td>
+<td>需 <code>vision</code> 模型 + Key；无能力时如实标注，不编造</td>
+</tr>
+<tr>
+<td>联网补充</td>
+<td>可选开关，仅作为检索增强入口，<strong>不引入后端、不产生服务器成本</strong></td>
+</tr>
+<tr>
+<td>Flutter 原生客户端 / 桌面 Widget / 系统分屏 / 精确闹钟</td>
+<td>仍属后续版本；接口契约 §4 / §5 已冻结，具备环境时按同一规格实现</td>
+</tr>
+<tr>
+<td>打印预览 / Notein 桥接</td>
+<td>后续版本；<code>.studypack</code> 与速查卡黑白打印态已保留</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>§14 为 2.x 建设蓝图 v2.0 增量终版</strong>。§1–§13 的第一版地基与 F1–F14 断言全部保留；改动需求 → 改对应章节并升版本；改动功能 → 改 §14.3 与 §14.9；测试一律「不删断言、不放宽、不跳过」，全部完成后全量复测再交付。</p>
 </blockquote></main></div></body></html>

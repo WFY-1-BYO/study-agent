@@ -6,6 +6,7 @@ import 'framework.dart';
 import '../lib/core.dart';
 import '../lib/models.dart';
 import '../lib/studypack.dart';
+import '../lib/knowledge_base.dart';
 
 DataPackage _fullPack() => DataPackage(
       entities: {
@@ -70,6 +71,21 @@ DataPackage _fullPack() => DataPackage(
               textbookTag: '人教A版·必修一·2.2', difficulty: 'medium',
               isGaokao: true).toJson()
         ],
+        'knowledge_base.json': [
+          KnowledgeBase(
+            notebooks: [
+              Notebook(id: 'NB-1', title: '数学', subject: '数学',
+                  coverColor: '#6366F1', type: 'notes',
+                  createdDate: '2026-11-14'),
+            ],
+            entries: [
+              KbEntry(id: 'KB-1', notebookId: 'NB-1',
+                  question: '已知函数 f(x)=√(x²−2x+2)，求最小值',
+                  knowledgePoint: '基本不等式', difficulty: 'medium',
+                  source: 'my', createdDate: '2026-11-14'),
+            ],
+          ).toJson()
+        ],
       },
     );
 
@@ -80,7 +96,7 @@ void runF2(Harness h) {
       final files = StudyPack.exportPack(original, device: 'vivo S7');
       final restored = StudyPack.importPack(files);
       h.jsonEq(restored.entities, original.entities);
-      h.eq(restored.entities.length, 13);
+      h.eq(restored.entities.length, 14);
     });
     h.test('固定格式：13 个实体文件 + manifest 全部存在', () {
       final files = StudyPack.exportPack(_fullPack());
@@ -88,7 +104,7 @@ void runF2(Harness h) {
         h.isTrue(files.containsKey(name), '缺少 $name');
       }
       h.isTrue(files.containsKey('manifest.json'));
-      h.eq(files.length, 14);
+      h.eq(files.length, 15);
     });
     h.test('manifest 自描述字段齐全且不加密', () {
       final files = StudyPack.exportPack(_fullPack(), device: 'Lenovo Y900');
@@ -97,8 +113,8 @@ void runF2(Harness h) {
       h.eq(m['format'], 'studypack-open-v1');
       h.eq(m['encrypted'], false);
       h.eq(m['device'], 'Lenovo Y900');
-      h.eq((m['entityFiles'] as List).length, 13);
-      h.eq(m['fileCount'], 14);
+      h.eq((m['entityFiles'] as List).length, 14);
+      h.eq(m['fileCount'], 15);
       h.notNull(m['checksum']);
       h.notNull(m['exportedAt']);
     });
@@ -198,7 +214,7 @@ void runF2(Harness h) {
     h.test('空包可用', () {
       final files = StudyPack.exportPack(DataPackage());
       final p = StudyPack.importPack(files);
-      h.eq(p.entities.length, 13);
+      h.eq(p.entities.length, 14);
       for (final list in p.entities.values) {
         h.eq(list.length, 0);
       }
@@ -231,8 +247,8 @@ void runF2(Harness h) {
       h.eq(files['assets/ink/n1.svg'], svg);
       final m = jsonDecode(files['manifest.json']!) as Map<String, dynamic>;
       h.contains((m['assetFiles'] as List).join('|'), 'assets/ink/n1.svg');
-      h.eq(m['fileCount'], 15);
-      h.isTrue(StudyPack.importPack(files).entities.length == 13);
+      h.eq(m['fileCount'], 16);
+      h.isTrue(StudyPack.importPack(files).entities.length == 14);
     });
     h.test('checksum 稳定：同样内容两次导出相同', () {
       final a = StudyPack.exportPack(_fullPack(), exportedAt: 'T1');

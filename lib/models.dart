@@ -224,6 +224,20 @@ class ExamProfile implements Entity {
         ),
       );
 
+  /// 空基线：零具体情境，由用户运行时配置（去硬编码 · 2.x）。
+  /// 知识树为空，需用户自行导入 / 构建；教材 / 地区 / 考卷均为空串。
+  factory ExamProfile.blank() => ExamProfile(
+        region: '',
+        school: '',
+        paper: '',
+        examMode: '',
+        textbook: '',
+        questionTypes: const [],
+        difficultyRatio: const {'basic': 0.5, 'medium': 0.3, 'hard': 0.2},
+        styleTags: const [],
+        knowledgeTree: KnowledgeNode(id: '', title: '', children: const []),
+      );
+
   int get totalScore => questionTypes.fold<int>(
       0, (s, q) => s + ((q['scoreTotal'] as num).toInt()));
 
@@ -897,7 +911,7 @@ class DataPackage implements Entity {
     'preferences.json', 'exam_profile.json', 'school_calendar.json',
     'slot_pool.json', 'tasks.json', 'plans.json', 'sessions.json',
     'weak_points.json', 'review.json', 'ai_notes.json', 'my_notes.json',
-    'anchor_links.json', 'resources.json',
+    'anchor_links.json', 'resources.json', 'knowledge_base.json',
   ];
 
   final Map<String, dynamic> manifest;
