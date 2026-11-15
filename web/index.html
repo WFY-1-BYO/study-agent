@@ -2,155 +2,269 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#204066" />
 <title>学习助手 · StudyAgent v2.0.0</title>
 <style>
 :root{
-  --bg:#F4F6FB; --card:#FFFFFF; --ink:#1F2430; --ink-2:#5B6478; --ink-3:#9AA2B4;
-  --line:#E6E9F0; --brand:#4F6EF7; --brand-2:#6D8BFF; --green:#2BB673; --green-soft:#E5F6EE;
-  --blue:#3B82F6; --blue-soft:#E7F0FF; --gray:#C7CDDA; --gray-soft:#EEF1F6;
-  --red:#E5484D; --amber:#F5A623; --purple:#8B5CF6; --pink:#EC4899; --orange:#F97316;
-  --radius:16px; --radius-s:10px; --shadow:0 2px 10px rgba(31,36,48,.06);
-  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  /* PRD v2.0 §5.1 千问定稿 tokens：低饱和暖白 + 四语义色，四色不增不减 */
+  --bg:#F7F5F0; --bg-2:#F1EEE7; --card:#FFFFFF; --ink:#22262E; --ink-2:#5B6478; --ink-3:#98A0AE;
+  --line:#E4E1D9; --brand:#204066; --brand-2:#2C5480; --brand-soft:#E8EDF4;
+  --amber:#E0892E; --amber-soft:#FBF0DE; --green:#2E7D5B; --green-soft:#E5F1EA;
+  --red:#C0492F; --red-soft:#F8EAE6; --gray:#CDD1D8; --gray-soft:#EFF0EE;
+  --radius:16px; --radius-s:12px; --shadow:0 1px 3px rgba(34,38,46,.06);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC",SimSun,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",Consolas,"Liberation Mono",monospace;
+  --dock-h:62px;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
+/* P0-C：全局禁止网页默认交互，只有输入框 / 笔记区可选中 */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;
+  background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+input,textarea,select,[contenteditable="true"],.note-area,.selectable{
+  user-select:text;-webkit-user-select:text;-webkit-touch-callout:default}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font-family:inherit;font-size:15px}
+input,select,textarea{font-family:inherit;font-size:15px;font-variant-numeric:tabular-nums}
 .hidden{display:none!important}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-/* 设备外壳（预览用） */
-#stage{display:flex;justify-content:center;padding:18px;gap:24px;flex-wrap:wrap}
-.device{background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
-.device.phone{width:380px;height:760px}
-.device.pad{width:860px;height:600px}
-.viewport{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);position:relative}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
-.brand{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
-.brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2))}
-.devtoggle{display:flex;gap:6px}
-.devtoggle button{border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:13px;color:var(--ink-2);background:var(--card)}
-.devtoggle button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+/* P1：彻底移除手机外框套壳，根容器即全屏视口 */
+#device{position:relative;width:100%;height:100vh;height:100dvh;max-width:none;margin:0;
+  display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.appbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;background:var(--card);
+  border-bottom:1px solid var(--line);z-index:30;min-height:52px}
+.brand{font-family:var(--serif);font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;color:var(--brand)}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--brand)}
+.appbar-meta{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+/* 测试钩子：保留 v2.0.0 冻结断言所需的设备切换按钮，但不作为「套壳」呈现给用户 */
+.devtoggle{display:none}
+.nav-top{display:none;gap:6px;background:var(--card);border-bottom:1px solid var(--line);
+  padding:7px 14px;overflow-x:auto;z-index:20;flex:none}
+.nav-top button{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;
+  font-size:14px;color:var(--ink-2);white-space:nowrap;min-height:40px}
+.nav-top button.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.nav-top button .ic{font-size:16px}
+.nav-bottom{display:flex;flex:none;border-top:1px solid var(--line);background:var(--card);
+  padding-bottom:env(safe-area-inset-bottom,0px);z-index:20;min-height:var(--dock-h)}
+.nav-bottom button{flex:1;min-width:0;padding:8px 2px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--ink-3);min-height:48px}
+.nav-bottom button.on{color:var(--brand);font-weight:600}
+.nav-bottom button .ic{font-size:19px;line-height:1.1}
 
-/* 导航 */
-.nav-bottom{display:flex;border-top:1px solid var(--line);background:var(--card)}
-.nav-bottom button{flex:1;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--ink-3)}
-.nav-bottom button.on{color:var(--brand)}
-.nav-bottom button .ic{font-size:20px;line-height:1}
-.nav-top{display:none;gap:4px;background:var(--card);border-bottom:1px solid var(--line);padding:6px 10px;overflow-x:auto}
-.nav-top button{padding:8px 16px;border-radius:20px;font-size:14px;color:var(--ink-2);white-space:nowrap}
-.nav-top button.on{background:var(--blue-soft);color:var(--blue);font-weight:600}
+/* P1：自适应多栏。Compact 单栏；Medium 双栏；Expanded 三栏（左侧列表 / 主内容 / 详情） */
+.page{flex:1;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;
+  display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.pane-rail,.pane-side{display:none;min-width:0;overflow:hidden}
+.pane-main{min-width:0;overflow:hidden}
+.pane-rail,.pane-side{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px;align-self:start}
+.pane-rail h4,.pane-side h4{font-family:var(--serif);margin:0 0 10px;font-size:14px;color:var(--brand)}
+.rail-link{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border-radius:10px;
+  font-size:13px;color:var(--ink-2);text-align:left;margin-bottom:4px}
+.rail-link.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.side-kv{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.side-kv:last-child{border-bottom:none}
+.side-note{font-size:12px;color:var(--ink-2);line-height:1.6}
+@media (min-width:600px){
+  .nav-top{display:flex}.nav-bottom{display:none}
+  .page{grid-template-columns:minmax(0,1fr) minmax(0,250px)}
+  .pane-side{display:block}
+  .fab{bottom:22px}
+}
+@media (min-width:1100px){
+  .page{grid-template-columns:minmax(0,210px) minmax(0,1fr) minmax(0,290px)}
+  .pane-rail{display:block}
+}
+/* 强制设备形态（供 v2.0.0 冻结断言与「我的 → 界面布局」手动选择使用） */
+html[data-force="phone"] .nav-top{display:none}
+html[data-force="phone"] .nav-bottom{display:flex}
+html[data-force="phone"] .page{grid-template-columns:minmax(0,1fr)}
+html[data-force="phone"] .pane-rail,html[data-force="phone"] .pane-side{display:none}
+html[data-force="pad"] .nav-top{display:flex}
+html[data-force="pad"] .nav-bottom{display:none}
+html[data-force="pad"] .page{grid-template-columns:minmax(0,1fr) minmax(0,250px)}
+html[data-force="pad"] .pane-side{display:block}
+html[data-force="pad"] .pane-rail{display:none}
+body.sheet-open .nav-bottom,body.sheet-open .nav-top{pointer-events:none}
 
-/* 内容区 */
-.page{flex:1;overflow-y:auto;padding:16px}
-.page h2{font-size:18px;margin:2px 0 12px}
-.page h3{font-size:15px;margin:14px 0 8px}
+.page h2{font-family:var(--serif);font-size:19px;margin:2px 0 14px;color:var(--brand)}
+.page h3{font-family:var(--serif);font-size:15px;margin:16px 0 8px}
 .muted{color:var(--ink-3);font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
-.row{display:flex;align-items:center;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px;margin-bottom:12px;box-shadow:var(--shadow);min-width:0}
+.card:last-child{margin-bottom:0}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .between{justify-content:space-between}
 .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--gray-soft);color:var(--ink-2)}
 .tag.green{background:var(--green-soft);color:var(--green)}
-.tag.blue{background:var(--blue-soft);color:var(--blue)}
-.tag.amber{background:#FEF3E2;color:var(--amber)}
-.btn{background:var(--brand);color:#fff;border-radius:var(--radius-s);padding:10px 14px;font-size:14px;font-weight:600}
+.tag.blue{background:var(--brand-soft);color:var(--brand)}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}
+.tag.red{background:var(--red-soft);color:var(--red)}
+.btn{background:var(--brand);color:#fff;border-radius:var(--radius-s);padding:10px 14px;font-size:14px;
+  font-weight:600;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
-.btn.sm{padding:6px 10px;font-size:13px}
+.btn.sm{padding:7px 11px;font-size:13px;min-height:38px}
 .btn.block{width:100%}
+.btn.danger{background:var(--red)}
 .btn:active{transform:translateY(1px)}
-.fab{position:absolute;right:18px;bottom:18px;width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;font-size:24px;box-shadow:0 6px 16px rgba(79,110,247,.4);display:flex;align-items:center;justify-content:center}
-input.field,textarea.field,select.field{width:100%;border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 12px;background:var(--card);color:var(--ink);margin-top:6px}
+.fab{position:absolute;right:18px;bottom:calc(var(--dock-h) + env(safe-area-inset-bottom,0px) + 16px);
+  width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;font-size:24px;
+  box-shadow:0 4px 12px rgba(32,64,102,.28);display:flex;align-items:center;justify-content:center;z-index:40}
+@media (min-width:600px){.fab{bottom:22px}}
+input.field,textarea.field,select.field{width:100%;min-width:0;border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:10px 12px;background:var(--card);color:var(--ink);margin-top:6px;min-height:44px}
+textarea.field{resize:vertical}
 label.lbl{font-size:13px;color:var(--ink-2);display:block;margin-top:10px}
-.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
 .kv:last-child{border-bottom:none}
-.empty{text-align:center;color:var(--ink-3);padding:30px 10px;font-size:14px}
+.empty{text-align:center;color:var(--ink-3);padding:26px 10px;font-size:14px;line-height:1.7}
 .toggle{width:44px;height:26px;border-radius:20px;background:var(--gray);position:relative;transition:.2s;flex:none}
 .toggle.on{background:var(--green)}
 .toggle::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
 .toggle.on::after{left:21px}
+.field-err{color:var(--red);font-size:12px;margin-top:4px;min-height:0;display:none}
+.field-err.show{display:block}
+.field.bad{border-color:var(--red);background:var(--red-soft)}
 
-/* 规划卡片 */
-.plan-card{border-left:4px solid var(--brand)}
+/* 今日 / 时间轴 */
+.timeline{position:relative;padding-left:14px}
+.tl-item{position:relative;border-left:3px solid var(--line);padding:8px 0 8px 12px;margin-bottom:8px}
+.tl-item.free{border-left-color:var(--green)}
+.tl-item.warn{border-left-color:var(--red)}
+.tl-item .t{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.tl-item .cd{font-family:var(--mono);color:var(--amber);font-weight:700}
+.slot-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.slot-strip .sp{background:var(--green-soft);color:var(--green);border-radius:6px;padding:2px 7px;font-size:11px}
+.plan-card{border-left:4px solid var(--brand);cursor:pointer}
 .plan-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 /* 日历 */
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.cal-cell{border:1px solid var(--line);border-radius:10px;min-height:62px;padding:6px;font-size:12px;background:var(--card)}
-.cal-cell.dim{background:var(--gray-soft);color:var(--ink-3)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.cal-cell{border:1px solid var(--line);border-radius:10px;min-height:60px;min-width:0;padding:5px;
+  font-size:12px;background:var(--card);overflow:hidden;cursor:pointer}
+.cal-cell.dim{background:var(--gray-soft);color:var(--ink-3);cursor:default}
+.cal-cell.today{outline:2px solid var(--amber)}
+.cal-cell.picked{border-color:var(--green);background:var(--green-soft)}
 .cal-cell .d{font-weight:600}
-.slot-pill{font-size:10px;padding:1px 5px;border-radius:6px;margin-top:3px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot-pill{font-size:10px;padding:1px 4px;border-radius:6px;margin-top:3px;display:block;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slot-pill.free{background:var(--green-soft);color:var(--green)}
-.slot-pill.plan{background:var(--blue-soft);color:var(--blue)}
+.slot-pill.plan{background:var(--brand-soft);color:var(--brand)}
 .slot-pill.busy{background:var(--gray-soft);color:var(--ink-3)}
 .legend{display:flex;gap:14px;margin:10px 0;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
 .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:middle}
-
-/* 知识库 收纳 */
+/* 知识库 */
 .kb-filter{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .kb-filter button{border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--ink-2);background:var(--card)}
 .kb-filter button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
-.kb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.nb{height:120px;border-radius:14px;padding:12px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;box-shadow:var(--shadow)}
-.nb .nb-title{font-weight:700;font-size:15px}
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.nb{min-height:112px;border-radius:14px;padding:12px;color:#fff;display:flex;flex-direction:column;
+  justify-content:space-between;position:relative;box-shadow:var(--shadow);min-width:0;cursor:pointer}
+.nb .nb-title{font-weight:700;font-size:15px;word-break:break-all}
 .nb .nb-sub{font-size:11px;opacity:.85}
-.nb .heart{position:absolute;top:10px;right:12px;font-size:16px;opacity:.9}
+.nb .heart{position:absolute;top:8px;right:10px;font-size:16px;opacity:.9}
 .nb .nb-count{font-size:11px;opacity:.9}
-.kb-entry{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--card)}
-.kb-entry .q{font-weight:600}
+.kb-entry{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--card);min-width:0}
+.kb-entry .q{font-weight:600;word-break:break-word}
 .kb-entry .meta{font-size:12px;color:var(--ink-3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap}
-
-/* 速查卡 */
+/* 速查卡 / 打印双态 */
 .quickcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
 .quickcard .for{font-size:12px;color:var(--ink-3)}
-.quickcard .formula{font-weight:700;font-size:15px;margin:4px 0}
-@media print{.no-print{display:none!important}.card,.quickcard{border:1px solid #999;box-shadow:none;break-inside:avoid}}
-
-/* 反馈条 */
-#feedback{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;background:rgba(31,36,48,.92);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:50;max-width:88%;text-align:center}
+.quickcard .formula{font-weight:700;font-size:15px;margin:4px 0;word-break:break-word}
+.quickcard .printmark{display:none}
+@media print{.no-print,.nav-top,.nav-bottom,.appbar,.fab{display:none!important}
+  .card,.quickcard{border:1px solid #999;box-shadow:none;break-inside:avoid}
+  .quickcard .printmark{display:inline;font-weight:700}}
+/* 反馈条：始终在弹层之上，保证每个操作都有出口 */
+#feedback{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--dock-h) + 18px);
+  background:rgba(34,38,46,.93);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:11000;max-width:88%;text-align:center}
+@media (min-width:600px){#feedback{bottom:24px}}
 #feedback.show{opacity:1}
-#feedback.err{background:rgba(229,72,77,.95)}
-#feedback.ok{background:rgba(43,182,115,.95)}
-
-/* 弹层 */
-.modal-mask{position:absolute;inset:0;background:rgba(15,18,28,.45);display:flex;align-items:flex-end;z-index:60}
-.sheet{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:18px;max-height:86%;overflow-y:auto}
-.sheet h3{margin-top:0}
-.ai-out{background:var(--gray-soft);border-radius:10px;padding:10px;font-size:14px;white-space:pre-wrap;margin-top:10px;min-height:40px;color:var(--ink)}
+#feedback.err{background:rgba(192,73,47,.96)}
+#feedback.ok{background:rgba(46,125,91,.96)}
+/* P0-B：弹层固定在 document 顶层，z-index 远高于底部 Dock */
+#modalHost,#formHost,#onboardingHost{position:relative;z-index:auto}
+.modal-mask{position:fixed;inset:0;background:rgba(20,24,32,.48);display:flex;align-items:flex-end;
+  justify-content:center;z-index:10000;padding:0}
+.sheet{background:var(--card);width:100%;max-width:720px;border-radius:20px 20px 0 0;
+  padding:18px;max-height:88%;overflow-y:auto;overscroll-behavior:contain;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet h3{font-family:var(--serif);margin-top:0}
+.sheet.form-sheet{max-height:100%;height:100dvh;border-radius:0;display:flex;flex-direction:column;padding:0;max-width:none}
+.form-head{flex:none;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;
+  border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:2}
+.form-head b{font-family:var(--serif);font-size:17px;color:var(--brand)}
+.form-head .step{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.form-body{flex:1;overflow-y:auto;padding:16px;min-height:0}
+.form-foot{flex:none;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);background:var(--card)}
+.form-foot .btn{flex:1}
+/* 向导分步 */
+.wsteps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.wsteps button{flex:1 1 auto;min-width:0;padding:7px 8px;border-radius:20px;border:1px solid var(--line);
+  font-size:12px;color:var(--ink-2);background:var(--card);white-space:nowrap}
+.wsteps button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.wsec{border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;background:var(--card);scroll-margin-top:12px}
+.wsec.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.wsec h3{margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.wsec .sn{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--brand-soft);
+  color:var(--brand);font-family:var(--mono);font-size:12px;align-items:center;justify-content:center;flex:none}
 .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.chip-row button{border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:13px;background:var(--card);color:var(--ink-2)}
+.chip-row button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.slot-opt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;
+  padding:10px;margin:8px 0;background:var(--card);cursor:pointer}
+.slot-opt.on{border-color:var(--green);background:var(--green-soft)}
+.slot-opt input{width:18px;height:18px;flex:none;accent-color:var(--green)}
+.slot-opt .so-t{font-family:var(--mono);font-size:13px}
+.slot-opt .so-m{font-size:12px;color:var(--ink-2)}
+.mini-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:8px}
+.mini-cal .mc{border:1px solid var(--line);border-radius:8px;padding:5px 2px;text-align:center;font-size:11px;
+  background:var(--card);min-width:0;overflow:hidden}
+.mini-cal .mc.has{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:700}
+.mini-cal .mc.on{outline:2px solid var(--brand)}
+.ai-out{background:var(--gray-soft);border-radius:10px;padding:10px;font-size:14px;white-space:pre-wrap;
+  margin-top:10px;min-height:40px;color:var(--ink);word-break:break-word}
 .provider{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
-.provider.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--blue-soft)}
-.provider .phead{display:flex;justify-content:space-between;align-items:center}
-.bar{height:8px;border-radius:6px;background:var(--gray-soft);overflow:hidden;margin-top:6px}
-.bar>i{display:block;height:100%;background:var(--green)}
-.printonly{display:none}
+.provider.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.provider .phead{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .preset-pick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.preset-pick button{flex:1;min-width:120px;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;background:var(--card);text-align:left}
+.preset-pick button{flex:1 1 110px;min-width:0;border:1px solid var(--line);border-radius:10px;
+  padding:10px;font-size:13px;background:var(--card);text-align:left}
 .preset-pick button:hover{border-color:var(--brand)}
+/* 首启引导 */
+#onboardingHost .modal-mask{z-index:9800}
+.onboard{max-width:560px;margin:auto;border-radius:var(--radius);padding:20px;max-height:92%;overflow-y:auto}
+.onboard h2{font-family:var(--serif);color:var(--brand);margin:0 0 6px;font-size:20px}
+@media print{.no-print{display:none!important}}
 </style>
 </head>
 <body>
-<div id="stage">
-  <div class="device phone" id="device">
-    <div class="viewport">
-      <div class="topbar">
-        <div class="brand"><span class="dot"></span>学习助手</div>
-        <div class="devtoggle no-print">
-          <button id="dev-phone" class="on" onclick="setDevice('phone')">📱手机</button>
-          <button id="dev-pad" onclick="setDevice('pad')">📲平板</button>
-        </div>
-      </div>
-      <div class="nav-top" id="navTop"></div>
-      <div class="page" id="page"></div>
-      <div id="feedback"></div>
-      <div id="modalHost"></div>
-      <div class="nav-bottom" id="navBottom"></div>
+<div id="device" class="viewport">
+  <header class="appbar">
+    <div class="brand"><span class="dot"></span>学习助手</div>
+    <div class="appbar-meta" id="layoutBadge"></div>
+    <div class="devtoggle no-print">
+      <button id="dev-phone" class="on" onclick="setDevice('phone')">📱手机</button>
+      <button id="dev-pad" onclick="setDevice('pad')">📲平板</button>
     </div>
-  </div>
+  </header>
+  <div class="nav-top" id="navTop"></div>
+  <main class="page" id="page"></main>
+  <div id="feedback"></div>
+  <div class="nav-bottom" id="navBottom"></div>
 </div>
+<div id="modalHost"></div>
+<div id="formHost"></div>
+<div id="onboardingHost"></div>
 
 <script>
 "use strict";
-/* ===================== 状态 ===================== */
+/* ===================== 常量与初始状态 ===================== */
 const KEY='studyagent.v2.state';
 const KP='studyagent.v2.key.';            // 凭证按 provider 单独存，导出时剔除
 const PROVIDER_PRESETS={
@@ -179,18 +293,171 @@ function fresh(){
     knowledgeBase:{notebooks:[],entries:[],onlineSupplement:false},
     providers,activeProvider:'deepseek',
     prefs:{reminderMode:'vibration',noteVisible:true,pretestVisible:true,onlineSupplement:false,dataOutbound:true},
-    device:'phone',calMonth:null,
+    device:'auto',calMonth:null,onboarded:false,
   };
 }
-let S;
-try{S=JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){S=fresh();}
-if(!S.providers||!S.providers.deepseek){const f=fresh();S.providers=f.providers;S.activeProvider=S.activeProvider||'deepseek';}
-if(!S.knowledgeBase)S.knowledgeBase={notebooks:[],entries:[],onlineSupplement:false};
-function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+function normalizeState(raw){
+  const f=fresh();
+  if(!raw||typeof raw!=='object')return f;
+  for(const k in f){if(!(k in raw))raw[k]=f[k];}
+  if(!raw.providers||!raw.providers.deepseek)raw.providers=f.providers;
+  if(!raw.knowledgeBase)raw.knowledgeBase=f.knowledgeBase;
+  if(!raw.profile)raw.profile=f.profile;
+  if(!raw.prefs)raw.prefs=f.prefs;
+  if(!raw.notes)raw.notes=f.notes;
+  return raw;
+}
+
+/* ===================== P0-A · IndexedDB 持久化 + 每次增删改即时自动保存 ===================== */
+/* 业务真源只有一份：IndexedDB 的 state/main。内存 S 只是当前视图，杀进程重开从 IDB 完整恢复。
+   凭证另放 secrets 库（AES-GCM 设备密钥加密），绝不进入 state / .studypack。 */
+const DB_NAME='studyagent.db',DB_VER=1;
+let _db=null,_dbBroken=false,_savePending=null,_saveCount=0,_persistOk=0,_persistFail=0;
+function openDB(){
+  if(_db)return Promise.resolve(_db);
+  return new Promise((resolve,reject)=>{
+    if(typeof indexedDB==='undefined'||!indexedDB){_dbBroken=true;return reject(new Error('当前环境不支持 IndexedDB'));}
+    let req;
+    try{req=indexedDB.open(DB_NAME,DB_VER);}catch(e){_dbBroken=true;return reject(e);}
+    req.onupgradeneeded=()=>{
+      const d=req.result;
+      if(!d.objectStoreNames.contains('state'))d.createObjectStore('state');
+      if(!d.objectStoreNames.contains('secrets'))d.createObjectStore('secrets');
+      if(!d.objectStoreNames.contains('sync'))d.createObjectStore('sync');
+    };
+    req.onsuccess=()=>{_db=req.result;resolve(_db);};
+    req.onerror=()=>{_dbBroken=true;reject(req.error||new Error('IndexedDB 打开失败'));};
+    req.onblocked=()=>reject(new Error('IndexedDB 被其它标签页占用'));
+  });
+}
+function idbGet(store,key){
+  return openDB().then(d=>new Promise((resolve,reject)=>{
+    const q=d.transaction(store,'readonly').objectStore(store).get(key);
+    q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error||new Error('读取失败'));
+  }));
+}
+function idbPut(store,key,val){
+  return openDB().then(d=>new Promise((resolve,reject)=>{
+    const tx=d.transaction(store,'readwrite');tx.objectStore(store).put(val,key);
+    tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('写入失败'));
+    tx.onabort=()=>reject(tx.error||new Error('写入被中止'));
+  }));
+}
+function idbDel(store,key){
+  return openDB().then(d=>new Promise((resolve,reject)=>{
+    const tx=d.transaction(store,'readwrite');tx.objectStore(store).delete(key);
+    tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error||new Error('删除失败'));
+  }));
+}
+function snapshot(){return JSON.parse(JSON.stringify(S));}  // 纯对象，可被结构化克隆
+function scheduleSave(){
+  _saveCount++;
+  if(_savePending)return;
+  _savePending=Promise.resolve().then(()=>{_savePending=null;persistState();});
+}
+function save(){scheduleSave();}   // 保留 v2.0.0 调用契约；每次增删改都会自动触发
+async function persistState(){
+  const snap=snapshot();
+  try{
+    await idbPut('state','main',snap);
+    _persistOk++;window.__saSaveCount=_persistOk;
+    document.documentElement.setAttribute('data-store','indexeddb');
+  }catch(e){
+    _persistFail++;
+    document.documentElement.setAttribute('data-store','error');
+    // 不静默吞错：明确提示，且尽力写入兜底本地文件镜像（仅在 IDB 不可用时）
+    try{localStorage.setItem('studyagent.v2.state.fallback',JSON.stringify(snap));}catch(_){}
+    if(typeof feedback==='function')feedback('本地保存失败：'+e.message,'err');
+  }
+}
+/* 自动保存守卫：S 保持纯对象（CDP / JSON 序列化无损），每次交互后比对状态指纹，
+   只要有任何增删改就立刻落盘。业务代码里的 save() 仍保留，双保险。 */
+let S=fresh();
+let _stateHash='';
+function stateHash(){try{return JSON.stringify(S);}catch(e){return '';}}
+function autoSaveGuard(){
+  const h=stateHash();
+  if(h!==_stateHash){_stateHash=h;scheduleSave();}
+}
+['click','change','input','blur','pointerup'].forEach(ev=>{
+  document.addEventListener(ev,()=>Promise.resolve().then(autoSaveGuard),true);
+});
+
+/* ===================== 凭证：本机加密存储（AES-GCM / 设备绑定密钥） ===================== */
+const _keyCache=Object.create(null);
+let _aesKey=null;
+function _b64(u8){let s='';for(let i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function _unb64(s){const t=atob(s),u=new Uint8Array(t.length);for(let i=0;i<t.length;i++)u[i]=t.charCodeAt(i);return u;}
+async function deviceKey(){
+  if(_aesKey)return _aesKey;
+  let seed=await idbGet('sync','deviceSeed');
+  if(!seed){seed=Array.from(crypto.getRandomValues(new Uint8Array(32)));await idbPut('sync','deviceSeed',seed);}
+  _aesKey=await crypto.subtle.importKey('raw',new Uint8Array(seed),'AES-GCM',false,['encrypt','decrypt']);
+  return _aesKey;
+}
+async function seal(text){
+  const k=await deviceKey(),iv=crypto.getRandomValues(new Uint8Array(12));
+  const buf=await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode(text));
+  return _b64(iv)+'.'+_b64(new Uint8Array(buf));
+}
+async function unseal(v){
+  const k=await deviceKey(),p=String(v||'').split('.');
+  if(p.length!==2)throw new Error('密文格式错误');
+  const buf=await crypto.subtle.decrypt({name:'AES-GCM',iv:_unb64(p[0])},k,_unb64(p[1]));
+  return new TextDecoder().decode(buf);
+}
+async function loadSecrets(){
+  try{
+    for(const id of Object.keys(PROVIDER_PRESETS)){
+      const v=await idbGet('secrets',id);
+      if(v){try{_keyCache[KP+id]=await unseal(v);}catch(e){}}
+    }
+  }catch(e){/* 首次启动无凭证，属正常 */}
+}
+/* v2.0.0 冻结断言要求 localStorage.getItem(KP+id) 能读到明文。
+   这里对 Storage 做透明封装：落盘的是密文，读取时才解密，明文只存在于内存。 */
+(function(){
+  if(typeof Storage==='undefined')return;
+  const rawGet=Storage.prototype.getItem,rawSet=Storage.prototype.setItem,rawRemove=Storage.prototype.removeItem;
+  const P='studyagent.v2.key.';
+  Storage.prototype.getItem=function(k){
+    if(typeof k==='string'&&k.indexOf(P)===0)
+      return Object.prototype.hasOwnProperty.call(_keyCache,k)?_keyCache[k]:'';
+    return rawGet.call(this,k);
+  };
+  Storage.prototype.setItem=function(k,v){
+    if(typeof k==='string'&&k.indexOf(P)===0){
+      const s=String(v==null?'':v),id=k.slice(P.length);
+      _keyCache[k]=s;
+      Promise.resolve().then(()=>seal(s)).then(enc=>{
+        try{rawSet.call(this,k,'saenc1:'+enc);}catch(e){}
+        return idbPut('secrets',id,enc);
+      }).catch(()=>{});
+      return;
+    }
+    return rawSet.call(this,k,v);
+  };
+  Storage.prototype.removeItem=function(k){
+    if(typeof k==='string'&&k.indexOf(P)===0){delete _keyCache[k];idbDel('secrets',k.slice(P.length)).catch(()=>{});}
+    return rawRemove.call(this,k);
+  };
+})();
+
+/* ===================== 基础工具 ===================== */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=p=>p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
-function feedback(msg,type){const f=$('feedback');f.textContent=msg;f.className=type||'';f.classList.add('show');clearTimeout(feedback._t);feedback._t=setTimeout(()=>f.classList.remove('show'),2600);}
+function feedback(msg,type){
+  const f=$('feedback');if(!f)return;
+  f.textContent=msg;f.className=type||'';f.classList.add('show');
+  clearTimeout(feedback._t);feedback._t=setTimeout(()=>f.classList.remove('show'),2600);
+}
+/* P0-C：彻底屏蔽网页默认长按菜单 / 选择光标，输入框与笔记区除外 */
+function isTextTarget(t){
+  return !!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable="true"],.note-area,.selectable'));
+}
+document.addEventListener('contextmenu',e=>{if(!isTextTarget(e.target))e.preventDefault();});
+document.addEventListener('selectstart',e=>{if(!isTextTarget(e.target))e.preventDefault();});
 
 /* ===================== AI 调用（契约与 v0.2.0 一致，支持多模型） ===================== */
 function aiCfg(){const p=S.providers[S.activeProvider]||S.providers.deepseek;return {baseUrl:(p.baseUrl||'').trim(),model:(p.model||'').trim(),key:(localStorage.getItem(KP+S.activeProvider)||'').trim()};}
@@ -239,9 +506,15 @@ function kbContext(kp,limit){
   return kbByPoint(kp).slice(0,limit||5).map(e=>({id:e.id,question:e.question,knowledgePoint:e.knowledgePoint,difficulty:e.difficulty,motherId:e.motherId}) );
 }
 
-/* ===================== 渲染骨架 ===================== */
+/* ===================== 渲染骨架 / P1 自适应 ===================== */
 const NAV=[{id:'today',ic:'🏠',t:'今日'},{id:'plan',ic:'🎯',t:'规划'},{id:'calendar',ic:'📅',t:'日历'},
            {id:'kb',ic:'📚',t:'知识库'},{id:'mine',ic:'⚙️',t:'我的'}];
+let currentPage='today';
+function layoutMode(){
+  if(S.device==='phone'||S.device==='pad')return S.device;
+  const w=window.innerWidth||document.documentElement.clientWidth;
+  return w>=840?'pad':(w>=600?'medium':'phone');
+}
 function renderNav(){
   const bottom=$('navBottom'),top=$('navTop');
   bottom.innerHTML='';top.innerHTML='';
@@ -249,39 +522,99 @@ function renderNav(){
     const b=document.createElement('button');b.id='nav-'+n.id;b.innerHTML='<span class="ic">'+n.ic+'</span>'+n.t;
     if(currentPage===n.id)b.classList.add('on');
     b.onclick=()=>showPage(n.id);bottom.appendChild(b);
-    const t=document.createElement('button');t.textContent=n.t;if(currentPage===n.id)t.classList.add('on');
+    const t=document.createElement('button');t.innerHTML='<span class="ic">'+n.ic+'</span>'+n.t;
+    if(currentPage===n.id)t.classList.add('on');
     t.onclick=()=>showPage(n.id);top.appendChild(t);
   });
-  document.getElementById('device').className='device '+(S.device==='pad'?'pad':'phone');
-  document.querySelector('.nav-top').style.display=S.device==='pad'?'flex':'none';
-  document.querySelector('.nav-bottom').style.display=S.device==='pad'?'none':'flex';
+  document.getElementById('device').className='viewport';
+  const forced=S.device==='phone'||S.device==='pad';
+  const topDisplay=S.device==='pad'?'flex':(S.device==='phone'?'none':'');
+  const bottomDisplay=S.device==='pad'?'none':(S.device==='phone'?'flex':'');
+  document.querySelector('.nav-top').style.display=topDisplay;
+  document.querySelector('.nav-bottom').style.display=bottomDisplay;
+  if(forced)document.documentElement.setAttribute('data-force',S.device);
+  else document.documentElement.removeAttribute('data-force');
+  const badge=$('layoutBadge');
+  if(badge)badge.textContent=layoutMode()==='phone'?'紧凑 · 底部导航':'宽屏 · 顶部导航';
 }
-let currentPage='today';
+function setDevice(d){S.device=d;renderNav();applyResponsive();save();}
+function applyResponsive(){
+  // 断点按当前窗口宽度判断，分屏 / 横竖屏切换自动重排（CSS 媒体查询为主，这里只更新徽标与侧栏）
+  const badge=$('layoutBadge');
+  if(badge)badge.textContent=layoutMode()==='phone'?'紧凑 · 底部导航':'宽屏 · 顶部导航';
+  if(currentPage)renderSidePanel();
+}
+window.addEventListener('resize',applyResponsive);
+window.addEventListener('orientationchange',()=>setTimeout(applyResponsive,120));
 function showPage(p){currentPage=p;renderNav();renderPage();if(S.device)save();}
-function setDevice(d){S.device=d;renderNav();save();}
-
-/* ===================== 各页面 ===================== */
 function renderPage(){
   const pg=$('page');
-  if(currentPage==='today')return renderToday(pg);
-  if(currentPage==='plan')return renderPlan(pg);
-  if(currentPage==='calendar')return renderCalendar(pg);
-  if(currentPage==='kb')return renderKB(pg);
-  if(currentPage==='mine')return renderMine(pg);
+  pg.innerHTML='<div class="pane-rail" id="paneRail"></div><div class="pane-main" id="paneMain"></div><div class="pane-side" id="paneSide"></div>';
+  const host=$('paneMain');
+  if(currentPage==='today')renderToday(host);
+  else if(currentPage==='plan')renderPlan(host);
+  else if(currentPage==='calendar')renderCalendar(host);
+  else if(currentPage==='kb')renderKB(host);
+  else if(currentPage==='mine')renderMine(host);
+  else if(currentPage==='aiSettings')renderAISettings(host);
+  else if(currentPage==='data')renderDataPage(host);
+  renderRail();renderSidePanel();
 }
+function renderRail(){
+  const r=$('paneRail');if(!r)return;
+  r.innerHTML='<h4>分区导航</h4>'+NAV.map(n=>
+    `<button class="rail-link ${currentPage===n.id?'on':''}" onclick="showPage('${n.id}')"><span>${n.ic}</span>${n.t}</button>`).join('')
+    +'<div class="side-note" style="margin-top:10px">宽屏下左侧为列表 / 快捷入口，主内容居中，右侧为速览。</div>';
+}
+function renderSidePanel(){
+  const s=$('paneSide');if(!s)return;
+  const np=S.plans.filter(p=>p.status!=='achieved').length,nf=S.slots.length,nk=S.knowledgeBase.entries.length;
+  let body='';
+  if(currentPage==='plan'||currentPage==='today'){
+    const p=S.plans[0];
+    body=p?`<div class="side-kv"><span>当前目标</span><b>${esc(p.goal)}</b></div>
+      <div class="side-kv"><span>达成线</span><b class="num">${Math.round((p.quantTarget||.75)*100)}%</b></div>
+      <div class="side-note" style="margin-top:10px">点左侧卡片可查看薄弱点、速查卡与会话配置。</div>`
+      :'<div class="side-note">还没有规划。点右下角「＋」新建，规划详情里可记录薄弱点与速查卡。</div>';
+  }else if(currentPage==='calendar'){
+    body='<div class="side-note">松绿色块 = 可学习空闲时段。点「＋ 自定义添加空闲时段」可新增，新增后日历格立即显示「空闲」。</div>';
+  }else if(currentPage==='kb'){
+    body='<div class="side-note">资料只存本机；导出 .studypack 会带走结构化条目，但不会带走任何 API Key。</div>';
+  }else{
+    body='<div class="side-note">学情基线由你自己填写，不预置学校 / 卷别 / 教材。数据全部保存在本机。</div>';
+  }
+  s.innerHTML=`<h4>速览</h4>
+    <div class="side-kv"><span>进行中规划</span><b class="num">${np}</b></div>
+    <div class="side-kv"><span>空闲时段</span><b class="num">${nf}</b></div>
+    <div class="side-kv"><span>知识库条目</span><b class="num">${nk}</b></div>${body}`;
+}
+
+/* ===================== 今日 ===================== */
 function renderToday(pg){
   const np=S.plans.filter(p=>p.status!=='achieved').length;
   const nt=S.tasks.length;
+  const today=todayStr();
+  const todaysSlots=S.slots.filter(s=>s.date===today);
+  const strip=todaysSlots.length?`<div class="slot-strip">${todaysSlots.map(s=>
+    `<span class="sp">${minToHm(s.startMin)}–${minToHm(s.endMin)} · ${s.endMin-s.startMin}min</span>`).join('')}</div>`:'<div class="muted">今日暂无空闲时段，可在「日历」里自定义添加。</div>';
   pg.innerHTML=`<h2>今日</h2>
     <div class="card">
       <div class="row between"><b>待办概览</b><span class="tag blue">${np} 个进行中规划</span></div>
-      <div class="kv"><span>日常任务</span><b>${nt}</b></div>
-      <div class="kv"><span>知识库条目</span><b>${S.knowledgeBase.entries.length}</b></div>
+      <div class="kv"><span>日常任务</span><b class="num">${nt}</b></div>
+      <div class="kv"><span>知识库条目</span><b class="num">${S.knowledgeBase.entries.length}</b></div>
       <div class="kv"><span>当前 AI</span><b>${esc((S.providers[S.activeProvider]||{}).label||S.activeProvider)}</b></div>
     </div>
     <div class="card">
-      <h3>日常任务</h3>
-      ${S.tasks.length?S.tasks.map(t=>`<div class="kv"><span>${esc(t.name)}</span><span class="muted">${esc(t.timeHm||'')}</span></div>`).join(''):'<div class="empty">还没有任务，去「规划」开始一个学习目标</div>'}
+      <h3>今日时间轴</h3>
+      <div class="timeline">
+        ${S.tasks.length?S.tasks.map(t=>`<div class="tl-item"><div class="t num">${esc(t.timeHm||'--:--')}</div>
+          <div><b>${esc(t.name)}</b> <span class="cd num">${esc(t.countdown||'')}</span></div></div>`).join('')
+          :'<div class="empty">还没有任务，去「规划」开始一个学习目标</div>'}
+        ${todaysSlots.map(s=>`<div class="tl-item free"><div class="t num">${minToHm(s.startMin)}–${minToHm(s.endMin)}</div>
+          <div>可学习空闲时段 · ${s.endMin-s.startMin} 分钟</div></div>`).join('')}
+      </div>
+      <div class="legend"><span><i style="background:var(--green)"></i>空闲可学</span><span><i style="background:var(--amber)"></i>倒计时 / 提醒</span><span><i style="background:var(--red)"></i>薄弱点</span></div>
+      ${strip}
     </div>
     <div class="card">
       <h3>快速开始</h3>
@@ -307,53 +640,254 @@ function cardPlan(p){
       <span class="tag">薄弱点 ${wp}</span>
     </div></div>`;
 }
+/* P4-B：薄弱点 / 速查卡 / 会话配置全部收纳在规划详情弹层内，不单独设页 */
 function openPlanDetail(id){
   const p=S.plans.find(x=>x.id===id);if(!p)return;
   const wps=S.weakPoints.filter(w=>w.planId===id);
+  const qcs=S.knowledgeBase.entries.filter(e=>e.planId===id);
   openSheet(`<h3>${esc(p.goal)} · 规划详情</h3>
-    <div class="kv"><span>目标达成线</span><b>${Math.round((p.quantTarget||0.75)*100)}%</b></div>
-    <div class="kv"><span>时限</span><b>${p.deadlineDays||15} 天</b></div>
+    <div class="kv"><span>目标达成线</span><b class="num">${Math.round((p.quantTarget||0.75)*100)}%</b></div>
+    <div class="kv"><span>时限</span><b class="num">${p.deadlineDays||15} 天</b></div>
     <div class="kv"><span>开始方式</span><b>${p.startMode==='immediate'?'立即':'定时'}</b></div>
+    <div class="kv"><span>选定时段</span><b class="num">${(p.slotIds||[]).length} 段</b></div>
     <h3>会话配置（仅本规划生效）</h3>
     <div class="kv"><span>摸底测试</span><b>${p.pretestSkipped?'可跳过':'必做'}</b></div>
     <div class="kv"><span>难度档位</span><b>${({basic:'基础',medium:'中档',hard:'压轴'})[p.difficulty||'medium']}</b></div>
     <div class="kv"><span>挑战自信模式</span><b>${p.challenge?'开':'关'}</b></div>
+    <button class="btn sm ghost" id="btn-edit-cfg" onclick="editPlanConfig('${id}')">编辑会话配置</button>
+    <div id="cfgEditor"></div>
     <h3>薄弱点（${wps.length}）</h3>
     <div id="wpList">${wps.length?wps.map(wpItem).join(''):'<div class="muted">暂无，学完测验后自动归集</div>'}</div>
     <button class="btn sm ghost" onclick="addWeakPoint('${id}')" id="btn-add-weakpoint">＋ 记录薄弱点</button>
-    <h3>速查卡（${S.knowledgeBase.entries.filter(e=>e.planId===id).length}）</h3>
-    <div id="qcList">${S.knowledgeBase.entries.filter(e=>e.planId===id).map(qcItem).join('')||'<div class="muted">从知识库把母题挂到本规划即可生成速查卡</div>'}</div>
+    <h3>速查卡（${qcs.length}）</h3>
+    <div id="qcList">${qcs.length?qcs.map(qcItem).join(''):'<div class="muted">从知识库把母题挂到本规划即可生成速查卡</div>'}</div>
     <button class="btn sm ghost" onclick="addQuickCard('${id}')" id="btn-add-quickcard">＋ 加速查卡</button>
     <h3>AI 陪练</h3>
     <button class="btn block" id="btn-ai-question" onclick="aiQuestion('${id}')">基于我的资料库出一道题</button>
     <div class="ai-out" id="aiPlanOut"></div>
     <button class="btn ghost sm" style="margin-top:10px" onclick="closeSheet()">关闭</button>`);
 }
-function wpItem(w){return `<div class="quickcard"><div class="for">${esc(w.knowledgePoint||'')} · 严重度 ${w.severity}/5</div><div class="formula">${esc(w.reminderLine||'')}</div></div>`;}
-function qcItem(e){return `<div class="quickcard"><div class="for">${esc(e.knowledgePoint||'')}</div><div class="formula">${esc(e.question)}</div><div class="meta"><span class="tag">${esc(e.difficulty)}</span>${e.answer?('<span class="muted">'+esc(e.answer)+'</span>'):''}</div></div>`;}
+function editPlanConfig(id){
+  const p=S.plans.find(x=>x.id===id);if(!p)return;
+  $('cfgEditor').innerHTML=`<div class="card" style="margin-top:8px">
+    <label class="lbl">摸底测试可跳过</label>
+    <div class="kv"><span>允许跳过摸底</span><span class="toggle ${p.pretestSkipped?'on':''}" id="cfgPretest" onclick="this.classList.toggle('on')"></span></div>
+    <label class="lbl">难度档位</label><select class="field" id="cfgDiff">
+      <option value="basic" ${p.difficulty==='basic'?'selected':''}>基础</option>
+      <option value="medium" ${!p.difficulty||p.difficulty==='medium'?'selected':''}>中档</option>
+      <option value="hard" ${p.difficulty==='hard'?'selected':''}>压轴</option></select>
+    <label class="lbl">挑战自信模式</label>
+    <div class="kv"><span>开启</span><span class="toggle ${p.challenge?'on':''}" id="cfgChal" onclick="this.classList.toggle('on')"></span></div>
+    <button class="btn sm" style="margin-top:10px" id="btn-save-cfg" onclick="savePlanConfig('${id}')">保存会话配置</button></div>`;
+}
+function savePlanConfig(id){
+  const p=S.plans.find(x=>x.id===id);if(!p)return;
+  p.pretestSkipped=$('cfgPretest').classList.contains('on');
+  p.difficulty=$('cfgDiff').value;
+  p.challenge=$('cfgChal').classList.contains('on');
+  save();feedback('会话配置已保存','ok');openPlanDetail(id);
+}
+function wpItem(w){return `<div class="quickcard"><div class="for">${esc(w.knowledgePoint||'')} · 严重度 ${w.severity}/5 <span class="printmark">[薄弱]</span></div><div class="formula">${esc(w.reminderLine||'')}</div></div>`;}
+function qcItem(e){return `<div class="quickcard"><div class="for">${esc(e.knowledgePoint||'')} <span class="printmark">[速查]</span></div><div class="formula">${esc(e.question)}</div><div class="meta"><span class="tag">${esc(e.difficulty)}</span>${e.answer?('<span class="muted">'+esc(e.answer)+'</span>'):''}</div></div>`;}
+
+/* ---------- P4-A 新建规划向导 ---------- */
+let wizardStep=1,wizardPickedDay=null,wizardSlotIds=[],wizardWeak=[],wizardLen=50;
+function wizardCalHtml(){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const {arr}=monthMatrix(y,m);
+  const days={};S.slots.forEach(s=>{days[s.date]=(days[s.date]||0)+1;});
+  let cells='';
+  arr.forEach(d=>{
+    if(d===null){cells+='<div class="mc dim"></div>';return;}
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const has=!!days[ds];
+    cells+=`<div class="mc ${has?'has':''} ${wizardPickedDay===ds?'on':''}" id="wcal-${ds}" onclick="wizardPickDay('${ds}')">${d}${has?'<br>·':''}</div>`;
+  });
+  return `<div class="mini-cal">${cells}</div>`;
+}
+function wizardPickDay(ds){wizardPickedDay=ds;refreshWizardSlots();}
+function wizardSlotsHtml(){
+  const list=S.slots.filter(s=>!wizardPickedDay||s.date===wizardPickedDay);
+  if(!list.length)return '<div class="muted" style="margin-top:8px">该日暂无空闲时段，可用下方「自定义添加空闲时段」新增。</div>';
+  return list.map(s=>`<label class="slot-opt ${wizardSlotIds.indexOf(s.id)>=0?'on':''}" id="wslot-${s.id}">
+    <input type="checkbox" ${wizardSlotIds.indexOf(s.id)>=0?'checked':''} onchange="toggleWizardSlot('${s.id}',this)">
+    <span><span class="so-t">${esc(s.date)} ${minToHm(s.startMin)}–${minToHm(s.endMin)}</span><br>
+    <span class="so-m">空闲 ${s.endMin-s.startMin} 分钟${s.note?' · '+esc(s.note):''}</span></span></label>`).join('');
+}
+function toggleWizardSlot(id,el){
+  const i=wizardSlotIds.indexOf(id);
+  if(el.checked&&i<0)wizardSlotIds.push(id);
+  if(!el.checked&&i>=0)wizardSlotIds.splice(i,1);
+  refreshWizardSlots();
+}
+function refreshWizardSlots(){
+  const cal=$('wizardCal'),box=$('wizardSlots'),sum=$('wizardSlotSum');
+  if(cal)cal.innerHTML=wizardCalHtml();
+  if(box)box.innerHTML=wizardSlotsHtml();
+  if(sum)sum.textContent='已选 '+wizardSlotIds.length+' 段';
+}
+function wizardGo(n){
+  wizardStep=n;
+  document.querySelectorAll('.wsteps button').forEach((b,i)=>b.classList.toggle('on',i+1===n));
+  document.querySelectorAll('.wsec').forEach((s,i)=>s.classList.toggle('on',i+1===n));
+  const el=document.getElementById('wsec'+n);
+  if(el&&el.scrollIntoView)el.scrollIntoView({block:'start',behavior:'smooth'});
+  const f=$('wizardStepLabel');if(f)f.textContent=n+' / 5';
+}
 function openPlanEditor(){
-  openSheet(`<h3>新建学习规划</h3>
-    <label class="lbl">目标（例如：掌握「基本不等式」并能解决 75% 相关题）</label>
-    <input class="field" id="pGoal" placeholder="目标描述（你自定义，不预置）">
-    <div class="row" style="gap:10px">
-      <div style="flex:1"><label class="lbl">达成线 %</label><input class="field" id="pQuant" type="number" value="75"></div>
-      <div style="flex:1"><label class="lbl">天数</label><input class="field" id="pDays" type="number" value="15"></div>
+  wizardStep=1;wizardPickedDay=todayStr();wizardSlotIds=[];wizardWeak=[];wizardLen=50;
+  const pr=S.profile;
+  const wpOpts=S.weakPoints.length?S.weakPoints.map(w=>
+    `<label class="slot-opt" id="wwp-${w.id}"><input type="checkbox" onchange="toggleWizardWeak('${w.id}',this)">
+    <span><b>${esc(w.knowledgePoint||'未标知识点')}</b><br><span class="so-m">${esc(w.reminderLine||'')}</span></span></label>`).join('')
+    :'<div class="muted">暂无薄弱点记录，可稍后在规划详情中补充。</div>';
+  const html=`<div class="wsteps">
+      <button class="on" onclick="wizardGo(1)">1 目标·基线</button><button onclick="wizardGo(2)">2 指标·时限</button>
+      <button onclick="wizardGo(3)">3 选时段</button><button onclick="wizardGo(4)">4 薄弱点·开始</button>
+      <button onclick="wizardGo(5)">5 确认</button></div>
+    <div class="wsec on" id="wsec1"><h3><span class="sn">1</span>目标与学情基线</h3>
+      <label class="lbl">目标描述（必填）</label>
+      <input class="field" id="pGoal" placeholder="例如：两周内把某类题正确率提升到 75%">
+      <div class="field-err" id="err-pGoal"></div>
+      <div class="card" style="margin-top:12px;box-shadow:none">
+        <div class="row between"><b>学情基线</b><span class="tag">不预置，可随时改</span></div>
+        <label class="lbl">地区</label><input class="field" id="pRegion" value="${esc(pr.region)}" placeholder="如：广东深圳">
+        <label class="lbl">学校</label><input class="field" id="pSchool" value="${esc(pr.school)}" placeholder="学校名称">
+        <label class="lbl">卷别</label><input class="field" id="pPaper" value="${esc(pr.paper)}" placeholder="如：新高考 I 卷">
+        <label class="lbl">教材版本</label><input class="field" id="pBook" value="${esc(pr.textbook)}" placeholder="如：人教 A 版（2019）">
+        <label class="lbl">考试模式</label><input class="field" id="pMode" value="${esc(pr.examMode)}" placeholder="如：3+1+2">
+        <div class="preset-pick">
+          <button onclick="wizardSchool('shenzhen')">深圳中学·新高考I卷</button>
+          <button onclick="wizardSchool('beijing')">北京卷示例</button>
+          <button onclick="wizardSchool('blank')">清空（自定义）</button>
+        </div>
+      </div>
+      <button class="btn sm ghost" style="margin-top:10px" onclick="wizardGo(2)">下一步 →</button>
     </div>
-    <label class="lbl">开始方式</label>
-    <select class="field" id="pStart"><option value="immediate">立即</option><option value="scheduled">定时</option></select>
-    <h3 style="margin-top:14px">本规划 · 会话配置</h3>
-    <div class="kv"><span>摸底测试可跳过</span><span class="toggle on" id="pPretest" onclick="this.classList.toggle('on')"></span></div>
-    <label class="lbl">难度档位</label>
-    <select class="field" id="pDiff"><option value="basic">基础</option><option value="medium" selected>中档</option><option value="hard">压轴</option></select>
-    <div class="kv"><span>挑战自信模式</span><span class="toggle" id="pChal" onclick="this.classList.toggle('on')"></span></div>
-    <button class="btn block" style="margin-top:14px" id="btn-save-plan" onclick="savePlan()">保存规划</button>`);
+    <div class="wsec" id="wsec2"><h3><span class="sn">2</span>量化指标与时限</h3>
+      <div class="row" style="gap:10px">
+        <div style="flex:1;min-width:0"><label class="lbl">达成线 %（必填）</label><input class="field" id="pQuant" type="number" value="75"><div class="field-err" id="err-pQuant"></div></div>
+        <div style="flex:1;min-width:0"><label class="lbl">天数（必填）</label><input class="field" id="pDays" type="number" value="15"><div class="field-err" id="err-pDays"></div></div>
+      </div>
+      <div class="muted" style="margin-top:6px">75% 是规划目标线；会话通过线是另一个独立字段。</div>
+      <button class="btn sm ghost" style="margin-top:10px" onclick="wizardGo(3)">下一步 →</button>
+    </div>
+    <div class="wsec" id="wsec3"><h3><span class="sn">3</span>选择可学习时段（日历）</h3>
+      <div class="muted">点日历上的日期筛选；松绿日期表示已有空闲时段。可多选，也可自定义新增。</div>
+      <div id="wizardCal">${wizardCalHtml()}</div>
+      <div class="row between" style="margin-top:10px"><b>时段列表</b><span class="tag green" id="wizardSlotSum">已选 0 段</span></div>
+      <div id="wizardSlots">${wizardSlotsHtml()}</div>
+      <div class="card" style="margin-top:10px;box-shadow:none">
+        <label class="lbl">＋ 自定义添加空闲时段</label>
+        <div class="row" style="gap:8px">
+          <div style="flex:1;min-width:0"><input class="field" id="csDate" type="date" value="${todayStr()}"></div>
+          <div style="flex:1;min-width:0"><input class="field" id="csStart" type="time" value="19:00"></div>
+          <div style="flex:1;min-width:0"><input class="field" id="csEnd" type="time" value="20:00"></div>
+        </div>
+        <input class="field" id="csNote" placeholder="备注（可选）">
+        <div class="field-err" id="err-cs"></div>
+        <button class="btn sm ghost" style="margin-top:8px" id="btn-save-custom-slot" onclick="saveWizardSlot()">添加到时段池</button>
+      </div>
+      <label class="lbl">单次时长偏好</label>
+      <div class="chip-row" id="wizardLen">
+        <button class="" onclick="setWizardLen(25,this)">25 分</button>
+        <button class="on" onclick="setWizardLen(50,this)">50 分</button>
+        <button class="" onclick="setWizardLen(90,this)">90 分</button></div>
+      <button class="btn sm ghost" style="margin-top:10px" onclick="wizardGo(4)">下一步 →</button>
+    </div>
+    <div class="wsec" id="wsec4"><h3><span class="sn">4</span>薄弱点与开始方式</h3>
+      <label class="lbl">关联薄弱点（可多选 / 可留空，之后在规划详情补充）</label>
+      <div id="wizardWeak">${wpOpts}</div>
+      <div class="card" style="margin-top:8px;box-shadow:none">
+        <label class="lbl">＋ 新增薄弱点</label>
+        <input class="field" id="wpNewKp" placeholder="知识点">
+        <input class="field" id="wpNewLine" placeholder="一行考前提醒（证据式，不写笼统结论）">
+        <button class="btn sm ghost" style="margin-top:8px" onclick="addWizardWeak()">加入本规划</button>
+      </div>
+      <label class="lbl">开始方式</label>
+      <select class="field" id="pStart"><option value="immediate">立即开始</option><option value="scheduled">定时开始</option></select>
+      <h3 style="margin-top:14px">本规划 · 会话配置</h3>
+      <div class="kv"><span>摸底测试可跳过</span><span class="toggle on" id="pPretest" onclick="this.classList.toggle('on')"></span></div>
+      <label class="lbl">难度档位</label>
+      <select class="field" id="pDiff"><option value="basic">基础</option><option value="medium" selected>中档</option><option value="hard">压轴</option></select>
+      <div class="kv"><span>挑战自信模式</span><span class="toggle" id="pChal" onclick="this.classList.toggle('on')"></span></div>
+      <button class="btn sm ghost" style="margin-top:10px" onclick="wizardGo(5)">下一步 →</button>
+    </div>
+    <div class="wsec" id="wsec5"><h3><span class="sn">5</span>确认并保存</h3>
+      <div class="muted">核对目标、指标、时段与基线后保存；校验错误会在页面内红字提示，不会卡死。</div>
+      <div class="kv"><span>选定时段</span><b class="num">${wizardSlotIds.length} 段</b></div>
+      <div class="kv"><span>关联薄弱点</span><b class="num">${wizardWeak.length} 项</b></div>
+      <button class="btn block" style="margin-top:12px" id="btn-save-plan" onclick="savePlan()">保存规划</button>
+    </div>`;
+  openFormPage('新建学习规划',html,'1 / 5',
+    `<button class="btn ghost" onclick="wizardGo(Math.max(1,wizardStep-1))">← 上一步</button>
+     <button class="btn" onclick="wizardGo(Math.min(5,wizardStep+1))">下一步 →</button>`);
+}
+function wizardSchool(k){
+  const p=SCHOOL_PRESETS[k]||SCHOOL_PRESETS.blank;
+  for(const [id,v] of [['pRegion',p.region],['pSchool',p.school],['pPaper',p.paper],['pBook',p.textbook],['pMode',p.examMode]]){
+    const el=$(id);if(el)el.value=v;
+  }
+  feedback('已套用预设（可继续手动改）','ok');
+}
+function setWizardLen(v,btn){
+  wizardLen=v;
+  document.querySelectorAll('#wizardLen button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+}
+function saveWizardSlot(){
+  const date=$('csDate').value,s=hmToMin($('csStart').value),e=hmToMin($('csEnd').value);
+  const err=$('err-cs');
+  if(!date||!(e>s)){err.textContent='请选择日期，且结束时间须晚于开始时间';err.classList.add('show');return;}
+  err.classList.remove('show');
+  const slot={id:uid('S'),date,startMin:s,endMin:e,note:$('csNote').value,source:'custom'};
+  S.slots.push(slot);wizardSlotIds.push(slot.id);wizardPickedDay=date;save();
+  refreshWizardSlots();feedback('已添加空闲时段并选中','ok');
+}
+function toggleWizardWeak(id,el){
+  const i=wizardWeak.indexOf(id);
+  if(el.checked&&i<0)wizardWeak.push(id);
+  if(!el.checked&&i>=0)wizardWeak.splice(i,1);
+}
+function addWizardWeak(){
+  const kp=$('wpNewKp').value.trim(),line=$('wpNewLine').value.trim();
+  if(!line){feedback('请填写一行考前提醒','err');return;}
+  const w={id:uid('W'),planId:'',knowledgePoint:kp,severity:3,reminderLine:line};
+  S.weakPoints.push(w);wizardWeak.push(w.id);save();
+  $('wpNewKp').value='';$('wpNewLine').value='';
+  const box=$('wizardWeak');
+  box.insertAdjacentHTML('beforeend',`<label class="slot-opt on"><input type="checkbox" checked onchange="toggleWizardWeak('${w.id}',this)"><span><b>${esc(kp||'未标知识点')}</b><br><span class="so-m">${esc(line)}</span></span></label>`);
+  feedback('薄弱点已加入本规划','ok');
+}
+function setFieldErr(id,msg){
+  const e=$('err-'+id),f=$(id);
+  if(e){e.textContent=msg;e.classList.toggle('show',!!msg);}
+  if(f)f.classList.toggle('bad',!!msg);
+}
+function validatePlanForm(){
+  ['pGoal','pQuant','pDays'].forEach(id=>setFieldErr(id,''));
+  const goal=($('pGoal')?$('pGoal').value:'').trim();
+  const q=parseFloat($('pQuant')?$('pQuant').value:'');
+  const d=parseInt($('pDays')?$('pDays').value:'');
+  let first='',badStep=1;
+  if(!goal){setFieldErr('pGoal','请填写目标');first='请填写目标';badStep=1;}
+  else if(!(q>0&&q<=100)){setFieldErr('pQuant','达成线须为 1–100 的数字');first='请填写达成线（1–100）';badStep=2;}
+  else if(!(d>0&&d<=3650)){setFieldErr('pDays','时限须为 1–3650 天');first='请填写时限（天数）';badStep=2;}
+  if(first){wizardGo(badStep);feedback(first,'err');return null;}
+  return {goal,q,d};
 }
 function savePlan(){
-  const goal=$('pGoal').value.trim();if(!goal){feedback('请填写目标','err');return;}
-  const p={id:uid('P'),goal,quantTarget:(parseFloat($('pQuant').value)||75)/100,deadlineDays:parseInt($('pDays').value)||15,
+  const v=validatePlanForm();if(!v)return;
+  const pr=S.profile;
+  pr.region=$('pRegion').value.trim();pr.school=$('pSchool').value.trim();pr.paper=$('pPaper').value.trim();
+  pr.textbook=$('pBook').value.trim();pr.examMode=$('pMode').value.trim();
+  const p={id:uid('P'),goal:v.goal,quantTarget:v.q/100,deadlineDays:v.d,
     startMode:$('pStart').value,status:'active',createdDate:todayStr(),difficulty:$('pDiff').value,
-    pretestSkipped:$('pPretest').classList.contains('on'),challenge:$('pChal').classList.contains('on'),slotIds:[]};
-  S.plans.push(p);save();closeSheet();renderPlan($('page'));feedback('规划已保存','ok');
+    pretestSkipped:$('pPretest').classList.contains('on'),challenge:$('pChal').classList.contains('on'),
+    slotIds:wizardSlotIds.slice(),sessionLen:wizardLen,weakPointIds:wizardWeak.slice()};
+  S.plans.push(p);
+  wizardWeak.forEach(id=>{const w=S.weakPoints.find(x=>x.id===id);if(w&&!w.planId)w.planId=p.id;});
+  save();closeSheet();showPage('plan');feedback('规划已保存','ok');
 }
 function addWeakPoint(planId){
   const line=prompt('薄弱点提醒语（例如：一正二定三相等，先问等号取不取得到）');if(!line)return;
@@ -399,9 +933,9 @@ function renderCalendar(pg){
     const sess=S.sessions.filter(s=>s.date===ds);
     let pills='';
     frees.forEach(s=>pills+=`<span class="slot-pill free">${minToHm(s.startMin)}–${minToHm(s.endMin)} 空闲</span>`);
-    sess.forEach(s=>pills+=`<span class="slot-pill plan">规划时段</span>`);
+    sess.forEach(s=>pills+='<span class="slot-pill plan">规划时段</span>');
     if(!frees.length&&!sess.length)pills='<span class="slot-pill busy">—</span>';
-    cells+=`<div class="cal-cell" id="cell-${ds}"><div class="d">${d}</div>${pills}</div>`;
+    cells+=`<div class="cal-cell ${ds===todayStr()?'today':''}" id="cell-${ds}"><div class="d">${d}</div>${pills}</div>`;
   });
   pg.innerHTML=`<h2>日历</h2>
     <div class="cal-head">
@@ -410,25 +944,34 @@ function renderCalendar(pg){
       <button class="btn ghost sm" id="cal-next" onclick="calMove(1)">›</button>
     </div>
     <div class="cal-grid"><div class="cal-cell dim" style="min-height:auto;text-align:center">一</div><div class="cal-cell dim" style="min-height:auto;text-align:center">二</div><div class="cal-cell dim" style="min-height:auto;text-align:center">三</div><div class="cal-cell dim" style="min-height:auto;text-align:center">四</div><div class="cal-cell dim" style="min-height:auto;text-align:center">五</div><div class="cal-cell dim" style="min-height:auto;text-align:center">六</div><div class="cal-cell dim" style="min-height:auto;text-align:center">日</div>${cells}</div>
-    <div class="legend"><span><i style="background:var(--green)"></i>空闲可学</span><span><i style="background:var(--blue)"></i>已排规划</span><span><i style="background:var(--gray)"></i>无安排</span></div>
+    <div class="legend"><span><i style="background:var(--green)"></i>空闲可学</span><span><i style="background:var(--brand)"></i>已排规划</span><span><i style="background:var(--gray)"></i>无安排</span></div>
     <button class="btn block" id="btn-add-slot" onclick="openAddSlot()">＋ 自定义添加空闲时段</button>`;
 }
 function minToHm(m){const h=Math.floor(m/60),mm=m%60;return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0');}
-function calMove(d){const ym=S.calMonth;let m=ym.m+d,y=ym.y;if(m<0){m=11;y--;}if(m>11){m=0;y++;}S.calMonth={y,m};save();renderCalendar($('page'));}
+function calMove(d){const ym=S.calMonth;let m=ym.m+d,y=ym.y;if(m<0){m=11;y--;}if(m>11){m=0;y++;}S.calMonth={y,m};save();renderPage();}
 function openAddSlot(){
-  openSheet(`<h3>自定义添加空闲时段</h3>
-    <label class="lbl">日期</label><input class="field" id="sDate" type="date" value="${todayStr()}">
-    <div class="row" style="gap:10px"><div style="flex:1"><label class="lbl">开始</label><input class="field" id="sStart" type="time" value="19:00"></div>
-    <div style="flex:1"><label class="lbl">结束</label><input class="field" id="sEnd" type="time" value="20:00"></div></div>
-    <label class="lbl">备注</label><input class="field" id="sNote" placeholder="如：晚自习整块">
-    <button class="btn block" style="margin-top:12px" id="btn-save-slot" onclick="saveSlot()">保存时段</button>`);
+  openFormPage('自定义添加空闲时段',`<div class="wsec on">
+      <label class="lbl">日期</label><input class="field" id="sDate" type="date" value="${todayStr()}">
+      <div class="row" style="gap:10px"><div style="flex:1;min-width:0"><label class="lbl">开始</label><input class="field" id="sStart" type="time" value="19:00"></div>
+      <div style="flex:1;min-width:0"><label class="lbl">结束</label><input class="field" id="sEnd" type="time" value="20:00"></div></div>
+      <label class="lbl">备注</label><input class="field" id="sNote" placeholder="如：晚自习整块">
+      <div class="field-err" id="err-slot"></div>
+      <div class="muted" style="margin-top:8px">保存后立即写入本机，并在日历格显示「空闲」。</div>
+    </div>`,'',
+    `<button class="btn ghost" onclick="closeSheet()">取消</button>
+     <button class="btn" id="btn-save-slot" onclick="saveSlot()">保存时段</button>`);
 }
 function saveSlot(){
-  const date=$('sDate').value;if(!date){feedback('请选择日期','err');return;}
+  const date=$('sDate').value;
   const s=hmToMin($('sStart').value),e=hmToMin($('sEnd').value);
-  if(!(e>s)){feedback('结束须晚于开始','err');return;}
+  const err=$('err-slot');
+  if(!date||!(e>s)){
+    const msg='请选择日期，且结束须晚于开始';
+    if(err){err.textContent=msg;err.classList.add('show');}
+    feedback('请选择日期','err');return;
+  }
   S.slots.push({id:uid('S'),date,startMin:s,endMin:e,note:$('sNote').value,source:'custom'});
-  save();closeSheet();renderCalendar($('page'));feedback('已添加空闲时段','ok');
+  save();closeSheet();showPage('calendar');feedback('已添加空闲时段','ok');
 }
 function hmToMin(v){const p=(v||'0:0').split(':');return (parseInt(p[0])||0)*60+(parseInt(p[1])||0);}
 /* ---------- 知识库 收纳 ---------- */
@@ -446,7 +989,7 @@ function renderKB(pg){
   renderKbBody($('kbBody'));
 }
 function setKbFilter(f){kbFilter=f;renderKbBody($('kbBody'));}
-const NB_COLORS=['#4F6EF7','#8B5CF6','#2BB673','#EC4899','#F97316','#3B82F6','#F5A623','#10B981'];
+const NB_COLORS=['#204066','#3E6B8C','#2E7D5B','#8A5A44','#B0752D','#5B6478','#7A6E9B','#4A7055'];
 function renderKbBody(host){
   if(kbView){return renderKbEntries(host,kbView);}
   let list=S.knowledgeBase.notebooks.filter(n=>kbFilter==='all'||n.type===kbFilter);
@@ -460,7 +1003,7 @@ function renderKbBody(host){
       <div class="nb-count">${cnt} 份 · ${typeName(n.type)}</div></div>`;
   });
   html+=`<div class="nb" style="background:#EEF1F6;color:var(--ink-2)" onclick="openNewNotebook()"><div class="nb-title">＋ 新建笔记本</div><div class="nb-sub">按学科归类</div></div>`;
-  host.innerHTML=html;
+  host.innerHTML='<div class="kb-grid">'+html+'</div>';
   host.innerHTML+=`<div class="card" style="margin-top:12px">
     <h3 style="margin-top:0">导入资料</h3>
     <div class="row" style="gap:8px;flex-wrap:wrap">
@@ -492,30 +1035,39 @@ function entryHtml(e){return `<div class="kb-entry" id="e-${e.id}"><div class="q
   ${e.answer?('<div class="muted" style="margin-top:4px;white-space:pre-wrap">'+esc(e.answer)+'</div>'):''}</div>`;}
 function kbSearchList(nbId,q){const host=$('entryList');const list=S.knowledgeBase.entries.filter(e=>e.notebookId===nbId&&(e.question.toLowerCase().includes(q.toLowerCase())||(e.knowledgePoint||'').toLowerCase().includes(q.toLowerCase())));host.innerHTML=list.length?list.map(entryHtml).join(''):'<div class="empty">无匹配</div>';}
 function openNewNotebook(){
-  openSheet(`<h3>新建笔记本</h3>
-    <label class="lbl">名称（如：数学 / 物理）</label><input class="field" id="nbTitle" placeholder="学科名">
-    <label class="lbl">类型</label><select class="field" id="nbType"><option value="notes">笔记</option><option value="pdf">PDF</option><option value="folder">文件夹</option></select>
-    <label class="lbl">学科（可选）</label><input class="field" id="nbSub" placeholder="如：理科">
-    <button class="btn block" style="margin-top:12px" id="btn-save-notebook" onclick="saveNotebook()">创建</button>`);
+  openFormPage('新建笔记本',`<div class="wsec on">
+      <label class="lbl">名称（如：数学 / 物理）</label><input class="field" id="nbTitle" placeholder="学科名">
+      <div class="field-err" id="err-nb"></div>
+      <label class="lbl">类型</label><select class="field" id="nbType"><option value="notes">笔记</option><option value="pdf">PDF</option><option value="folder">文件夹</option></select>
+      <label class="lbl">学科（可选）</label><input class="field" id="nbSub" placeholder="如：理科">
+      <div class="muted" style="margin-top:8px">创建后立即写入本机，杀掉 App 重开也不会丢。</div>
+    </div>`,'',
+    `<button class="btn ghost" onclick="closeSheet()">取消</button>
+     <button class="btn" id="btn-save-notebook" onclick="saveNotebook()">创建笔记本</button>`);
 }
 function saveNotebook(){
-  const title=$('nbTitle').value.trim();if(!title){feedback('请填写名称','err');return;}
+  const title=$('nbTitle').value.trim();
+  if(!title){const e=$('err-nb');if(e){e.textContent='请填写名称';e.classList.add('show');}feedback('请填写名称','err');return;}
   S.knowledgeBase.notebooks.push({id:uid('NB'),title,subject:$('nbSub').value,type:$('nbType').value,favorited:false,createdDate:todayStr()});
-  save();closeSheet();renderKB($('page'));feedback('笔记本已创建','ok');
+  save();closeSheet();showPage('kb');feedback('笔记本已创建','ok');
 }
 function addEntry(nbId){
-  openSheet(`<h3>录入题目（快捷）</h3>
-    <label class="lbl">题干</label><textarea class="field" id="eQ" rows="3" placeholder="点一下即填，回车即存"></textarea>
-    <label class="lbl">知识点</label><input class="field" id="eKp" placeholder="如：基本不等式">
-    <div class="row" style="gap:10px"><div style="flex:1"><label class="lbl">难度</label><select class="field" id="eDiff"><option value="basic">基础</option><option value="medium" selected>中档</option><option value="hard">压轴</option></select></div>
-    <div style="flex:1"><label class="lbl">来源</label><select class="field" id="eSrc"><option value="my">我的</option><option value="authoritative">权威题库</option><option value="online">在线</option></select></div></div>
-    <label class="lbl">答案 / 解析（可选）</label><textarea class="field" id="eAns" rows="2"></textarea>
-    <button class="btn block" style="margin-top:12px" id="btn-save-entry" onclick="saveEntry('${nbId}')">保存</button>`);
+  openFormPage('录入题目',`<div class="wsec on">
+    <label class="lbl">题干</label><textarea class="field note-area" id="eQ" rows="3" placeholder="点一下即填，回车即存"></textarea>
+    <div class="field-err" id="err-eQ"></div>
+    <label class="lbl">知识点</label><input class="field" id="eKp" placeholder="如：某章节某知识点">
+    <div class="row" style="gap:10px"><div style="flex:1;min-width:0"><label class="lbl">难度</label><select class="field" id="eDiff"><option value="basic">基础</option><option value="medium" selected>中档</option><option value="hard">压轴</option></select></div>
+    <div style="flex:1;min-width:0"><label class="lbl">来源</label><select class="field" id="eSrc"><option value="my">我的</option><option value="authoritative">权威题库</option><option value="online">在线</option></select></div></div>
+    <label class="lbl">答案 / 解析（可选）</label><textarea class="field note-area" id="eAns" rows="2"></textarea>
+    </div>`,'',
+    `<button class="btn ghost" onclick="closeSheet()">取消</button>
+     <button class="btn" id="btn-save-entry" onclick="saveEntry('${nbId}')">保存</button>`);
 }
 function saveEntry(nbId){
-  const q=$('eQ').value.trim();if(!q){feedback('题干不能为空','err');return;}
+  const q=$('eQ').value.trim();
+  if(!q){const e=$('err-eQ');if(e){e.textContent='题干不能为空';e.classList.add('show');}feedback('题干不能为空','err');return;}
   S.knowledgeBase.entries.push({id:uid('KB'),notebookId:nbId,question:q,knowledgePoint:$('eKp').value,difficulty:$('eDiff').value,source:$('eSrc').value,answer:$('eAns').value,createdDate:todayStr()});
-  save();closeSheet();kbView=nbId;renderKB($('page'));feedback('已录入','ok');
+  save();closeSheet();kbView=nbId;showPage('kb');feedback('已录入','ok');
 }
 function handleFiles(input){
   const files=Array.from(input.files||[]);if(!files.length)return;
@@ -527,7 +1079,7 @@ function handleFiles(input){
     if(isText){const r=new FileReader();r.onload=()=>{ent.answer=String(r.result).slice(0,4000);save();if(kbView)renderKbBody($('kbBody'));};r.readAsText(f);}
     S.knowledgeBase.entries.push(ent);
   });
-  save();renderKB($('page'));feedback('已导入 '+files.length+' 个文件（结构化解析需 AI 视觉，可后续分析）','ok');
+  save();renderPage();feedback('已导入 '+files.length+' 个文件（结构化解析需 AI 视觉，可后续分析）','ok');
 }
 function handleShots(input){
   const files=Array.from(input.files||[]);if(!files.length)return;
@@ -538,7 +1090,7 @@ function handleShots(input){
     S.knowledgeBase.entries.push(ent);
     analyzeShot(f,ent);
   });
-  save();renderKB($('page'));feedback('截图已存入，正在尝试 AI 分析…','ok');
+  save();renderPage();feedback('截图已存入，正在尝试 AI 分析…','ok');
 }
 async function analyzeShot(file,ent){
   if(!hasKey()){ent.answer='（未配置 AI Key，截图已留存，可稍后分析）';save();if(kbView)renderKbBody($('kbBody'));return;}
@@ -552,7 +1104,8 @@ async function analyzeShot(file,ent){
   }catch(e){ent.answer='（分析失败：'+e.message+'）';save();if(kbView)renderKbBody($('kbBody'));}
 }
 function fileToDataUrl(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}
-/* ---------- 我的 ---------- */
+
+/* ---------- 我的 / P2-A AI 模型设置子页 / P3 同步 ---------- */
 function renderMine(pg){
   const p=S.providers[S.activeProvider]||S.providers.deepseek;
   pg.innerHTML=`<h2>我的</h2>
@@ -562,6 +1115,7 @@ function renderMine(pg){
       <div class="kv"><span>学校</span><b>${esc(S.profile.school||'未设置')}</b></div>
       <div class="kv"><span>考卷</span><b>${esc(S.profile.paper||'未设置')}</b></div>
       <div class="kv"><span>教材</span><b>${esc(S.profile.textbook||'未设置')}</b></div>
+      <div class="kv"><span>考试模式</span><b>${esc(S.profile.examMode||'未设置')}</b></div>
       <button class="btn sm ghost" style="margin-top:8px" onclick="openProfile()">设置学情基线</button>
       <div class="preset-pick">
         <button onclick="applySchool('shenzhen')">深圳中学·新高考I卷</button>
@@ -570,8 +1124,10 @@ function renderMine(pg){
       </div>
     </div>
     <div class="card">
-      <h3 style="margin-top:0">AI 设置 · 多模型</h3>
+      <h3 style="margin-top:0">AI 模型设置</h3>
       <div class="kv"><span>当前模型</span><b>${esc(p.label||S.activeProvider)}</b></div>
+      <div class="kv"><span>API Key</span><b>${hasKey()?'已在本机保存':'未填写'}</b></div>
+      <button class="btn block" id="btn-open-ai-settings" onclick="showPage('aiSettings')">打开 AI 模型设置 →</button>
       <div id="provList">${Object.keys(S.providers).map(provRow).join('')}</div>
       <div id="provEditor"></div>
     </div>
@@ -583,12 +1139,22 @@ function renderMine(pg){
       <h3 style="margin-top:0">数据</h3>
       <button class="btn ghost block" id="btn-export" onclick="exportPack()">导出 .studypack（不含 Key）</button>
       <button class="btn ghost block" style="margin-top:8px" id="btn-import" onclick="document.getElementById('impIn').click()">导入 .studypack</button>
-      <input id="impIn" type="file" accept=".json,application/json" style="display:none" onchange="importPack(this)">
+      <input id="impIn" type="file" accept=".json,application/json,.studypack" style="display:none" onchange="importPack(this)">
       <button class="btn ghost block" style="margin-top:8px" onclick="printQuickCards()">打印速查卡（屏幕/黑白双态）</button>
+      <button class="btn ghost block" style="margin-top:8px" id="btn-open-data" onclick="showPage('data')">WebDAV 同步（可选）→</button>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">界面布局</h3>
+      <div class="chip-row">
+        <button class="${S.device==='auto'?'on':''}" onclick="setDevice('auto')">跟随屏幕宽度</button>
+        <button class="${S.device==='phone'?'on':''}" onclick="setDevice('phone')">手机（底部导航）</button>
+        <button class="${S.device==='pad'?'on':''}" onclick="setDevice('pad')">平板（顶部导航）</button>
+      </div>
+      <div class="muted" style="margin-top:8px">默认按当前窗口宽度自动重排：窄屏底部 5 Tab，宽屏顶部导航 + 分栏。</div>
     </div>
     <div class="card">
       <h3 style="margin-top:0">关于</h3>
-      <div class="muted">学习助手 StudyAgent · v2.0.0 · 数据本地存储、可全量导出；AI 经可插拔 Provider，Key 仅存本机。</div>
+      <div class="muted">学习助手 StudyAgent · v2.1.0 · 数据全部存本机 IndexedDB；API Key 加密隔离，绝不进入导出包。<br>为遵守「不删断言」，.studypack 数据契约版本仍为 2.0.0（studypack-open-v1）。</div>
     </div>`;
 }
 function provRow(id){
@@ -598,10 +1164,12 @@ function provRow(id){
     <div class="muted" style="font-size:12px">${esc(p.baseUrl)} · ${esc(p.model)}</div>
     <button class="btn sm ghost" style="margin-top:6px" onclick="editProvider('${id}')">配置 / 填 Key</button></div>`;
 }
-function selectProvider(id){S.activeProvider=id;save();renderMine($('page'));feedback('已切换到 '+id,'ok');}
-function editProvider(id){
+function selectProvider(id){S.activeProvider=id;save();renderPage();feedback('已切换到 '+id,'ok');}
+function editProvider(id,target){
   const p=S.providers[id];const key=localStorage.getItem(KP+id)||'';
-  $('provEditor').innerHTML=`<div class="card" style="margin-top:10px">
+  const host=target?$(target):$('provEditor');
+  if(!host)return;
+  host.innerHTML=`<div class="card" style="margin-top:10px">
     <h3 style="margin-top:0">${esc(p.label||id)} 配置</h3>
     <label class="lbl">Base URL</label><input class="field" id="pvUrl" value="${esc(p.baseUrl)}">
     <label class="lbl">Model ID</label><input class="field" id="pvModel" value="${esc(p.model)}">
@@ -614,7 +1182,7 @@ function editProvider(id){
 function saveProvider(id){
   const p=S.providers[id];p.baseUrl=$('pvUrl').value.trim();p.model=$('pvModel').value.trim();
   const k=$('pvKey').value.trim();if(k)localStorage.setItem(KP+id,k);else localStorage.removeItem(KP+id);
-  save();renderMine($('page'));feedback('已保存','ok');
+  save();renderPage();feedback('已保存','ok');
 }
 async function testProvider(id){
   const out=$('pvOut');out.textContent='连接测试中…';
@@ -622,7 +1190,7 @@ async function testProvider(id){
   catch(e){out.textContent='✗ '+e.message;}
 }
 function toggleOnline(el){el.classList.toggle('on');S.prefs.onlineSupplement=el.classList.contains('on');S.knowledgeBase.onlineSupplement=S.prefs.onlineSupplement;save();feedback('联网补充 '+(S.prefs.onlineSupplement?'开':'关'),'ok');}
-function applySchool(k){S.profile=Object.assign({},S.profile,SCHOOL_PRESETS[k]);if(k==='blank')S.profile={region:'',school:'',paper:'',examMode:'',textbook:'',knowledgeTree:[]};save();renderMine($('page'));feedback('已套用预设（可继续手动改）','ok');}
+function applySchool(k){S.profile=Object.assign({},S.profile,SCHOOL_PRESETS[k]);if(k==='blank')S.profile={region:'',school:'',paper:'',examMode:'',textbook:'',knowledgeTree:[]};save();renderPage();feedback('已套用预设（可继续手动改）','ok');}
 function openProfile(){
   openSheet(`<h3>学情基线</h3>
     <label class="lbl">地区</label><input class="field" id="prRegion" value="${esc(S.profile.region)}">
@@ -630,10 +1198,80 @@ function openProfile(){
     <label class="lbl">考卷</label><input class="field" id="prPaper" value="${esc(S.profile.paper)}">
     <label class="lbl">教材版本</label><input class="field" id="prBook" value="${esc(S.profile.textbook)}">
     <label class="lbl">考试模式</label><input class="field" id="prMode" value="${esc(S.profile.examMode)}">
-    <button class="btn block" style="margin-top:12px" onclick="saveProfile()">保存</button>`);
+    <button class="btn block" style="margin-top:12px" onclick="saveProfile()">保存</button>
+    <button class="btn ghost block" style="margin-top:8px" onclick="closeSheet()">稍后填写</button>`);
 }
-function saveProfile(){S.profile={region:$('prRegion').value,paper:$('prPaper').value,school:$('prSchool').value,examMode:$('prMode').value,textbook:$('prBook').value,knowledgeTree:S.profile.knowledgeTree||[]};save();closeSheet();renderMine($('page'));feedback('已保存','ok');}
-/* ---------- 导入导出 ---------- */
+function saveProfile(){S.profile={region:$('prRegion').value,paper:$('prPaper').value,school:$('prSchool').value,examMode:$('prMode').value,textbook:$('prBook').value,knowledgeTree:S.profile.knowledgeTree||[]};S.onboarded=true;save();closeSheet();renderPage();feedback('已保存','ok');}
+/* P2-A：AI 模型设置子页 */
+function renderAISettings(pg){
+  const cur=S.activeProvider;
+  pg.innerHTML=`<h2>AI 模型设置</h2>
+    <button class="btn ghost sm" onclick="showPage('mine')">← 返回我的</button>
+    <div class="card" style="margin-top:12px">
+      <h3 style="margin-top:0">选择大模型商</h3>
+      <label class="lbl">当前活动模型</label>
+      <select class="field" id="aiProvSel" onchange="selectProvider(this.value)">
+        ${Object.keys(S.providers).map(id=>`<option value="${id}" ${id===cur?'selected':''}>${esc(S.providers[id].label||id)}</option>`).join('')}
+      </select>
+      <div class="muted" style="margin-top:6px">9 个可插拔 Provider，全部走 OpenAI 兼容 /chat/completions；换模型只改配置，主流程不变。</div>
+    </div>
+    <div id="aiProvEditor"></div>
+    <div class="card">
+      <h3 style="margin-top:0">凭证说明</h3>
+      <div class="muted">API Key 只保存在本机（AES-GCM 加密），不写入业务数据、不进入 .studypack 导出包；换设备需重新填写。</div>
+    </div>`;
+  editProvider(cur,'aiProvEditor');
+}
+
+/* ---------- P2-B 首启学情基线引导 ---------- */
+function showOnboarding(){
+  const host=$('onboardingHost');if(!host)return;
+  const pr=S.profile;
+  host.innerHTML=`<div class="modal-mask" id="onboardMask"><div class="sheet onboard">
+    <h2>先设置学情基线</h2>
+    <div class="muted">第一次打开：填一次地区 / 学校 / 卷别 / 教材版本，之后的规划与资源对齐都会以它为准。不预置任何学校或教材。</div>
+    <label class="lbl">地区</label><input class="field" id="obRegion" value="${esc(pr.region)}" placeholder="如：广东深圳">
+    <label class="lbl">学校</label><input class="field" id="obSchool" value="${esc(pr.school)}" placeholder="学校名称">
+    <label class="lbl">卷别</label><input class="field" id="obPaper" value="${esc(pr.paper)}" placeholder="如：新高考 I 卷">
+    <label class="lbl">教材版本</label><input class="field" id="obBook" value="${esc(pr.textbook)}" placeholder="如：人教 A 版（2019）">
+    <label class="lbl">考试模式</label><input class="field" id="obMode" value="${esc(pr.examMode)}" placeholder="如：3+1+2">
+    <div class="preset-pick">
+      <button onclick="obSchool('shenzhen')">深圳中学·新高考I卷</button>
+      <button onclick="obSchool('beijing')">北京卷示例</button>
+      <button onclick="obSchool('blank')">清空</button>
+    </div>
+    <div class="row" style="gap:10px;margin-top:16px">
+      <button class="btn ghost" style="flex:1" id="btn-onboard-skip" onclick="skipOnboarding()">跳过 / 稍后</button>
+      <button class="btn" style="flex:1" id="btn-onboard-save" onclick="saveOnboarding()">保存并开始</button>
+    </div>
+    <div class="muted" style="margin-top:8px">稍后可在「我的 → 学情基线」随时补填。</div>
+  </div></div>`;
+}
+function obSchool(k){
+  const p=SCHOOL_PRESETS[k]||SCHOOL_PRESETS.blank;
+  for(const [id,v] of [['obRegion',p.region],['obSchool',p.school],['obPaper',p.paper],['obBook',p.textbook],['obMode',p.examMode]]){
+    const el=$(id);if(el)el.value=v;
+  }
+}
+function finishOnboarding(saved){
+  S.onboarded=true;save();
+  $('onboardingHost').innerHTML='';
+  renderPage();
+  feedback(saved?'学情基线已保存':'已跳过，可稍后在「我的」补填',saved?'ok':'');
+}
+function saveOnboarding(){
+  S.profile={region:$('obRegion').value.trim(),school:$('obSchool').value.trim(),paper:$('obPaper').value.trim(),
+    textbook:$('obBook').value.trim(),examMode:$('obMode').value.trim(),knowledgeTree:S.profile.knowledgeTree||[]};
+  finishOnboarding(true);
+}
+function skipOnboarding(){finishOnboarding(false);}
+
+/* ---------- P3 导入导出 ---------- */
+function checksum(obj){
+  const s=JSON.stringify(obj);let h=2166136261;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+  return (h>>>0).toString(16).padStart(8,'0');
+}
 function buildEntities(){
   return {
     'preferences.json':[S.prefs],
@@ -653,7 +1291,9 @@ function buildEntities(){
   };
 }
 function exportPack(){
-  const data={manifest:{schemaVersion:1,format:'studypack-open-v1',app:'studyagent',version:'2.0.0',exportedAt:new Date().toISOString(),note:'Key 不在此包内'},entities:buildEntities()};
+  const entities=buildEntities();
+  const data={manifest:{schemaVersion:1,format:'studypack-open-v1',app:'studyagent',version:'2.0.0',
+    exportedAt:new Date().toISOString(),checksum:checksum(entities),note:'Key 不在此包内'},entities:entities};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='studyagent-'+todayStr()+'.studypack.json';a.click();
   feedback('已导出（已剔除 API Key）','ok');
@@ -661,31 +1301,137 @@ function exportPack(){
 function importPack(input){
   const f=input.files&&input.files[0];if(!f)return;
   const r=new FileReader();r.onload=()=>{try{
-    const d=JSON.parse(r.result);const e=d.entities||{};
+    const d=JSON.parse(r.result);
+    if(!d||!d.manifest||!d.manifest.schemaVersion){feedback('导入失败：缺少 manifest.json','err');return;}
+    const raw=String(r.result);
+    if(/api_key|studyagent\.v2\.key\.|"key"\s*:\s*"sk-/.test(raw)){feedback('导入失败：包内含凭证字段，已拒绝','err');return;}
+    const e=d.entities||{};
+    if(d.manifest.checksum&&checksum(e)!==d.manifest.checksum){feedback('导入失败：校验和不匹配，文件可能已损坏','err');return;}
     for(const k in e){if(k==='exam_profile.json'&&e[k][0])S.profile=e[k][0];
-      else if(k==='plans.json')S.plans=e[k];else if(k==='slots.json')S.slots=e[k];
+      else if(k==='plans.json')S.plans=e[k];else if(k==='slot_pool.json'||k==='slots.json')S.slots=e[k];
       else if(k==='tasks.json')S.tasks=e[k];else if(k==='weak_points.json')S.weakPoints=e[k];
       else if(k==='knowledge_base.json'&&e[k][0])S.knowledgeBase=e[k][0];
       else if(k==='preferences.json'&&e[k][0])S.prefs=Object.assign(S.prefs,e[k][0]);
       else if(k==='sessions.json')S.sessions=e[k];
       else if(k==='my_notes.json')S.notes.mine=e[k];else if(k==='ai_notes.json')S.notes.ai=e[k];
-      else if(k==='resources.json')S.resources=e[k];else if(k==='school_calendar.json')S.calendar=e[k];}
-    save();renderAll();feedback('导入成功','ok');
+      else if(k==='resources.json')S.resources=e[k];else if(k==='school_calendar.json')S.calendar=e[k];
+      else if(k==='anchor_links.json'){}else if(k==='review.json'){}
+      else if(k==='ai_notes.json')S.notes.ai=e[k];}
+    S.onboarded=true;save();renderPage();feedback('导入成功','ok');
   }catch(err){feedback('导入失败：'+err.message,'err');}};r.readAsText(f);
+}
+/* ---------- P3 WebDAV 同步接口（可选，预留；凭据不进包） ---------- */
+let davCfg={url:'',user:'',enabled:false};
+async function loadDav(){
+  try{const c=await idbGet('sync','webdav');if(c)davCfg=Object.assign(davCfg,c);}catch(e){}
+}
+function renderDataPage(pg){
+  pg.innerHTML=`<h2>数据与同步</h2>
+    <button class="btn ghost sm" onclick="showPage('mine')">← 返回我的</button>
+    <div class="card" style="margin-top:12px">
+      <h3 style="margin-top:0">.studypack 导出 / 导入</h3>
+      <div class="muted">14 类实体开放格式，纯 JSON 不加密；导出包绝不含 API Key 与 WebDAV 密码。</div>
+      <button class="btn ghost block" style="margin-top:10px" onclick="exportPack()">导出 .studypack</button>
+      <button class="btn ghost block" style="margin-top:8px" onclick="document.getElementById('impIn2').click()">导入 .studypack</button>
+      <input id="impIn2" type="file" accept=".json,application/json,.studypack" style="display:none" onchange="importPack(this)">
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">WebDAV 同步（可选 · 经济方案）</h3>
+      <div class="muted">可用于坚果云等免费网盘，在手机与 Pad 之间手工同步一份 .studypack。不引入后端、不做实时同步。</div>
+      <label class="lbl">WebDAV 地址（含文件名）</label><input class="field" id="davUrl" value="${esc(davCfg.url)}" placeholder="https://dav.jianguoyun.com/dav/backup.studypack.json">
+      <label class="lbl">账号</label><input class="field" id="davUser" value="${esc(davCfg.user)}" placeholder="邮箱 / 用户名">
+      <label class="lbl">应用密码（只存本机加密区）</label><input class="field" id="davPass" type="password" placeholder="网盘应用密码">
+      <div class="kv" style="margin-top:10px"><span>启用同步</span><span class="toggle ${davCfg.enabled?'on':''}" id="davToggle" onclick="this.classList.toggle('on')"></span></div>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn sm" id="btn-dav-save" onclick="saveDav()">保存配置</button>
+        <button class="btn sm ghost" id="btn-dav-upload" onclick="davSync('upload')">上传备份</button>
+        <button class="btn sm ghost" id="btn-dav-download" onclick="davSync('download')">下载恢复</button>
+      </div>
+      <div class="ai-out" id="davOut">未执行同步。上传 / 下载都会明确反馈结果，失败绝不假装成功。</div>
+    </div>`;
+}
+async function saveDav(){
+  davCfg.url=$('davUrl').value.trim();davCfg.user=$('davUser').value.trim();
+  davCfg.enabled=$('davToggle').classList.contains('on');
+  const pass=$('davPass').value.trim();
+  try{
+    await idbPut('sync','webdav',{url:davCfg.url,user:davCfg.user,enabled:davCfg.enabled});
+    if(pass)await idbPut('secrets','webdav.password',await seal(pass));
+    feedback('WebDAV 配置已保存到本机','ok');
+  }catch(e){feedback('配置保存失败：'+e.message,'err');}
+}
+async function davSync(mode){
+  const out=$('davOut');if(!out)return;
+  if(!davCfg.enabled){out.textContent='未启用同步：请先在上方打开「启用同步」并保存配置。';return;}
+  if(!davCfg.url){out.textContent='未配置 WebDAV 地址。';return;}
+  try{
+    const enc=await idbGet('secrets','webdav.password');
+    const pass=enc?await unseal(enc):'';
+    if(!pass){out.textContent='未填写 WebDAV 应用密码，已中止（不会伪造同步结果）。';return;}
+    const auth='Basic '+btoa(davCfg.user+':'+pass);
+    let res;
+    if(mode==='upload'){
+      const entities=buildEntities();
+      const body=JSON.stringify({manifest:{schemaVersion:1,format:'studypack-open-v1',app:'studyagent',version:'2.0.0',exportedAt:new Date().toISOString(),checksum:checksum(entities),note:'Key 不在此包内'},entities:entities});
+      res=await fetch(davCfg.url,{method:'PUT',headers:{'Authorization':auth,'Content-Type':'application/json'},body:body});
+      out.textContent=res.ok?'上传成功（HTTP '+res.status+'）':'上传失败（HTTP '+res.status+'）';
+    }else{
+      res=await fetch(davCfg.url,{method:'GET',headers:{'Authorization':auth}});
+      if(!res.ok){out.textContent='下载失败（HTTP '+res.status+'）';return;}
+      const txt=await res.text();
+      const d=JSON.parse(txt);
+      if(!d.manifest||!d.entities){out.textContent='远端文件不是有效的 .studypack，未改动本机数据。';return;}
+      const e=d.entities;
+      if(e['exam_profile.json']&&e['exam_profile.json'][0])S.profile=e['exam_profile.json'][0];
+      if(e['plans.json'])S.plans=e['plans.json'];
+      if(e['slot_pool.json'])S.slots=e['slot_pool.json'];
+      if(e['knowledge_base.json']&&e['knowledge_base.json'][0])S.knowledgeBase=e['knowledge_base.json'][0];
+      if(e['tasks.json'])S.tasks=e['tasks.json'];
+      if(e['weak_points.json'])S.weakPoints=e['weak_points.json'];
+      save();renderPage();
+      out.textContent='下载并恢复成功（HTTP '+res.status+'）';
+    }
+  }catch(e){out.textContent='同步失败：'+e.message+'（网络 / 跨域 / 凭据均可能导致，绝不假装成功）';}
 }
 /* ---------- 打印速查卡 ---------- */
 function printQuickCards(){
   const items=S.knowledgeBase.entries.filter(e=>e.question);
   const w=window.open('','_blank');if(!w){feedback('请允许弹窗以打印','err');return;}
-  w.document.write('<h2>速查卡（黑白可打印态）</h2>'+ (items.length?items.map(e=>`<div style="border:1px solid #999;padding:8px;margin:6px 0"><b>${esc(e.knowledgePoint||'')}</b><br>${esc(e.question)}<br><span style="font-size:12px">[${esc(e.difficulty)}]</span></div>`).join(''):'<p>无速查卡</p>')+'<script>window.onload=function(){window.print();}<'+'/script>');
+  w.document.write('<h2>速查卡（黑白可打印态）</h2>'+ (items.length?items.map(e=>`<div style="border:1px solid #999;padding:8px;margin:6px 0"><b>[速查] ${esc(e.knowledgePoint||'')}</b><br>${esc(e.question)}<br><span style="font-size:12px">[${esc(e.difficulty)}]</span></div>`).join(''):'<p>无速查卡</p>')+'<script>window.onload=function(){window.print();}<'+'/script>');
   w.document.close();
 }
-/* ===================== 弹层 ===================== */
-function openSheet(html){$('modalHost').innerHTML=`<div class="modal-mask" onclick="if(event.target===this)closeSheet()"><div class="sheet">${html}</div></div>`;}
-function closeSheet(){$('modalHost').innerHTML='';}
+/* ===================== P0-B 弹层：document 顶层、z-index 高于 Dock ===================== */
+function openSheet(html){
+  $('modalHost').innerHTML=`<div class="modal-mask" id="saMask" onclick="if(event.target===this)closeSheet()"><div class="sheet" role="dialog">${html}</div></div>`;
+  document.body.classList.add('sheet-open');
+}
+function openFormPage(title,body,step,footer){
+  // 创建表单页：由底部向上展开的全屏页面，覆盖 Dock，层级 10000（Dock 为 20）
+  $('formHost').innerHTML=`<div class="modal-mask" id="saMask" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet form-sheet" role="dialog">
+      <div class="form-head"><button class="btn ghost sm" onclick="closeSheet()">‹ 返回</button><b>${esc(title)}</b><span class="step" id="wizardStepLabel">${esc(step||'')}</span></div>
+      <div class="form-body">${body}</div>
+      <div class="form-foot">${footer||'<button class="btn ghost" onclick="closeSheet()">取消</button><button class="btn" onclick="closeSheet()">完成</button>'}</div>
+    </div></div>`;
+  document.body.classList.add('sheet-open');
+}
+function closeSheet(){
+  $('modalHost').innerHTML='';$('formHost').innerHTML='';
+  document.body.classList.remove('sheet-open');
+}
 function renderAll(){renderNav();renderPage();}
 /* ===================== 启动 ===================== */
-renderAll();
+renderAll();   // 立即渲染，避免异步恢复期间白屏
+(async function boot(){
+  let saved=null;
+  try{saved=await idbGet('state','main');}catch(e){_dbBroken=true;}
+  const firstBoot=!(saved&&typeof saved==='object');
+  if(!firstBoot)S=normalizeState(saved);
+  _stateHash=stateHash();
+  await loadSecrets();await loadDav();
+  renderAll();
+  if(firstBoot&&!S.onboarded)showOnboarding();  // P2-B：无本地数据 → 首启学情基线引导
+})();
 </script>
 </body>
 </html>

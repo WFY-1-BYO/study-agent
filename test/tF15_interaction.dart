@@ -6,6 +6,7 @@
 /// AI 失败链路 / 无静默操作 / 三档视口）纳入全量回归，并对交付件做静态契约断言。
 ///
 /// 单独运行：dart test/tF15_interaction.dart
+import 'dart:convert';
 import 'dart:io';
 
 import 'framework.dart';
@@ -181,7 +182,10 @@ void runF15(Harness h) {
   // -------------------------------------------------------------- 验收⑤ 真实点击验收纳入全量门禁（CDP 实测）
   h.group('F15 验收⑤ 真实点击验收纳入全量门禁（CDP 实测）', () {
     h.test('node tools/interaction_check.mjs 返回 ALL_GREEN', () {
-      final r = Process.runSync('node', <String>['tools/interaction_check.mjs']);
+      // 显式 UTF-8 解码子进程输出：Windows 默认系统编码会把中文结论变成乱码，
+      // 导致「ALL_GREEN 真实交互验收通过」匹配失败（断言本身不变、不放宽）。
+      final r = Process.runSync('node', <String>['tools/interaction_check.mjs'],
+          stdoutEncoding: utf8, stderrEncoding: utf8);
       final out = '${r.stdout}${r.stderr}';
       stdout.writeln(out
           .split('\n')

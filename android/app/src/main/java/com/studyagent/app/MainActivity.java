@@ -34,6 +34,8 @@ public class MainActivity extends Activity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
+        // v2.1.0：业务数据以 IndexedDB 为真源，显式开启 WebView 本地数据库能力。
+        settings.setDatabaseEnabled(true);
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(true);
         settings.setSupportZoom(false);

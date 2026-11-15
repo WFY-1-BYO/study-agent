@@ -12,7 +12,9 @@ import { join } from 'node:path';
 const port = 9334;
 const userDataDir = mkdtempSync(join(tmpdir(), 'cdp-interact-'));
 const url = 'file://' + process.cwd() + '/web/index.html';
-const chrome = spawn('chromium', [
+// 浏览器可执行文件路径可通过 SA_BROWSER 指定（仅环境适配，不影响任何断言）。
+// 未设置时仍用 'chromium'，与 CI 环境保持一致。
+const chrome = spawn(process.env.SA_BROWSER || 'chromium', [
   '--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
   '--no-first-run', '--no-default-browser-check',
   `--remote-debugging-port=${port}`, `--user-data-dir=${userDataDir}`, 'about:blank',
