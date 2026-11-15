@@ -17,7 +17,7 @@
 
 - **全量回归**：18 个功能测试文件、**494 用例全绿**（含 tF15 交互门禁，F16 知识库 / F17 多模型为新增）。
 - **真实交互验收**：`tools/interaction_check.mjs` 用 CDP 在浏览器里真实点击 / 输入 / 上传 / 勾选，**42 条断言全绿、零静默操作**。详见 [docs/交互验收报告.pdf](docs/交互验收报告.pdf)。
-- **正式发布页**：[GitHub Release `v2.0.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v2.0.0)。[`v0.2.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v0.2.0) / [`v0.1.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v0.1.0) 保留为历史版本。
+- **正式发布页**：[GitHub Release `v2.1.0`（含可安装 APK 附件）](https://github.com/WFY-1-BYO/study-agent/releases/tag/v2.1.0)。[`v2.0.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v2.0.0) / [`v0.2.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v0.2.0) / [`v0.1.0`](https://github.com/WFY-1-BYO/study-agent/releases/tag/v0.1.0) 保留为历史版本。
 - **建设蓝图**：[docs/产品需求文档_PRD.pdf](docs/产品需求文档_PRD.pdf) · v2.0 · 26 页 A4（§1–§13 第一版地基 + **§14 2.x 增量建设蓝图**）。
 
 主用设备：**vivo S7**（6.44" / 2400×1080 / 20:9 / 408ppi / 60Hz / Android 10）＋ **联想拯救者 Y900 13 英寸**（TB522FU / 约 3840×2560 / 144Hz / Android 16）。
