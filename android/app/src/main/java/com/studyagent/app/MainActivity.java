@@ -48,6 +48,10 @@ public class MainActivity extends Activity {
         // 注册 AI 原生通道；页面内 window.StudyAgentNative 即指向该对象。
         webView.addJavascriptInterface(new AiBridge(webView), "StudyAgentNative");
 
+        // v2.3：注册提醒通道；页面内 window.StudyAgentReminder。
+        // 网页只负责算出「什么时候该提醒」，真正的闹钟与通知由这里排进系统。
+        webView.addJavascriptInterface(new ReminderBridge(this), "StudyAgentReminder");
+
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/index.html");
     }
