@@ -211,7 +211,7 @@ label.lbl{font-size:13px;color:var(--ink-2);display:block;margin-top:10px}
 #feedback.ok{background:rgba(46,125,91,.96)}
 /* P0-B：弹层固定在 document 顶层，z-index 远高于底部 Dock */
 #modalHost,#formHost,#onboardingHost{position:relative;z-index:auto}
-.modal-mask{position:fixed;inset:0;background:rgba(20,24,32,.48);display:flex;align-items:flex-end;
+.modal-mask{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(20,24,32,.48);display:flex;align-items:flex-end;
   justify-content:center;z-index:10000;padding:0}
 .sheet{background:var(--card);width:100%;max-width:720px;border-radius:20px 20px 0 0;
   padding:18px;max-height:88%;overflow-y:auto;overscroll-behavior:contain;
@@ -287,6 +287,36 @@ label.lbl{font-size:13px;color:var(--ink-2);display:block;margin-top:10px}
 
 <script>
 "use strict";
+/* ===================== v2.3.1 兼容层与故障自显 ===================== */
+/* 老版 Android WebView（Chromium 5x）缺少 padStart 等 API，一旦在某处抛错，
+   整页渲染就会中断，用户看到的现象正好是「只有底部导航能点，其它点哪儿都没反应」。
+   这里补齐缺失的 API，并把任何未捕获错误直接显示在屏幕上，不再静默白屏。 */
+(function(){
+  function pad(s,n,c,left){s=String(s);c=(c===undefined?' ':String(c));while(s.length<n){s=left?c+s:s+c;}return s;}
+  if(!String.prototype.padStart)String.prototype.padStart=function(n,c){return pad(this,n,c,true);};
+  if(!String.prototype.padEnd)String.prototype.padEnd=function(n,c){return pad(this,n,c,false);};
+  if(!Array.prototype.includes)Array.prototype.includes=function(x){for(var i=0;i<this.length;i++){if(this[i]===x)return true;}return false;};
+  if(!Array.prototype.find)Array.prototype.find=function(f){for(var i=0;i<this.length;i++){if(f(this[i],i,this))return this[i];}};
+  if(!Object.assign)Object.assign=function(t){for(var i=1;i<arguments.length;i++){var s=arguments[i];if(s){for(var k in s){if(Object.prototype.hasOwnProperty.call(s,k))t[k]=s[k];}}}return t;};
+})();
+function showFatal(e){
+  var msg=''+(e&&(e.message||e)||e);
+  try{
+    var bar=document.getElementById('saFatal');
+    if(!bar){
+      bar=document.createElement('div');bar.id='saFatal';
+      bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:2147483000;background:#C0392B;color:#fff;font:12px/1.45 monospace;padding:8px;white-space:pre-wrap;max-height:75%;overflow:auto';
+      document.body.appendChild(bar);
+    }
+    bar.textContent='页面出错，请截图发我\n'+msg+'\n'+navigator.userAgent;
+  }catch(_){}
+  try{document.documentElement.setAttribute('data-err',msg);}catch(_){}
+}
+window.onerror=function(m,s,l){showFatal(m+' @'+l);return false;};
+window.addEventListener('unhandledrejection',function(e){showFatal('Promise 未处理：'+(e.reason&&e.reason.message||e.reason));});
+var __saRenderPage=renderPage;
+renderPage=function(){try{__saRenderPage();}catch(e){showFatal(e);throw e;}};
+(function(){try{var b=document.querySelector('.brand');if(b){var s=document.createElement('span');s.textContent='v2.3.1';s.style.cssText='font-size:10px;font-weight:400;opacity:.5;margin-left:6px';b.appendChild(s);}}catch(e){}})();
 /* ===================== 常量与初始状态 ===================== */
 const KEY='studyagent.v2.state';
 const KP='studyagent.v2.key.';            // 凭证按 provider 单独存，导出时剔除
