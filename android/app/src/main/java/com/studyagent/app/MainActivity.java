@@ -28,6 +28,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // v2.3.1：打开 WebView 远程调试，方便出问题时用 chrome://inspect 直接看页面。
+        WebView.setWebContentsDebuggingEnabled(true);
+
         webView = new WebView(this);
         setContentView(webView);
 
