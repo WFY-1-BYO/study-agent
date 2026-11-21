@@ -615,7 +615,252 @@ function renderSidePanel(){
     <div class="side-kv"><span>知识库条目</span><b class="num">${nk}</b></div>${body}`;
 }
 
-/* ===================== 今日 ===================== */
+/* ===================== v2.3 任务与提醒 ===================== */
+/* 分工：本段负责「任务是什么、什么时候该提醒」；原生层只负责按时间点触发。 */
+
+function saNative(){
+  try{return window.StudyAgentReminder||null;}catch(e){return null;}
+}
+function saCall(fn,arg){
+  const b=saNative();if(!b||typeof b[fn]!=='function')return;
+  try{arg===undefined?b[fn]():b[fn](arg);}catch(e){}
+}
+function saStatus(){
+  const b=saNative();if(!b||typeof b.checkStatus!=='function')return null;
+  try{return JSON.parse(b.checkStatus());}catch(e){return null;}
+}
+
+/* --- 时间计算 --- */
+function taskTs(t){                       // 截止型取截止时刻，时段型取开始时刻
+  if(!t||!t.date||!t.timeHm)return null;
+  const d=new Date(t.date+'T'+t.timeHm+':00');
+  const v=d.getTime();
+  return isNaN(v)?null:v;
+}
+function fmtLeft(ms){
+  if(ms==null||isNaN(ms))return '';
+  const a=Math.abs(ms),m=Math.floor(a/60000),h=Math.floor(m/60),d=Math.floor(h/24);
+  let s;
+  if(d>0)s=d+' 天 '+(h%24)+' 小时';
+  else if(h>0)s=h+' 小时 '+(m%60)+' 分';
+  else s=m+' 分钟';
+  return (ms<0?'已逾期 ':'还有 ')+s;
+}
+function urgencyColor(ms){
+  if(ms==null)return 'var(--brand)';
+  if(ms<0)return 'var(--red)';
+  if(ms<6*3600e3)return 'var(--amber)';
+  return 'var(--green)';
+}
+function nextUpTask(list){
+  const now=Date.now();
+  const arr=list.map(t=>({t:t,ts:taskTs(t)})).filter(x=>x.ts!=null).sort((a,b)=>a.ts-b.ts);
+  if(!arr.length)return null;
+  const future=arr.filter(x=>x.ts>=now);
+  return (future[0]||arr[arr.length-1]).t;
+}
+
+/* --- 提醒清单：把每个任务展开成一串触发点 --- */
+function reminderBody(t){
+  return (t.type==='block'?'开始 ':'截止 ')+(t.date||'')+' '+(t.timeHm||'')+
+         (t.estMinutes?(' · 预计 '+t.estMinutes+' 分钟'):'');
+}
+function reminderItemsFor(t){
+  const base=taskTs(t);
+  if(base==null||t.done)return [];
+  const out=[];
+  const mode=t.reminderMode||S.prefs.reminderMode||'sound';
+  const now=Date.now();
+  const push=(at,level,full)=>{
+    if(at<=now)return;
+    out.push({taskId:t.id,title:t.name,body:reminderBody(t),
+              triggerAt:at,level:level,mode:mode,fullScreen:!!full});
+  };
+  if(t.type==='block'){
+    const lead=(t.leadMinutes!=null?t.leadMinutes:15)*60000;
+    push(base-lead,'normal',false);
+    push(base,'strong',false);
+    if(t.estMinutes)push(base+t.estMinutes*60000,'normal',false);
+  }else{
+    push(base-24*3600e3,'normal',false);      // 提前一天
+    push(base-3*3600e3,'strong',false);       // 提前三小时
+    push(base-30*60e3,'alarm',false);         // 提前三十分钟，闹钟级
+    push(base,t.remindLevel==='normal'?'strong':(t.remindLevel||'alarm'),(t.remindLevel||'alarm')==='alarm');
+    push(base+4*3600e3,'strong',false);       // 逾期追踪
+    push(base+24*3600e3,'strong',false);
+  }
+  return out;
+}
+function buildReminderPayload(){
+  const items=[];
+  S.tasks.filter(t=>!t.done).forEach(t=>{items.push.apply(items,reminderItemsFor(t));});
+  return {items:items};
+}
+function syncReminders(){
+  const b=saNative();
+  if(!b||typeof b.syncReminders!=='function')return;
+  try{b.syncReminders(JSON.stringify(buildReminderPayload()));}catch(e){}
+}
+function applyNativeEvents(){
+  const b=saNative();
+  if(!b||typeof b.drainEvents!=='function')return;
+  let changed=false;
+  try{
+    const ev=JSON.parse(b.drainEvents()||'[]');
+    ev.forEach(function(e){
+      const t=S.tasks.find(x=>x.id===e.taskId);
+      if(!t)return;
+      if(e.type==='done'&&!t.done){t.done=true;t.doneAt=e.at;changed=true;}
+      if(e.type==='snooze'){t.snoozedAt=e.at;changed=true;}
+    });
+  }catch(e){}
+  if(changed){save();renderPage();}
+}
+
+/* --- 权限体检条：提醒最容易「静默失效」，必须显式提示 --- */
+function saHealthBanner(){
+  const st=saStatus();
+  if(!st)return '';
+  const issues=[];
+  if(st.notifications===false)issues.push(['通知权限已关闭，所有提醒都不会出现','requestNotificationPermission','去开启']);
+  if(st.exactAlarm===false)issues.push(['精确闹钟未授权，提醒可能晚几分钟到几十分钟','openExactAlarmSettings','去授权']);
+  if(st.battery===false)issues.push(['电池优化未关闭，系统可能在后台杀掉提醒','openBatterySettings','去设置']);
+  if(!issues.length)return '';
+  return '<div class="card" style="border-left:4px solid var(--red)">'+
+    '<b>提醒可能不响</b>'+
+    issues.map(x=>'<div class="row between" style="margin-top:8px;gap:8px">'+
+      '<span class="muted" style="flex:1">'+esc(x[0])+'</span>'+
+      '<button class="btn sm" onclick="saCall(\''+x[1]+'\')">'+x[2]+'</button></div>').join('')+
+    '</div>';
+}
+
+/* --- 任务卡片与增删改 --- */
+function nowCard(t){
+  const ts=taskTs(t),left=ts==null?null:ts-Date.now(),color=urgencyColor(left);
+  return '<div class="card" style="border-left:4px solid '+color+'">'+
+    '<div class="muted">现在最该做</div>'+
+    '<h2 style="margin:6px 0">'+esc(t.name)+'</h2>'+
+    (left==null?'':'<div class="num" style="font-size:20px;color:'+color+'">'+fmtLeft(left)+'</div>')+
+    '<div class="muted" style="margin-top:6px">'+esc(reminderBody(t))+'</div>'+
+    '<div class="row" style="gap:8px;margin-top:14px">'+
+      '<button class="btn sm" onclick="completeTask(\''+t.id+'\')">完成</button>'+
+      '<button class="btn sm ghost" onclick="openTaskEditor(\''+t.id+'\')">修改</button>'+
+    '</div></div>';
+}
+function taskRow(t){
+  const ts=taskTs(t),left=ts==null?null:ts-Date.now();
+  const late=left!=null&&left<0;
+  return '<div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(31,36,43,.07)">'+
+    '<div class="t num" style="flex:none;width:52px;font-variant-numeric:tabular-nums">'+esc(t.timeHm||'--:--')+'</div>'+
+    '<div style="flex:1;min-width:0">'+
+      '<div><b>'+esc(t.name)+'</b></div>'+
+      '<div class="muted" style="font-size:12px;margin-top:2px">'+
+        (t.type==='block'?'时段':'截止')+' · '+esc(t.date||'')+
+        (left==null?'':' · <span class="num" style="color:'+(late?'var(--red)':'inherit')+'">'+fmtLeft(left)+'</span>')+
+      '</div>'+
+    '</div>'+
+    '<button class="btn ghost sm" style="flex:none" onclick="completeTask(\''+t.id+'\')">完成</button>'+
+  '</div>';
+}
+function openTaskEditor(id){
+  const t=id?S.tasks.find(x=>x.id===id):null;
+  const v=t||{name:'',type:'deadline',date:todayStr(),timeHm:'23:59',estMinutes:60,
+              remindLevel:'strong',reminderMode:S.prefs.reminderMode||'sound'};
+  openFormPage(t?'修改任务':'新建任务',
+    '<label class="lbl">要做的事</label>'+
+    '<input class="field" id="tkName" value="'+esc(v.name)+'" placeholder="例如：周四交 PPT / 复习基本不等式">'+
+    '<label class="lbl">类型</label>'+
+    '<select class="field" id="tkType" onchange="tkTypeChanged()">'+
+      '<option value="deadline"'+(v.type==='deadline'?' selected':'')+'>截止型（有死线，没有固定开始）</option>'+
+      '<option value="block"'+(v.type==='block'?' selected':'')+'>时段型（到点开始做）</option>'+
+    '</select>'+
+    '<label class="lbl">日期</label>'+
+    '<input class="field" id="tkDate" type="date" value="'+esc(v.date||'')+'">'+
+    '<label class="lbl" id="tkTimeLbl">'+(v.type==='block'?'开始时间':'截止时间')+'</label>'+
+    '<input class="field" id="tkTime" type="time" value="'+esc(v.timeHm||'')+'">'+
+    '<label class="lbl">预计要多久（分钟）</label>'+
+    '<input class="field" id="tkEst" type="number" min="5" step="5" value="'+(v.estMinutes||60)+'">'+
+    '<label class="lbl">提醒强度</label>'+
+    '<select class="field" id="tkLevel">'+
+      '<option value="normal"'+(v.remindLevel==='normal'?' selected':'')+'>普通通知</option>'+
+      '<option value="strong"'+(v.remindLevel==='strong'?' selected':'')+'>强提醒（不点不消失）</option>'+
+      '<option value="alarm"'+(v.remindLevel==='alarm'?' selected':'')+'>闹钟级（响铃 + 全屏）</option>'+
+    '</select>'+
+    '<label class="lbl">提醒方式</label>'+
+    '<select class="field" id="tkMode">'+
+      '<option value="sound"'+(v.reminderMode==='sound'?' selected':'')+'>声音</option>'+
+      '<option value="vibration"'+(v.reminderMode==='vibration'?' selected':'')+'>振动</option>'+
+      '<option value="none"'+(v.reminderMode==='none'?' selected':'')+'>无</option>'+
+    '</select>','',
+    '<button class="btn ghost" onclick="closeSheet()">取消</button>'+
+    '<button class="btn" onclick="saveTask(\''+(t?t.id:'')+'\')">保存</button>');
+}
+function tkTypeChanged(){
+  const el=$('tkTimeLbl');
+  if(el&&$('tkType'))el.textContent=$('tkType').value==='block'?'开始时间':'截止时间';
+}
+function saveTask(id){
+  const name=($('tkName').value||'').trim();
+  if(!name){feedback('请填写要做的事','err');return;}
+  const date=$('tkDate').value,time=$('tkTime').value;
+  if(!date||!time){feedback('请填写日期和时间','err');return;}
+  const patch={name:name,type:$('tkType').value,date:date,timeHm:time,
+               estMinutes:parseInt($('tkEst').value,10)||60,
+               remindLevel:$('tkLevel').value,reminderMode:$('tkMode').value,
+               done:false,updatedAt:Date.now()};
+  if(id){
+    const t=S.tasks.find(x=>x.id===id);
+    if(t)Object.assign(t,patch);
+    else S.tasks.push(Object.assign({id:uid('task')},patch));
+  }else{
+    S.tasks.push(Object.assign({id:uid('task')},patch));
+  }
+  save();syncReminders();closeSheet();renderPage();
+  feedback(id?'任务已更新':'已记下，到点会提醒你','ok');
+}
+function completeTask(id){
+  const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=true;t.doneAt=Date.now();
+  save();syncReminders();renderPage();feedback('已完成','ok');
+}
+
+/* --- 今日页（v2.3 重写：首屏直接回答「现在该做什么」） --- */
+function renderTodayV3(pg){
+  const np=S.plans.filter(p=>p.status!=='achieved').length;
+  const today=todayStr();
+  const todaysSlots=S.slots.filter(s=>s.date===today);
+  const open=S.tasks.filter(t=>!t.done);
+  const next=nextUpTask(open);
+  const strip=todaysSlots.length?'<div class="slot-strip">'+todaysSlots.map(s=>
+    '<span class="sp">'+minToHm(s.startMin)+'–'+minToHm(s.endMin)+' · '+(s.endMin-s.startMin)+'min</span>').join('')+'</div>'
+    :'<div class="muted">今日暂无空闲时段，可在「日历」里自定义添加。</div>';
+  pg.innerHTML='<h2>今日</h2>'+
+    saHealthBanner()+
+    (next?nowCard(next):
+      '<div class="card"><div class="muted">现在最该做</div>'+
+      '<h2 style="margin:6px 0">今天没有硬性任务</h2>'+
+      '<div class="muted">可以复习一下薄弱点，或者点右下角「＋」记一件新的事。</div></div>')+
+    '<div class="card">'+
+      '<div class="row between"><b>待办</b><button class="btn sm" onclick="openTaskEditor()">＋ 新建</button></div>'+
+      '<div class="muted" style="margin:4px 0 10px;font-size:12px">'+open.length+' 项未完成 · '+np+' 个进行中规划</div>'+
+      (open.length?open.map(taskRow).join(''):
+        '<div class="empty">还没有任务。点右下角「＋」记一件要做的事。</div>')+
+    '</div>'+
+    '<div class="card"><h3>今日空闲时段</h3><div class="timeline">'+
+      (todaysSlots.map(s=>'<div class="tl-item free"><div class="t num">'+minToHm(s.startMin)+'–'+minToHm(s.endMin)+'</div>'+
+        '<div>可学习空闲时段 · '+(s.endMin-s.startMin)+' 分钟</div></div>').join(''))+
+      '</div>'+strip+'</div>'+
+    '<div class="card"><h3>快速开始</h3>'+
+      '<button class="btn block" onclick="showPage(\'plan\')">＋ 新建学习规划</button>'+
+      '<button class="btn ghost block" style="margin-top:8px" onclick="showPage(\'kb\')">打开知识库</button>'+
+    '</div>'+
+    '<button class="fab" onclick="openTaskEditor()" title="新建任务">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'+
+    '</button>';
+}
+
+
 function renderToday(pg){
   const np=S.plans.filter(p=>p.status!=='achieved').length;
   const nt=S.tasks.length;
@@ -648,6 +893,8 @@ function renderToday(pg){
       <button class="btn ghost block" style="margin-top:8px" onclick="showPage('kb')">打开知识库</button>
     </div>`;
 }
+/* v2.3：用新版今日页替换旧版（旧函数保留在原地，便于对照与回退） */
+renderToday = renderTodayV3;
 /* ---------- 规划 ---------- */
 function renderPlan(pg){
   pg.innerHTML=`<h2>规划</h2>
@@ -1458,6 +1705,17 @@ renderAll();   // 立即渲染，避免异步恢复期间白屏
   renderAll();
   if(firstBoot&&!S.onboarded)showOnboarding();  // P2-B：无本地数据 → 首启学情基线引导
 })();
+
+/* v2.3：把任务里的触发点同步给原生闹钟；并把通知栏上「完成 / 稍后」的结果取回来。 */
+setTimeout(function(){
+  try{applyNativeEvents();}catch(e){}
+  try{syncReminders();}catch(e){}
+},600);
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;
+  try{applyNativeEvents();}catch(e){}
+  try{syncReminders();}catch(e){}
+});
 </script>
 </body>
 </html>
